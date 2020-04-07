@@ -24,6 +24,8 @@ class _HomeState extends State<Home> {
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
+        selectedItemColor: Colors.black38,
+        unselectedItemColor: Colors.black12,
         onTap: onTabTapped,
         currentIndex: _currentIndex,
         items: [
