@@ -12,8 +12,9 @@ class TripList extends StatefulWidget {
 class _TripListState extends State<TripList> {
 
   List<Trip> trips = [
-    Trip(name: "Mon voyage", picturePath: "./assets/images/trip-default.png"),
-    Trip(name: "Mon autre voyage", picturePath: "./assets/images/trip-default.png"),
+    Trip(name: "Mon voyage", picturePath: ""),
+    Trip(name: "Mon autre voyage", picturePath: ""),
+    Trip(name: "Mon ancien voyage", picturePath: ""),
   ];
 
   Widget tripCard(Trip) {
@@ -66,7 +67,7 @@ class _TripListState extends State<TripList> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: Column(
+        child: ListView(
           children: <Widget>[
             Column(
                 children: trips.map((trip) {
