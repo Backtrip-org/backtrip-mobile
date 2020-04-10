@@ -12,43 +12,50 @@ class TripList extends StatefulWidget {
 class _TripListState extends State<TripList> {
 
   List<Trip> trips = [
-    Trip(name: "Mon voyage", picturePath: "img/test.png"),
-    Trip(name: "Mon autre voyage", picturePath: "img/test.png"),
+    Trip(name: "Mon voyage", picturePath: "./assets/images/trip-default.png"),
+    Trip(name: "Mon autre voyage", picturePath: "./assets/images/trip-default.png"),
   ];
 
   Widget tripCard(Trip) {
     return Padding(
       padding: const EdgeInsets.all(5.0),
       child: Card(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Row(
-            children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Container(
-                    width: 50.0,
-                    height: 50.0,
-                    decoration: new BoxDecoration(
-                        shape: BoxShape.circle,
-                        image: new DecorationImage(
-                            fit: BoxFit.cover,
-                            image: AssetImage("assets/images/trip-default.png")
-                        )
-                    )),
-              ),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: <Widget>[
-                  Text(Trip.name,
-                    style: TextStyle (
-                        fontSize: 18
+        child: Column(
+          children: [
+            Image.asset(
+                "assets/images/trip-default.png",
+                width: 600,
+                height: 200,
+                fit: BoxFit.cover
+            ),
+            Container(
+              padding: const EdgeInsets.all(32),
+              child: Row(
+                children: [
+                  Expanded(
+                    /*1*/
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        /*2*/
+                        Container(
+                          padding: const EdgeInsets.only(bottom: 8),
+                          child: Text(
+                            Trip.name,
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 20
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
-                  )
+                  ),
+                  /*3*/
                 ],
-              )
-            ],
-          ),
+              ),
+            )
+          ],
         ),
       ),
     );
