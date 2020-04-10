@@ -1,4 +1,5 @@
 import 'package:backtrip/temp_widget.dart';
+import 'package:backtrip/trip_list_widget.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
@@ -11,7 +12,7 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   int _currentIndex = 0;
   final List<Widget> _children = [
-    PlaceholderWidget(Colors.white),
+    TripList(),
     PlaceholderWidget(Colors.deepOrange),
     PlaceholderWidget(Colors.green),
     PlaceholderWidget(Colors.blue)
