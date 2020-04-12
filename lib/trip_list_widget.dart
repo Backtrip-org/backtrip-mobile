@@ -1,3 +1,6 @@
+import 'dart:core';
+
+import 'package:backtrip/service/user_service.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -10,12 +13,13 @@ class TripList extends StatefulWidget {
 }
 
 class _TripListState extends State<TripList> {
+  Future<List<Trip>> futureTrips;
 
-  List<Trip> trips = [
-    Trip(name: "Mon voyage", picturePath: ""),
-    Trip(name: "Mon autre voyage", picturePath: ""),
-    Trip(name: "Mon ancien voyage", picturePath: ""),
-  ];
+  @override
+  void initState() {
+    super.initState();
+    futureTrips = UserService.getTrips(1); // TODO: Retrieve user id dynamically
+  }
 
   Widget tripCard(Trip) {
     return Padding(
@@ -24,7 +28,7 @@ class _TripListState extends State<TripList> {
         child: Column(
           children: [
             Image.asset(
-                "assets/images/trip-default.png",
+                Trip.picturePath?.isEmpty ?? "assets/images/trip-default.png",
                 width: 600,
                 height: 200,
                 fit: BoxFit.cover
@@ -67,15 +71,26 @@ class _TripListState extends State<TripList> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: ListView(
-          children: <Widget>[
-            Column(
-                children: trips.map((trip) {
-                  return tripCard(trip);
-                }).toList()
-            )
-          ],
-        ),
+        child: FutureBuilder<List<Trip>>(
+          future: futureTrips,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return ListView(
+                children: <Widget>[
+                  Column(
+                      children: snapshot.data.map((trip) {
+                        return tripCard(trip);
+                      }).toList()
+                  )
+                ],
+              );
+            } else if (snapshot.hasError) {
+              return Text("${snapshot.error}");
+            }
+            return Center(
+                child: CircularProgressIndicator());
+          }
+        )
       ),
     );
   }
