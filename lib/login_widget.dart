@@ -1,16 +1,16 @@
 import 'package:backtrip/service/login_service.dart';
 import 'package:flutter/material.dart';
 
-class Login extends StatefulWidget {
-  Login({Key key, this.title}) : super(key: key);
+class LoginWidget extends StatefulWidget {
+  LoginWidget({Key key, this.title}) : super(key: key);
 
   final String title;
 
   @override
-  _LoginState createState() => _LoginState();
+  _LoginWidgetState createState() => _LoginWidgetState();
 }
 
-class _LoginState extends State<Login> {
+class _LoginWidgetState extends State<LoginWidget> {
   final loginController = TextEditingController();
   final passwordController = TextEditingController();
 
@@ -50,8 +50,8 @@ class _LoginState extends State<Login> {
       width: MediaQuery.of(context).size.width,
       child: RaisedButton(
         onPressed: () {
-          LoginService.login(
-              loginController.text.trim(), passwordController.text.trim(), scaffoldContext);
+          LoginService.login(loginController.text.trim(),
+              passwordController.text.trim(), scaffoldContext);
         },
         padding: EdgeInsets.symmetric(vertical: 15),
         color: Color(0xff243949),

@@ -1,13 +1,13 @@
 import 'dart:core';
 
 import 'package:backtrip/service/user_service.dart';
+import 'package:backtrip/util/backtrip_api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import 'model/trip.dart';
 
 class TripList extends StatefulWidget {
-
   @override
   _TripListState createState() => _TripListState();
 }
@@ -18,7 +18,7 @@ class _TripListState extends State<TripList> {
   @override
   void initState() {
     super.initState();
-    futureTrips = UserService.getTrips(1); // TODO: Retrieve user id dynamically
+    futureTrips = UserService.getTrips(BacktripApi.currentUser.id);
   }
 
   Widget tripCard(Trip) {
@@ -31,8 +31,7 @@ class _TripListState extends State<TripList> {
                 Trip.picturePath?.isEmpty ?? "assets/images/trip-default.png",
                 width: 600,
                 height: 200,
-                fit: BoxFit.cover
-            ),
+                fit: BoxFit.cover),
             Container(
               padding: const EdgeInsets.all(32),
               child: Row(
@@ -48,9 +47,7 @@ class _TripListState extends State<TripList> {
                           child: Text(
                             Trip.name,
                             style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 20
-                            ),
+                                fontWeight: FontWeight.bold, fontSize: 20),
                           ),
                         ),
                       ],
@@ -70,28 +67,24 @@ class _TripListState extends State<TripList> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Padding(
-        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-        child: FutureBuilder<List<Trip>>(
-          future: futureTrips,
-          builder: (context, snapshot) {
-            if (snapshot.hasData) {
-              return ListView(
-                children: <Widget>[
-                  Column(
-                      children: snapshot.data.map((trip) {
+          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+          child: FutureBuilder<List<Trip>>(
+              future: futureTrips,
+              builder: (context, snapshot) {
+                if (snapshot.hasData) {
+                  return ListView(
+                    children: <Widget>[
+                      Column(
+                          children: snapshot.data.map((trip) {
                         return tripCard(trip);
-                      }).toList()
-                  )
-                ],
-              );
-            } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
-            }
-            return Center(
-                child: CircularProgressIndicator());
-          }
-        )
-      ),
+                      }).toList())
+                    ],
+                  );
+                } else if (snapshot.hasError) {
+                  return Text("${snapshot.error}");
+                }
+                return Center(child: CircularProgressIndicator());
+              })),
     );
   }
 }
