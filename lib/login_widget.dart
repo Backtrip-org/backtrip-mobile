@@ -45,13 +45,13 @@ class _LoginState extends State<Login> {
     );
   }
 
-  Widget _submitButton() {
+  Widget _submitButton(scaffoldContext) {
     return Container(
       width: MediaQuery.of(context).size.width,
       child: RaisedButton(
         onPressed: () {
           LoginService.login(
-              loginController.text.trim(), passwordController.text.trim());
+              loginController.text.trim(), passwordController.text.trim(), scaffoldContext);
         },
         padding: EdgeInsets.symmetric(vertical: 15),
         color: Color(0xff243949),
@@ -98,7 +98,9 @@ class _LoginState extends State<Login> {
               SizedBox(
                 height: 20,
               ),
-              _submitButton(),
+              Builder(
+                builder: (contextBuilder) => _submitButton(contextBuilder),
+              ),
               Container(
                 padding: EdgeInsets.symmetric(vertical: 10),
                 alignment: Alignment.centerRight,
