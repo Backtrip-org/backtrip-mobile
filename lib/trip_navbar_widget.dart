@@ -2,26 +2,37 @@ import 'package:backtrip/temp_widget.dart';
 import 'package:backtrip/trip_list_widget.dart';
 import 'package:flutter/material.dart';
 
-class Home extends StatefulWidget {
+import 'model/trip.dart';
+
+class TripNavbar extends StatefulWidget {
+  final Trip trip;
+
+  TripNavbar(this.trip);
+
   @override
   State<StatefulWidget> createState() {
-    return _HomeState();
+    return _TripNavbarState(trip);
   }
 }
 
-class _HomeState extends State<Home> {
+class _TripNavbarState extends State<TripNavbar> {
+  final Trip trip;
+
+  _TripNavbarState(this.trip);
+
   int _currentIndex = 0;
+
   final List<Widget> _children = [
-    TripList(),
-    PlaceholderWidget(Colors.deepOrange),
-    PlaceholderWidget(Colors.green),
-    PlaceholderWidget(Colors.blue)
+    PlaceholderWidget(Colors.white), // temporary - in the end: timeline
+    PlaceholderWidget(Colors.green), // temporary - in the end: chat
+    PlaceholderWidget(Colors.blue) // temporary  in the end: spending
   ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Backtrip'),
+        title: Text(trip.name),
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -30,10 +41,6 @@ class _HomeState extends State<Home> {
         onTap: onTabTapped,
         currentIndex: _currentIndex,
         items: [
-          BottomNavigationBarItem(
-            icon: new Icon(Icons.home),
-            title: new Text('Accueil'),
-          ),
           BottomNavigationBarItem(
             icon: new Icon(Icons.timeline),
             title: new Text('Timeline'),
