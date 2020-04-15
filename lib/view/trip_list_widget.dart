@@ -5,7 +5,7 @@ import 'package:backtrip/util/backtrip_api.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-import 'model/trip.dart';
+import '../model/trip.dart';
 
 class TripList extends StatefulWidget {
   @override

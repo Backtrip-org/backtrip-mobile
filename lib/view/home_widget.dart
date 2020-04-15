@@ -1,5 +1,5 @@
-import 'package:backtrip/temp_widget.dart';
-import 'package:backtrip/trip_list_widget.dart';
+import 'package:backtrip/view/temp_widget.dart';
+import 'package:backtrip/view/trip_list_widget.dart';
 import 'package:flutter/material.dart';
 
 class Home extends StatefulWidget {
