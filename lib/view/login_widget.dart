@@ -33,11 +33,19 @@ class _LoginWidgetState extends State<LoginWidget> {
                   return isPassword
                       ? 'Veuillez renseigner votre mot de passe.'
                       : 'Veuillez renseigner votre email.';
+                } else if(!isPassword) {
+                  Pattern emailRegexPattern =
+                      r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
+                  RegExp emailRegex = new RegExp(emailRegexPattern);
+
+                  if (!emailRegex.hasMatch(value)) {
+                    return "Le format de l'email n'est pas valide.";
+                  }
                 }
                 return null;
               },
               keyboardType:
-                  isPassword ? TextInputType.text : TextInputType.emailAddress,
+              isPassword ? TextInputType.text : TextInputType.emailAddress,
               obscureText: isPassword,
               decoration: InputDecoration(
                   border: InputBorder.none,
@@ -51,13 +59,16 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   Widget _submitButton(scaffoldContext) {
     return Container(
-      width: MediaQuery.of(context).size.width,
+      width: MediaQuery
+          .of(context)
+          .size
+          .width,
       child: RaisedButton(
         onPressed: () {
           if (_formKey.currentState.validate()) {
             LoginService.login(emailController.text.trim(),
-                    passwordController.text.trim(), scaffoldContext)
-            .catchError((e) {
+                passwordController.text.trim(), scaffoldContext)
+                .catchError((e) {
               if (e is EmailPasswordInvalidException) {
                 Components.snackBar(
                     scaffoldContext, e.cause, Color(0xff8B0000));
@@ -76,7 +87,7 @@ class _LoginWidgetState extends State<LoginWidget> {
         padding: EdgeInsets.symmetric(vertical: 15),
         color: Color(0xff243949),
         shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
+        RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
         child: Text("Connexion",
             style: TextStyle(fontSize: 20, color: Colors.white)),
       ),

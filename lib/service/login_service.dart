@@ -22,7 +22,7 @@ class LoginService {
       'email': email,
       'password': password,
     });
-    final response = await http.post(uri, headers: header, body: body);
+    final response = await http.post(uri, headers: header, body: body).timeout(Duration(seconds: 5));
 
     if (response.statusCode == HttpStatus.ok) {
       Login login = Login.fromJson(json.decode(response.body));
