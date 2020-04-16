@@ -38,7 +38,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
                   RegExp emailRegex = new RegExp(emailRegexPattern);
 
-                  if (!emailRegex.hasMatch(value)) {
+                  if (!emailRegex.hasMatch(value.trim())) {
                     return "Le format de l'email n'est pas valide.";
                   }
                 }
@@ -69,10 +69,7 @@ class _LoginWidgetState extends State<LoginWidget> {
             LoginService.login(emailController.text.trim(),
                 passwordController.text.trim(), scaffoldContext)
                 .catchError((e) {
-              if (e is EmailPasswordInvalidException) {
-                Components.snackBar(
-                    scaffoldContext, e.cause, Color(0xff8B0000));
-              } else if (e is UnexpectedLoginException) {
+              if (e is EmailPasswordInvalidException || e is UnexpectedLoginException) {
                 Components.snackBar(
                     scaffoldContext, e.cause, Color(0xff8B0000));
               } else {
