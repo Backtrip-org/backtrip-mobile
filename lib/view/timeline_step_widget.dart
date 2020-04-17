@@ -1,11 +1,16 @@
 import 'dart:core';
 
+import 'package:backtrip/model/step.dart' as step_model;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:timeline_list/timeline.dart';
 import 'package:timeline_list/timeline_model.dart';
 
 class TimelineStepWidget extends StatefulWidget {
+  final step_model.Step _step;
+
+  TimelineStepWidget(this._step);
+
   @override
   _TimelineStepWidgetState createState() => _TimelineStepWidgetState();
 }
@@ -39,7 +44,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
                             Container(
                               padding: const EdgeInsets.only(bottom: 8),
                               child: Text(
-                                "coucou",
+                                widget._step.name,
                                 style: TextStyle(
                                     fontWeight: FontWeight.bold, fontSize: 20),
                               ),
