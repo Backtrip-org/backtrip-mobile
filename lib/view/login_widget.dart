@@ -48,9 +48,16 @@ class _LoginWidgetState extends State<LoginWidget> {
               isPassword ? TextInputType.text : TextInputType.emailAddress,
               obscureText: isPassword,
               decoration: InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.blue),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
                   border: InputBorder.none,
                   fillColor: Color(0xfff3f3f4),
                   labelText: title,
+                  prefixIcon: isPassword ? Icon(Icons.lock) : Icon(Icons.person),
                   filled: true)),
         ],
       ),
