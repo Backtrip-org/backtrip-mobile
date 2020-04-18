@@ -9,7 +9,7 @@ class Trip {
     return Trip(
         name: json['name'],
         picturePath: json['picture_path'],
-        creatorId: int.parse(json['creator_id'])
+        creatorId: json['creator_id']
     );
   }
 }
