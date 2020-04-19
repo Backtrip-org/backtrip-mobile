@@ -38,16 +38,18 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     return Scaffold(
         floatingActionButton: FloatingActionButton(
           onPressed: () {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => CreateStepWidget(_trip)))
-            .then((step) {
-              Components.snackBar(
-                  context,
-                  "L'étape ${step.name} à bien été créée !",
-                  Colors.green);
-              this.setState(() {
-                _futureSteps = TripService.getTimeline(_trip.id);
-              });
+            Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CreateStepWidget(_trip)))
+                .then((step) {
+              if (step != null) {
+                Components.snackBar(context,
+                    "L'étape ${step.name} à bien été créée !", Colors.green);
+                this.setState(() {
+                  _futureSteps = TripService.getTimeline(_trip.id);
+                });
+              }
             });
           },
           child: Icon(Icons.add),
