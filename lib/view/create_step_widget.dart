@@ -1,21 +1,31 @@
 import 'dart:core';
 
+import 'package:backtrip/model/trip.dart';
+import 'package:backtrip/service/trip_service.dart';
+import 'package:backtrip/util/components.dart';
+import 'package:backtrip/util/exception/StepException.dart';
+import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
 
 class CreateStepWidget extends StatefulWidget {
+  final Trip _trip;
+
+  CreateStepWidget(this._trip);
+
   @override
-  _CreateStepState createState() => _CreateStepState();
+  _CreateStepState createState() => _CreateStepState(_trip);
 }
 
 class _CreateStepState extends State<CreateStepWidget> {
+  final Trip _trip;
   final _formKey = GlobalKey<FormState>();
   TextEditingController nameController = TextEditingController();
-  TextEditingController dateController = TextEditingController();
-
   DateTime _dateTime;
+
+  _CreateStepState(this._trip);
 
   Widget _stepNameField() {
     return Container(
@@ -52,7 +62,7 @@ class _CreateStepState extends State<CreateStepWidget> {
   }
 
   Widget _stepDateField() {
-    final format = new DateFormat("yyyy-MM-dd HH:mm");
+    final format = new DateFormat("yyyy-MM-dd HH:mm:ss");
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -64,7 +74,8 @@ class _CreateStepState extends State<CreateStepWidget> {
           DateTimeField(
               format: format,
               autovalidate: false,
-              validator: (date) => date == null ? 'Veuillez saisir une date' : null,
+              validator: (date) =>
+                  date == null ? 'Veuillez saisir une date' : null,
               onShowPicker: (context, currentValue) async {
                 final date = await showDatePicker(
                     context: context,
@@ -82,7 +93,9 @@ class _CreateStepState extends State<CreateStepWidget> {
                   return currentValue;
                 }
               },
-              onSaved: (DateTime dateTime) => _dateTime = dateTime,
+              onChanged: (date) => setState(() {
+                    _dateTime = date;
+                  }),
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                     borderSide: BorderSide(color: Colors.blue),
@@ -96,6 +109,43 @@ class _CreateStepState extends State<CreateStepWidget> {
                   labelText: "Date et heure",
                   filled: true)),
         ],
+      ),
+    );
+  }
+
+  Widget _submitButton(scaffoldContext) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      child: RaisedButton(
+        onPressed: () {
+          if (_formKey.currentState.validate()) {
+            TripService.createStep(
+                    nameController.text.trim(), _dateTime.toString(), _trip.id)
+                .then((step) {
+              String stepName = step.name;
+              Components.snackBar(scaffoldContext,
+                  "L'étape $stepName a été créée !", Colors.green);
+
+              Navigator.pop(context);
+            }).catchError((e) {
+              if (e is BadStepException || e is UnexpectedException) {
+                Components.snackBar(
+                    scaffoldContext, e.cause, Color(0xff8B0000));
+              } else {
+                Components.snackBar(
+                    scaffoldContext,
+                    "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.",
+                    Color(0xff8B0000));
+              }
+            });
+          }
+        },
+        padding: EdgeInsets.symmetric(vertical: 15),
+        color: Colors.green,
+        shape:
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+        child: Text("Valider",
+            style: TextStyle(fontSize: 20, color: Colors.white)),
       ),
     );
   }
@@ -117,10 +167,10 @@ class _CreateStepState extends State<CreateStepWidget> {
                   children: <Widget>[
                     _stepNameField(),
                     _stepDateField(),
-                    /* Builder(
-                        builder: (contextBuilder) =>
-                            //_submitButton(contextBuilder),
-                      ),*/
+                    Builder(
+                      builder: (contextBuilder) =>
+                          _submitButton(contextBuilder),
+                    ),
                   ],
                 ),
               ),

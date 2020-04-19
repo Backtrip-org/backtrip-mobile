@@ -1,6 +1,8 @@
 import 'package:backtrip/service/login_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/LoginException.dart';
+import 'package:backtrip/util/exception/UnexpectedException.dart';
+import 'package:backtrip/view/trip_list_widget.dart';
 import 'package:flutter/material.dart';
 
 class LoginWidget extends StatefulWidget {
@@ -33,7 +35,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                   return isPassword
                       ? 'Veuillez renseigner votre mot de passe.'
                       : 'Veuillez renseigner votre email.';
-                } else if(!isPassword) {
+                } else if (!isPassword) {
                   Pattern emailRegexPattern =
                       r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
                   RegExp emailRegex = new RegExp(emailRegexPattern);
@@ -45,7 +47,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                 return null;
               },
               keyboardType:
-              isPassword ? TextInputType.text : TextInputType.emailAddress,
+                  isPassword ? TextInputType.text : TextInputType.emailAddress,
               obscureText: isPassword,
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
@@ -57,7 +59,8 @@ class _LoginWidgetState extends State<LoginWidget> {
                   border: InputBorder.none,
                   fillColor: Color(0xfff3f3f4),
                   labelText: title,
-                  prefixIcon: isPassword ? Icon(Icons.lock) : Icon(Icons.person),
+                  prefixIcon:
+                      isPassword ? Icon(Icons.lock) : Icon(Icons.person),
                   filled: true)),
         ],
       ),
@@ -66,17 +69,21 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   Widget _submitButton(scaffoldContext) {
     return Container(
-      width: MediaQuery
-          .of(context)
-          .size
-          .width,
+      width: MediaQuery.of(context).size.width,
       child: RaisedButton(
         onPressed: () {
           if (_formKey.currentState.validate()) {
             LoginService.login(emailController.text.trim(),
-                passwordController.text.trim(), scaffoldContext)
-                .catchError((e) {
-              if (e is EmailPasswordInvalidException || e is UnexpectedLoginException) {
+                    passwordController.text.trim(), scaffoldContext)
+                .then((void val) {
+              Navigator.pushAndRemoveUntil(
+                  context,
+                  MaterialPageRoute(
+                      builder: (BuildContext context) => TripList()),
+                  (Route<dynamic> route) => false);
+            }).catchError((e) {
+              if (e is EmailPasswordInvalidException ||
+                  e is UnexpectedException) {
                 Components.snackBar(
                     scaffoldContext, e.cause, Color(0xff8B0000));
               } else {
@@ -91,7 +98,7 @@ class _LoginWidgetState extends State<LoginWidget> {
         padding: EdgeInsets.symmetric(vertical: 15),
         color: Color(0xff243949),
         shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
         child: Text("Connexion",
             style: TextStyle(fontSize: 20, color: Colors.white)),
       ),

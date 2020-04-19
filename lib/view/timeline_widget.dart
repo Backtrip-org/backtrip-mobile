@@ -38,7 +38,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => CreateStepWidget()));
+                MaterialPageRoute(builder: (context) => CreateStepWidget(_trip)));
           },
           child: Icon(Icons.add),
           backgroundColor: Colors.blueAccent,

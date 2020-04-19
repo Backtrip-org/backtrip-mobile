@@ -6,6 +6,7 @@ import 'package:backtrip/model/login.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/current_user.dart';
+import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/util/stored_token.dart';
 import 'package:backtrip/view/trip_list_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -28,15 +29,10 @@ class LoginService {
       Login login = Login.fromJson(json.decode(response.body));
       StoredToken.storeToken(login.authorization);
       BacktripApi.currentUser = new CurrentUser(login.id);
-
-      Navigator.pushAndRemoveUntil(
-          context,
-          MaterialPageRoute(builder: (BuildContext context) => TripList()),
-          (Route<dynamic> route) => false);
     } else if (response.statusCode == HttpStatus.badRequest) {
       throw new EmailPasswordInvalidException();
     } else {
-      throw new UnexpectedLoginException();
+      throw new UnexpectedException();
     }
   }
 }
