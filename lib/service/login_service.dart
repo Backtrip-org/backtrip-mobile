@@ -4,13 +4,9 @@ import 'dart:io';
 import 'package:backtrip/util/exception/LoginException.dart';
 import 'package:backtrip/model/login.dart';
 import 'package:backtrip/util/backtrip_api.dart';
-import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/current_user.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/util/stored_token.dart';
-import 'package:backtrip/view/trip_list_widget.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 
 class LoginService {

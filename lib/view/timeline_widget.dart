@@ -4,6 +4,7 @@ import 'package:backtrip/model/step.dart' as step_model;
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/create_step_widget.dart';
 import 'package:backtrip/view/timeline_step_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -38,7 +39,16 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         floatingActionButton: FloatingActionButton(
           onPressed: () {
             Navigator.push(context,
-                MaterialPageRoute(builder: (context) => CreateStepWidget(_trip)));
+                MaterialPageRoute(builder: (context) => CreateStepWidget(_trip)))
+            .then((step) {
+              Components.snackBar(
+                  context,
+                  "L'étape ${step.name} à bien été créée !",
+                  Colors.green);
+              this.setState(() {
+                _futureSteps = TripService.getTimeline(_trip.id);
+              });
+            });
           },
           child: Icon(Icons.add),
           backgroundColor: Colors.blueAccent,

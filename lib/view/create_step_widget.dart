@@ -122,11 +122,7 @@ class _CreateStepState extends State<CreateStepWidget> {
             TripService.createStep(
                     nameController.text.trim(), _dateTime.toString(), _trip.id)
                 .then((step) {
-              String stepName = step.name;
-              Components.snackBar(scaffoldContext,
-                  "L'étape $stepName a été créée !", Colors.green);
-
-              Navigator.pop(context);
+              Navigator.pop(context, step);
             }).catchError((e) {
               if (e is BadStepException || e is UnexpectedException) {
                 Components.snackBar(
