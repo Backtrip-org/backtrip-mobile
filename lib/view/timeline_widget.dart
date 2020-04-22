@@ -3,6 +3,9 @@ import 'dart:core';
 import 'package:backtrip/model/step.dart' as step_model;
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/service/trip_service.dart';
+import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/util/components.dart';
+import 'package:backtrip/view/create_step_widget.dart';
 import 'package:backtrip/view/timeline_step_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -32,19 +35,38 @@ class _TimelineWidgetState extends State<TimelineWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return new FutureBuilder<List<step_model.Step>>(
-      future: _futureSteps,
-      builder: (context, snapshot) {
-        if (snapshot.hasData) {
-          return Timeline(
-              children: getTimelineModelList(snapshot.data),
-              position: TimelinePosition.Left);
-        } else if (snapshot.hasError) {
-          return Text("${snapshot.error}");
-        }
-        return Center(child: CircularProgressIndicator());
-      },
-    );
+    return Scaffold(
+        floatingActionButton: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (context) => CreateStepWidget(_trip)))
+                .then((step) {
+              if (step != null) {
+                Components.snackBar(context,
+                    "L'étape ${step.name} à bien été créée !", Colors.green);
+                this.setState(() {
+                  _futureSteps = TripService.getTimeline(_trip.id);
+                });
+              }
+            });
+          },
+          child: Icon(Icons.add),
+          backgroundColor: Colors.blueAccent,
+        ),
+        body: new FutureBuilder<List<step_model.Step>>(
+            future: _futureSteps,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Timeline(
+                    children: getTimelineModelList(snapshot.data),
+                    position: TimelinePosition.Left);
+              } else if (snapshot.hasError) {
+                return Text("${snapshot.error}");
+              }
+              return Center(child: CircularProgressIndicator());
+            }));
   }
 
   List<TimelineModel> getTimelineModelList(List<step_model.Step> stepList) {
