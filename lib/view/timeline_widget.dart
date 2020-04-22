@@ -69,10 +69,11 @@ class _TimelineWidgetState extends State<TimelineWidget> {
             }));
   }
 
-  List<TimelineModel> getTimelineModelList(stepList) {
+  List<TimelineModel> getTimelineModelList(List<step_model.Step> stepList) {
     return stepList
         .map((step) {
-          return TimelineModel(TimelineStepWidget(step),
+          return TimelineModel(
+              TimelineStepWidget(isFirstStepOfTheDay(stepList, step), step),
               position: TimelineItemPosition.random,
               iconBackground: Colors.amberAccent,
               icon: Icon(Icons.assistant_photo));
@@ -80,4 +81,14 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         .cast<TimelineModel>()
         .toList();
   }
+
+  bool isFirstStepOfTheDay(List<step_model.Step> stepList, step_model.Step step) {
+    var previousStep = stepList.indexOf(step) == 0
+        ? null
+        : stepList[stepList.indexOf(step) - 1];
+    return previousStep == null
+        ? true
+        : step.startDatetime.difference(previousStep.startDatetime).inDays != 0 || step.startDatetime.day != previousStep.startDatetime.day;
+  }
+
 }
