@@ -1,3 +1,4 @@
+import 'package:backtrip/view/theme/backtrip_theme.dart';
 import 'package:flutter/material.dart';
 
 import 'view/login_widget.dart';
@@ -9,6 +10,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Backtrip',
+      theme: new BacktripTheme().theme,
       home: LoginWidget(),
     );
   }

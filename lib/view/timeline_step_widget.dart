@@ -54,7 +54,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
             child: Text(
               new DateFormat('HH:mm', 'fr_FR')
                   .format(widget._step.startDatetime),
-              style: TextStyle(fontWeight: FontWeight.normal, fontSize: 16),
+              style: Theme.of(context).textTheme.subhead,
             )));
   }
 
@@ -95,7 +95,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
             alignment: Alignment.topLeft,
             child: Text(
               widget._step.name,
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+              style: Theme.of(context).textTheme.title,
             )));
   }
 
@@ -104,12 +104,13 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
       Icon(
         Icons.place,
         size: 17,
-        color: Colors.black87,
+        color: Theme.of(context).primaryColor,
       ),
       Padding(
           padding: const EdgeInsets.only(left: 8),
           child: Text("4 rue du marché, Paris", // TODO: bind real address
-              style: TextStyle(fontSize: 16, color: Colors.black87)))
+              style: Theme.of(context).textTheme.subhead
+          ))
     ]);
   }
 

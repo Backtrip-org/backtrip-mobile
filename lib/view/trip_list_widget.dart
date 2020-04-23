@@ -31,7 +31,7 @@ class _TripListState extends State<TripList> {
               children: [
                 Image.asset(
                     trip.picturePath?.isEmpty ??
-                        "assets/images/trip-default.png",
+                        "assets/images/trip-default-palette-2.png",
                     width: 600,
                     height: 200,
                     fit: BoxFit.cover),
@@ -49,8 +49,7 @@ class _TripListState extends State<TripList> {
                               padding: const EdgeInsets.only(bottom: 8),
                               child: Text(
                                 trip.name,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 20),
+                                style: Theme.of(context).textTheme.headline,
                               ),
                             ),
                           ],
@@ -70,6 +69,9 @@ class _TripListState extends State<TripList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(
+        title: Text("Voyages"),
+      ),
       body: Padding(
           padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           child: FutureBuilder<List<Trip>>(

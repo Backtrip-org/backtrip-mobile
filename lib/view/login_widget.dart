@@ -3,6 +3,7 @@ import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/LoginException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/trip_list_widget.dart';
+import 'package:backtrip/view/theme/backtrip_theme.dart';
 import 'package:flutter/material.dart';
 
 class LoginWidget extends StatefulWidget {
@@ -51,13 +52,14 @@ class _LoginWidgetState extends State<LoginWidget> {
               obscureText: isPassword,
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderSide:
+                        BorderSide(color: Theme.of(context).accentColor),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                    borderSide:
+                        BorderSide(color: Theme.of(context).primaryColor),
                   ),
-                  border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
+                  fillColor: Theme.of(context).colorScheme.textFieldFillColor,
                   labelText: title,
                   prefixIcon:
                       isPassword ? Icon(Icons.lock) : Icon(Icons.person),
@@ -85,22 +87,19 @@ class _LoginWidgetState extends State<LoginWidget> {
               if (e is EmailPasswordInvalidException ||
                   e is UnexpectedException) {
                 Components.snackBar(
-                    scaffoldContext, e.cause, Color(0xff8B0000));
+                    scaffoldContext, e.cause, Theme.of(context).errorColor);
               } else {
                 Components.snackBar(
                     scaffoldContext,
                     "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.",
-                    Color(0xff8B0000));
+                    Theme.of(context).errorColor);
               }
             });
           }
         },
         padding: EdgeInsets.symmetric(vertical: 15),
-        color: Color(0xff243949),
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(80.0)),
         child: Text("Connexion",
-            style: TextStyle(fontSize: 20, color: Colors.white)),
+            style: Theme.of(context).textTheme.button),
       ),
     );
   }
@@ -150,7 +149,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         padding: EdgeInsets.symmetric(vertical: 10),
                         alignment: Alignment.centerRight,
                         child: Text('Mot de passe oublié ?',
-                            style: TextStyle(
+                            style: TextStyle(color: Theme.of(context).primaryColor,
                                 fontSize: 14, fontWeight: FontWeight.w500)),
                       ),
                     ],

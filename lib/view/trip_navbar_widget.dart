@@ -43,8 +43,8 @@ class _TripNavbarState extends State<TripNavbar> {
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Colors.black38,
-        unselectedItemColor: Colors.black12,
+        selectedItemColor: Theme.of(context).accentColor,
+        unselectedItemColor: Theme.of(context).primaryColorLight,
         onTap: onTabTapped,
         currentIndex: _currentIndex,
         items: [

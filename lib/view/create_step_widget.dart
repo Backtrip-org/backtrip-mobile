@@ -9,6 +9,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
+import 'package:backtrip/view/theme/backtrip_theme.dart';
 
 class CreateStepWidget extends StatefulWidget {
   final Trip _trip;
@@ -46,13 +47,15 @@ class _CreateStepState extends State<CreateStepWidget> {
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderSide:
+                        BorderSide(color: Theme.of(context).accentColor),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                    borderSide:
+                        BorderSide(color: Theme.of(context).primaryColor),
                   ),
                   border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
+                  fillColor: Theme.of(context).colorScheme.textFieldFillColor,
                   prefixIcon: Icon(Icons.directions_bike),
                   labelText: "Nom de l'étape",
                   filled: true)),
@@ -98,13 +101,14 @@ class _CreateStepState extends State<CreateStepWidget> {
                   }),
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderSide:
+                        BorderSide(color: Theme.of(context).accentColor),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                    borderSide: BorderSide(color: Theme.of(context).primaryColor),
                   ),
                   border: InputBorder.none,
-                  fillColor: Color(0xfff3f3f4),
+                  fillColor: Theme.of(context).colorScheme.textFieldFillColor,
                   prefixIcon: Icon(Icons.date_range),
                   labelText: "Date et heure",
                   filled: true)),
@@ -115,35 +119,34 @@ class _CreateStepState extends State<CreateStepWidget> {
 
   Widget _submitButton(scaffoldContext) {
     return Container(
-      width: MediaQuery.of(context).size.width,
-      child: RaisedButton(
-        onPressed: () {
-          if (_formKey.currentState.validate()) {
-            TripService.createStep(
-                    nameController.text.trim(), _dateTime.toString(), _trip.id)
-                .then((step) {
-              Navigator.pop(context, step);
-            }).catchError((e) {
-              if (e is BadStepException || e is UnexpectedException) {
-                Components.snackBar(
-                    scaffoldContext, e.cause, Color(0xff8B0000));
-              } else {
-                Components.snackBar(
-                    scaffoldContext,
-                    "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.",
-                    Color(0xff8B0000));
+        width: MediaQuery.of(context).size.width,
+        child: Padding(
+          padding: EdgeInsets.only(top: 10),
+          child: RaisedButton(
+            onPressed: () {
+              if (_formKey.currentState.validate()) {
+                TripService.createStep(nameController.text.trim(),
+                        _dateTime.toString(), _trip.id)
+                    .then((step) {
+                  Navigator.pop(context, step);
+                }).catchError((e) {
+                  if (e is BadStepException || e is UnexpectedException) {
+                    Components.snackBar(
+                        scaffoldContext, e.cause, Theme.of(context).errorColor);
+                  } else {
+                    Components.snackBar(
+                        scaffoldContext,
+                        "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.",
+                        Theme.of(context).errorColor);
+                  }
+                });
               }
-            });
-          }
-        },
-        padding: EdgeInsets.symmetric(vertical: 15),
-        color: Colors.green,
-        shape:
-            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
-        child: Text("Valider",
-            style: TextStyle(fontSize: 20, color: Colors.white)),
-      ),
-    );
+            },
+            padding: EdgeInsets.symmetric(vertical: 15),
+            child: Text("Valider",
+                style:  Theme.of(context).textTheme.button),
+          ),
+        ));
   }
 
   @override
