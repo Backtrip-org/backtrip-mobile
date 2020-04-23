@@ -31,4 +31,18 @@ class LoginService {
       throw new UnexpectedException();
     }
   }
+
+  static Future<void> isUserAlreadyLogged() async {
+    var uri = '${BacktripApi.path}/auth/isUserAlreadyLogged';
+    var headers = {
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    final response = await http.get(uri, headers: headers);
+
+    if(response.statusCode == HttpStatus.ok) {
+      BacktripApi.currentUser = new CurrentUser(json.decode(response.body)['id']);
+    } else {
+      throw new InvalidTokenException();
+    }
+  }
 }

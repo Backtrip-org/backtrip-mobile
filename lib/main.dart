@@ -1,3 +1,4 @@
+import 'package:backtrip/view/splash_screen_widget.dart';
 import 'package:flutter/material.dart';
 
 import 'view/login_widget.dart';
@@ -9,7 +10,7 @@ class App extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Backtrip',
-      home: LoginWidget(),
+      home: SplashScreenWidget(),
     );
   }
 }

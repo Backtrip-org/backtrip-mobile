@@ -5,3 +5,11 @@ class EmailPasswordInvalidException implements Exception {
     this.cause = 'Votre email ou mot de passe est incorrect.';
   }
 }
+
+class InvalidTokenException implements Exception {
+  String cause;
+
+  InvalidTokenException() {
+    this.cause = 'Token invalide.';
+  }
+}
