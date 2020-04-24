@@ -81,8 +81,8 @@ class _TimelineWidgetState extends State<TimelineWidget> {
           return TimelineModel(
               TimelineStepWidget(isFirstStepOfTheDay(stepList, step), step),
               position: TimelineItemPosition.random,
-              iconBackground: Theme.of(context).colorScheme.primaryColorVeryLight,
-              icon: Icon(Icons.assistant_photo, color: Theme.of(context).primaryColorDark,)
+              iconBackground: Colors.transparent,
+              icon: Icon(Icons.fastfood, color: Colors.black)
           );
         })
         .cast<TimelineModel>()

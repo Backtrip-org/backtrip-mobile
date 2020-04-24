@@ -27,6 +27,7 @@ extension ExtendedColorScheme on ColorScheme {
   Color get primaryColorVeryLight => const Color.fromRGBO(174, 189, 202, 1);
 
   Color get accentColorLight => const Color.fromRGBO(199, 240, 219, 1);
+  Color get accentColorDark => const Color.fromRGBO(125, 169, 169, 1);
 
   Color get textFieldFillColor => const Color(0xfff3f3f4);
 }

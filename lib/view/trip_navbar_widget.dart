@@ -1,5 +1,6 @@
 import 'package:backtrip/view/temp_widget.dart';
 import 'package:backtrip/view/timeline_widget.dart';
+import 'package:backtrip/view/theme/backtrip_theme.dart';
 import 'package:backtrip/view/trip_list_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -39,12 +40,13 @@ class _TripNavbarState extends State<TripNavbar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: Theme.of(context).accentColor,
         title: Text(_trip.name),
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Theme.of(context).accentColor,
-        unselectedItemColor: Theme.of(context).primaryColorLight,
+        selectedItemColor: Colors.black,
+        unselectedItemColor: Colors.black38,
         onTap: onTabTapped,
         currentIndex: _currentIndex,
         items: [
