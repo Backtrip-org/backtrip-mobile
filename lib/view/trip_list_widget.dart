@@ -31,7 +31,7 @@ class _TripListState extends State<TripList> {
               children: [
                 Image.asset(
                     trip.picturePath?.isEmpty ??
-                        "assets/images/trip-default-palette-2.png",
+                        "assets/images/trip-default.png",
                     width: 600,
                     height: 200,
                     fit: BoxFit.cover),
