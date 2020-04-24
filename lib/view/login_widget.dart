@@ -53,11 +53,11 @@ class _LoginWidgetState extends State<LoginWidget> {
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                     borderSide:
-                        BorderSide(color: Theme.of(context).accentColor),
+                        BorderSide(color: Theme.of(context).primaryColor),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderSide:
-                        BorderSide(color: Theme.of(context).primaryColor),
+                        BorderSide(color: Theme.of(context).accentColor),
                   ),
                   fillColor: Theme.of(context).colorScheme.textFieldFillColor,
                   labelText: title,
@@ -149,7 +149,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                         padding: EdgeInsets.symmetric(vertical: 10),
                         alignment: Alignment.centerRight,
                         child: Text('Mot de passe oublié ?',
-                            style: TextStyle(color: Theme.of(context).primaryColor,
+                            style: TextStyle(color: Theme.of(context).accentColor,
                                 fontSize: 14, fontWeight: FontWeight.w500)),
                       ),
                     ],

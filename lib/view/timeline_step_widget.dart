@@ -104,10 +104,10 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
       Icon(
         Icons.place,
         size: 17,
-        color: Theme.of(context).primaryColor,
+        color: Theme.of(context).accentColor,
       ),
       Padding(
-          padding: const EdgeInsets.only(left: 8),
+          padding: const EdgeInsets.only(left: 10),
           child: Text("4 rue du marché, Paris", // TODO: bind real address
               style: Theme.of(context).textTheme.subhead
           ))

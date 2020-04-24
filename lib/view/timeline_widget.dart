@@ -42,8 +42,6 @@ class _TimelineWidgetState extends State<TimelineWidget> {
             NavigateToStepCreation(context);
           },
           child: Icon(Icons.add),
-          backgroundColor: Theme.of(context).accentColor,
-          foregroundColor: Colors.white,
         ),
         body: new FutureBuilder<List<step_model.Step>>(
             future: _futureSteps,
@@ -82,7 +80,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
               TimelineStepWidget(isFirstStepOfTheDay(stepList, step), step),
               position: TimelineItemPosition.random,
               iconBackground: Colors.transparent,
-              icon: Icon(Icons.fastfood, color: Colors.black)
+              icon: Icon(Icons.assistant_photo, color: Theme.of(context).colorScheme.accentColorDark)
           );
         })
         .cast<TimelineModel>()

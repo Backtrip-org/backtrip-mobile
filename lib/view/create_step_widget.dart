@@ -48,11 +48,11 @@ class _CreateStepState extends State<CreateStepWidget> {
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                     borderSide:
-                        BorderSide(color: Theme.of(context).accentColor),
+                        BorderSide(color: Theme.of(context).primaryColor),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderSide:
-                        BorderSide(color: Theme.of(context).primaryColor),
+                        BorderSide(color: Theme.of(context).accentColor),
                   ),
                   border: InputBorder.none,
                   fillColor: Theme.of(context).colorScheme.textFieldFillColor,
@@ -102,10 +102,10 @@ class _CreateStepState extends State<CreateStepWidget> {
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                     borderSide:
-                        BorderSide(color: Theme.of(context).accentColor),
+                        BorderSide(color: Theme.of(context).primaryColor),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Theme.of(context).primaryColor),
+                    borderSide: BorderSide(color: Theme.of(context).accentColor),
                   ),
                   border: InputBorder.none,
                   fillColor: Theme.of(context).colorScheme.textFieldFillColor,

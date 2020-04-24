@@ -40,13 +40,12 @@ class _TripNavbarState extends State<TripNavbar> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).accentColor,
         title: Text(_trip.name),
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.black,
-        unselectedItemColor: Colors.black38,
+        unselectedItemColor: Theme.of(context).colorScheme.accentColorLight,
         onTap: onTabTapped,
         currentIndex: _currentIndex,
         items: [
