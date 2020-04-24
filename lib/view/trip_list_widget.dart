@@ -82,7 +82,7 @@ class _TripListState extends State<TripList> {
                 ).then((trip) {
                   if (trip != null) {
                     Components.snackBar(ctx,
-                        "Le voyage ${trip.name} à bien été créé !", Colors.green);
+                        "Le voyage ${trip.name} a bien été créé !", Colors.green);
                     this.setState(() {
                       futureTrips = getTrips();
                     });
