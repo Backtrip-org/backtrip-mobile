@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:ffi';
 import 'dart:io';
 
 import 'package:backtrip/model/step.dart';
@@ -6,6 +7,7 @@ import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/StepException.dart';
+import 'package:backtrip/util/exception/TripAlreadyExistsException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/util/stored_token.dart';
 import 'package:flutter/foundation.dart';
@@ -54,6 +56,28 @@ class TripService {
       return Step.fromJson(json.decode(response.body));
     } else if (response.statusCode == HttpStatus.badRequest) {
       throw new BadStepException();
+    } else {
+      throw new UnexpectedException();
+    }
+  }
+
+  static Future<Trip> createTrip(String name) async {
+    var uri = '${BacktripApi.path}/trip/';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    var body = jsonEncode(<String, String>{
+      'name': name,
+//      'picture_path': null
+    });
+    final response = await http.post(uri, headers: header, body: body)
+        .timeout(Duration(seconds: 5));
+
+    if (response.statusCode == HttpStatus.created) {
+      return Trip.fromJson(json.decode(response.body));
+    } else if (response.statusCode == HttpStatus.conflict) {
+      throw new TripAlreadyExistsException();
     } else {
       throw new UnexpectedException();
     }

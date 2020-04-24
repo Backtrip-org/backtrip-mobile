@@ -2,6 +2,8 @@ import 'dart:core';
 
 import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/util/components.dart';
+import 'package:backtrip/view/create_trip_widget.dart';
 import 'package:backtrip/view/trip_navbar_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -18,7 +20,7 @@ class _TripListState extends State<TripList> {
   @override
   void initState() {
     super.initState();
-    futureTrips = UserService.getTrips(BacktripApi.currentUser.id);
+    futureTrips = getTrips();
   }
 
   Widget tripCard(trip) {
@@ -70,6 +72,28 @@ class _TripListState extends State<TripList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        floatingActionButton: Builder(
+          builder: (ctx) {
+            return FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CreateTrip())
+                ).then((trip) {
+                  if (trip != null) {
+                    Components.snackBar(ctx,
+                        "Le voyage ${trip.name} a bien été créé !", Colors.green);
+                    this.setState(() {
+                      futureTrips = getTrips();
+                    });
+                  }
+                });
+              },
+              child: Icon(Icons.add),
+//          backgroundColor: secondary,
+            );
+          },
+        ),
       body: Padding(
           padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
           child: FutureBuilder<List<Trip>>(
@@ -88,7 +112,8 @@ class _TripListState extends State<TripList> {
                   return Text("${snapshot.error}");
                 }
                 return Center(child: CircularProgressIndicator());
-              })),
+              })
+      )
     );
   }
 
@@ -97,5 +122,9 @@ class _TripListState extends State<TripList> {
         context,
         MaterialPageRoute(builder: (context) => TripNavbar(trip))
     );
+  }
+
+  Future<List<Trip>> getTrips() {
+    return UserService.getTrips(BacktripApi.currentUser.id);
   }
 }

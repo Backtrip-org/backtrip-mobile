@@ -45,7 +45,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
                 .then((step) {
               if (step != null) {
                 Components.snackBar(context,
-                    "L'étape ${step.name} à bien été créée !", Colors.green);
+                    "L'étape ${step.name} a bien été créée !", Colors.green);
                 this.setState(() {
                   _futureSteps = TripService.getTimeline(_trip.id);
                 });
