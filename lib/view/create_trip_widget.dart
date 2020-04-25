@@ -5,12 +5,10 @@ import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:flutter/material.dart';
 
 class CreateTrip extends StatefulWidget {
-
   CreateTrip();
 
   @override
   _CreateTripState createState() => _CreateTripState();
-
 }
 
 class _CreateTripState extends State<CreateTrip> {
@@ -35,18 +33,17 @@ class _CreateTripState extends State<CreateTrip> {
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.blue),
+                    borderSide:
+                        BorderSide(color: Theme.of(context).primaryColor),
                   ),
                   enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
+                    borderSide:
+                        BorderSide(color: Theme.of(context).accentColor),
                   ),
-                  border: InputBorder.none,
                   fillColor: Color(0xfff3f3f4),
                   prefixIcon: Icon(Icons.card_travel),
                   labelText: "Nom du voyage",
-                  filled: true
-              )
-          ),
+                  filled: true)),
         ],
       ),
     );
@@ -58,8 +55,7 @@ class _CreateTripState extends State<CreateTrip> {
       child: RaisedButton(
         onPressed: () {
           if (_formKey.currentState.validate()) {
-            TripService.createTrip(_nameController.text.trim())
-                .then((trip) {
+            TripService.createTrip(_nameController.text.trim()).then((trip) {
               Navigator.pop(context, trip);
             }).catchError((e) {
               if (e is TripAlreadyExistsException || e is UnexpectedException) {
@@ -75,9 +71,8 @@ class _CreateTripState extends State<CreateTrip> {
           }
         },
         padding: EdgeInsets.symmetric(vertical: 15),
-        color: Colors.green,
         shape:
-        RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+            RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
         child: Text("Valider",
             style: TextStyle(fontSize: 20, color: Colors.white)),
       ),
@@ -109,8 +104,6 @@ class _CreateTripState extends State<CreateTrip> {
                   ],
                 ),
               ),
-            )
-        )
-    );
+            )));
   }
 }
