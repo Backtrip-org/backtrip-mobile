@@ -51,8 +51,7 @@ class _TripListState extends State<TripList> {
                               padding: const EdgeInsets.only(bottom: 8),
                               child: Text(
                                 trip.name,
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold, fontSize: 20),
+                                style: Theme.of(context).textTheme.headline,
                               ),
                             ),
                           ],
@@ -72,6 +71,9 @@ class _TripListState extends State<TripList> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+        appBar: AppBar(
+          title: Text("Voyages"),
+        ),
         floatingActionButton: Builder(
           builder: (ctx) {
             return FloatingActionButton(

@@ -1,7 +1,6 @@
 import 'package:backtrip/view/splash_screen_widget.dart';
+import 'package:backtrip/view/theme/backtrip_theme.dart';
 import 'package:flutter/material.dart';
-
-import 'view/login_widget.dart';
 
 void main() => runApp(App());
 
@@ -11,6 +10,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Backtrip',
       home: SplashScreenWidget(),
+      theme: new BacktripTheme().theme,
     );
   }
 }
