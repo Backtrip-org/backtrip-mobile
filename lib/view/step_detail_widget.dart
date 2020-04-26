@@ -3,6 +3,8 @@ import 'dart:core';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:backtrip/model/step.dart' as step_model;
+import 'package:intl/date_symbol_data_local.dart';
+import 'package:intl/intl.dart';
 
 class StepDetailWidget extends StatefulWidget {
   final step_model.Step _step;
@@ -14,6 +16,12 @@ class StepDetailWidget extends StatefulWidget {
 }
 
 class _StepDetailWidgetState extends State<StepDetailWidget> {
+  @override
+  void initState() {
+    super.initState();
+    initializeDateFormatting();
+  }
+
   Widget presentationCard() {
     return Card(
       child: Column(
@@ -118,7 +126,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
           ),
           Padding(
               padding: const EdgeInsets.only(left: 2),
-              child: Text(getSetpDate(),
+              child: Text(getStepDate(),
                   style: Theme.of(context).textTheme.subhead)),
         ],
       )),
@@ -208,26 +216,11 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         ));
   }
 
-  String getSetpDate() {
-    var day = widget._step.startDatetime.day;
-    var month = widget._step.startDatetime.month;
-    var year = widget._step.startDatetime.year;
-
-    return day.toString() +
-        '/' +
-        ((month < 10) ? '0' : '') +
-        month.toString() +
-        '/' +
-        year.toString();
+  String getStepDate() {
+    return new DateFormat.yMMMd('fr_FR').format(widget._step.startDatetime);
   }
 
   String getStepTime() {
-    var hour = widget._step.startDatetime.hour;
-    var minutes = widget._step.startDatetime.minute;
-
-    return hour.toString() +
-        ':' +
-        ((minutes < 10) ? '0' : '') +
-        minutes.toString();
+    return new DateFormat('HH:mm', 'fr_FR').format(widget._step.startDatetime);
   }
 }
