@@ -1,4 +1,4 @@
-import 'package:backtrip/service/login_service.dart';
+import 'package:backtrip/service/auth_service.dart';
 import 'package:backtrip/view/login_widget.dart';
 import 'package:backtrip/view/trip_list_widget.dart';
 import 'package:flutter/material.dart';
@@ -13,7 +13,7 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget> {
 
   void initState() {
     super.initState();
-    LoginService.isUserAlreadyLogged()
+    AuthService.isUserAlreadyLogged()
         .then((void val) {
       Navigator.pushAndRemoveUntil(
           context,
