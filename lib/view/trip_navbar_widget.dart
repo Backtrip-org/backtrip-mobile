@@ -1,7 +1,7 @@
 import 'package:backtrip/view/temp_widget.dart';
 import 'package:backtrip/view/timeline_widget.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
-import 'package:backtrip/view/trip_list_widget.dart';
+import 'package:backtrip/view/trip_settings_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../model/trip.dart';
@@ -41,6 +41,13 @@ class _TripNavbarState extends State<TripNavbar> {
     return Scaffold(
       appBar: AppBar(
         title: Text(_trip.name),
+        actions: <Widget>[
+          IconButton(
+            icon: Icon(Icons.settings),
+            tooltip: 'Administration',
+            onPressed: _redirectToTripSettings,
+          )
+        ],
       ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -72,4 +79,10 @@ class _TripNavbarState extends State<TripNavbar> {
     });
   }
 
+  void _redirectToTripSettings() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (BuildContext context) => TripSettings(_trip))
+    );
+  }
 }

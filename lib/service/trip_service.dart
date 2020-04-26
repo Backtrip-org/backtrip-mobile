@@ -7,6 +7,7 @@ import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/exception/StepException.dart';
 import 'package:backtrip/util/exception/TripAlreadyExistsException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
+import 'package:backtrip/util/exception/UserNotFoundException.dart';
 import 'package:backtrip/util/stored_token.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
@@ -77,6 +78,25 @@ class TripService {
     } else if (response.statusCode == HttpStatus.conflict) {
       throw new TripAlreadyExistsException();
     } else {
+      throw new UnexpectedException();
+    }
+  }
+
+  static Future<void> inviteToTrip(int tripId, String email) async {
+    var uri = '${BacktripApi.path}/trip/$tripId/invite';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    var body = jsonEncode(<String, String>{
+      'email': email
+    });
+    final response = await http.post(uri, headers: header, body: body)
+        .timeout(Duration(seconds: 5));
+
+    if (response.statusCode == HttpStatus.badRequest) {
+      throw new UserNotFoundException();
+    } else if (response.statusCode != HttpStatus.noContent) {
       throw new UnexpectedException();
     }
   }
