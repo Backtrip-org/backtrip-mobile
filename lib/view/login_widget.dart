@@ -23,7 +23,7 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   Widget _entryField(String title, {bool isPassword = false}) {
     return Container(
-      margin: EdgeInsets.symmetric(vertical: 10),
+      margin: EdgeInsets.only(top: 8),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
@@ -114,9 +114,19 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   Widget _emailPasswordWidget() {
     return Column(
-      children: <Widget>[
+      children: [
         _entryField("Email"),
         _entryField("Mot de passe", isPassword: true),
+        Align(
+            alignment: Alignment.topRight,
+            child: FlatButton(
+              padding: EdgeInsets.all(0),
+              child: Text("Mot de passe oublié ?",
+                  style: TextStyle(
+                      fontSize: 15,
+                      color: Theme.of(context).colorScheme.accentColorLight)),
+              onPressed: () => redirectToForgottenPasswordPage(),
+            ))
       ],
     );
   }
@@ -125,53 +135,35 @@ class _LoginWidgetState extends State<LoginWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         body: Form(
-            key: _formKey,
+      key: _formKey,
+      child: Center(
+        child: SingleChildScrollView(
+            padding: const EdgeInsets.all(20.0),
             child: Center(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(20.0),
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: <Widget>[
-                      _logo(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      _emailPasswordWidget(),
-                      SizedBox(
-                        height: 20,
-                      ),
-                      Builder(
-                        builder: (contextBuilder) =>
-                            _submitButton(contextBuilder),
-                      ),
-                      Container(
-                        padding: EdgeInsets.symmetric(vertical: 10),
-                        alignment: Alignment.centerRight,
-                        child: Text(
-                            'Mot de passe oublié ?',
-                            style: TextStyle(color: Theme.of(context).accentColor,
-                            fontSize: 14, fontWeight: FontWeight.w500)
-                        )
-                      ),
-                      new InkWell(
-                        onTap: () => redirectToRegister(),
-                        child: Container(
-                            padding: EdgeInsets.symmetric(vertical: 10),
-                            alignment: Alignment.centerRight,
-                            child: Text(
-                                'Créer un compte',
-                                style: TextStyle(color: Theme.of(context).accentColor,
-                                    fontSize: 14, fontWeight: FontWeight.w500)
-                            )
-                        ),
-                      )
-                    ],
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  _logo(),
+                  SizedBox(
+                    height: 20,
                   ),
-                ),
+                  _emailPasswordWidget(),
+                  Builder(
+                    builder: (contextBuilder) => _submitButton(contextBuilder),
+                  ),
+                  FlatButton(
+                    child: Text(
+                      "Créer un compte",
+                      style: TextStyle(color: Theme.of(context).accentColor),
+                    ),
+                    onPressed: () => redirectToRegister(),
+                  )
+                ],
               ),
-            )));
+            )),
+      ),
+    ));
   }
 
   void redirectToRegister() {
@@ -180,4 +172,6 @@ class _LoginWidgetState extends State<LoginWidget> {
         MaterialPageRoute(builder: (context) => RegisterWidget())
     );
   }
+
+  void redirectToForgottenPasswordPage() {}
 }
