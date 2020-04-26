@@ -31,7 +31,7 @@ class _SplashScreenWidgetState extends State<SplashScreenWidget> {
 
   Widget _logo() {
     return Image.asset(
-      'assets/images/backtrip.png',
+      'assets/images/backtrip-logo.png',
       height: 300,
     );
   }
