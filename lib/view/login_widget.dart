@@ -106,7 +106,7 @@ class _LoginWidgetState extends State<LoginWidget> {
 
   Widget _logo() {
     return Image.asset(
-      'assets/images/panda.jpg',
+      'assets/images/backtrip-logo.png',
       height: 300,
     );
   }
