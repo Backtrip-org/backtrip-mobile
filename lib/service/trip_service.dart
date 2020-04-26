@@ -1,11 +1,9 @@
 import 'dart:convert';
-import 'dart:ffi';
 import 'dart:io';
 
 import 'package:backtrip/model/step.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/util/backtrip_api.dart';
-import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/StepException.dart';
 import 'package:backtrip/util/exception/TripAlreadyExistsException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
