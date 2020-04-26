@@ -1,7 +1,8 @@
-import 'package:backtrip/service/login_service.dart';
+import 'package:backtrip/service/auth_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/LoginException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
+import 'package:backtrip/view/register_widget.dart';
 import 'package:backtrip/view/trip_list_widget.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
 import 'package:flutter/material.dart';
@@ -75,8 +76,8 @@ class _LoginWidgetState extends State<LoginWidget> {
       child: RaisedButton(
         onPressed: () {
           if (_formKey.currentState.validate()) {
-            LoginService.login(emailController.text.trim(),
-                    passwordController.text.trim(), scaffoldContext)
+            AuthService.login(emailController.text.trim(),
+                    passwordController.text.trim())
                 .then((void val) {
               Navigator.pushAndRemoveUntil(
                   context,
@@ -148,14 +149,35 @@ class _LoginWidgetState extends State<LoginWidget> {
                       Container(
                         padding: EdgeInsets.symmetric(vertical: 10),
                         alignment: Alignment.centerRight,
-                        child: Text('Mot de passe oublié ?',
+                        child: Text(
+                            'Mot de passe oublié ?',
                             style: TextStyle(color: Theme.of(context).accentColor,
-                                fontSize: 14, fontWeight: FontWeight.w500)),
+                            fontSize: 14, fontWeight: FontWeight.w500)
+                        )
                       ),
+                      new InkWell(
+                        onTap: () => redirectToRegister(),
+                        child: Container(
+                            padding: EdgeInsets.symmetric(vertical: 10),
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                                'Créer un compte',
+                                style: TextStyle(color: Theme.of(context).accentColor,
+                                    fontSize: 14, fontWeight: FontWeight.w500)
+                            )
+                        ),
+                      )
                     ],
                   ),
                 ),
               ),
             )));
+  }
+
+  void redirectToRegister() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => RegisterWidget())
+    );
   }
 }
