@@ -137,27 +137,5 @@ class _TripInvitationState extends State<TripInvitation> {
         }
       });
     }
-//    if (_formKey.currentState.validate()) {
-//      AuthService.login(emailController.text.trim(),
-//          passwordController.text.trim())
-//          .then((void val) {
-//        Navigator.pushAndRemoveUntil(
-//            context,
-//            MaterialPageRoute(
-//                builder: (BuildContext context) => TripList()),
-//                (Route<dynamic> route) => false);
-//      }).catchError((e) {
-//        if (e is EmailPasswordInvalidException ||
-//            e is UnexpectedException) {
-//          Components.snackBar(
-//              scaffoldContext, e.cause, Theme.of(context).errorColor);
-//        } else {
-//          Components.snackBar(
-//              scaffoldContext,
-//              "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.",
-//              Theme.of(context).errorColor);
-//        }
-//      });
-//    }
   }
 }
