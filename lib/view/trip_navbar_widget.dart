@@ -32,7 +32,7 @@ class _TripNavbarState extends State<TripNavbar> {
 
     _children = [
     TimelineWidget(_trip),
-    ChatWidget(),
+    ChatWidget(_trip),
     PlaceholderWidget(Colors.blue) // temporary  in the end: spending
     ];
   }
