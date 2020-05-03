@@ -4,11 +4,14 @@ import 'dart:core';
 import 'package:adhara_socket_io/manager.dart';
 import 'package:adhara_socket_io/options.dart';
 import 'package:adhara_socket_io/socket.dart';
+import 'package:backtrip/model/chat_message.dart';
 import 'package:backtrip/model/trip.dart';
+import 'package:backtrip/service/chat_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:bubble/bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 class ChatWidget extends StatefulWidget {
   Trip _trip;
@@ -20,11 +23,9 @@ class ChatWidget extends StatefulWidget {
 }
 
 class _ChatWidgetState extends State<ChatWidget> {
-  List<String> messages = [
-    "The quick brown fox jumps over the lazy dog",
-    "Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam.",
-    "Oui en effet"
-  ];
+  Future<List<ChatMessage>> futureMessages;
+  List<ChatMessage> messages;
+
   TextEditingController inputTextController = TextEditingController();
   ScrollController messagesScrollController = ScrollController();
   double height, width;
@@ -35,12 +36,17 @@ class _ChatWidgetState extends State<ChatWidget> {
   @override
   void initState() {
     super.initState();
-
+    futureMessages = getChatMessages();
     initSocket();
+  }
+
+  Future<List<ChatMessage>> getChatMessages() {
+    return ChatService.getChatMessages(widget._trip.id);
   }
 
   initSocket() async {
     manager = SocketIOManager();
+
     socket = await manager.createInstance(SocketOptions('http://10.0.2.2:5000',
         nameSpace: '/',
         enableLogging: false,
@@ -59,29 +65,33 @@ class _ChatWidgetState extends State<ChatWidget> {
     socket.onPing((data) => print("onPing : ${data}"));
     socket.onPong((data) => print("onPong : ${data}"));
     socket.on("message", (data) => handleNewMessage(data));
+
     socket.connect();
   }
 
   handleNewMessage(data) {
     print("NEW MESSAGE");
     setState(() {
-      messages.add(data);
+      messages.add(ChatMessage(id: 0, message: data, tripId: 0, userId: 0));
     });
+    scrollDown();
   }
 
   handleConnect(data) {
     print("onConnect : ${data}");
-    socket.isConnected().then((result) => setState(() {
-          isConnected = result;
-        }));
+    updateConnectionState();
     socket.emit("room_connection", [widget._trip.id]);
   }
 
   handleDisconnect(data) {
     print("onDisconnect : ${data}");
+    updateConnectionState();
+  }
+
+  updateConnectionState() {
     socket.isConnected().then((result) => setState(() {
-      isConnected = result;
-    }));
+          isConnected = result;
+        }));
   }
 
   Widget messageArea() {
@@ -89,13 +99,23 @@ class _ChatWidgetState extends State<ChatWidget> {
         child: Padding(
             padding: EdgeInsets.all(10),
             child: Container(
-              child: ListView.builder(
-                itemCount: messages.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return message(index);
-                },
-              ),
-            )));
+                child: FutureBuilder<List<ChatMessage>>(
+                    future: futureMessages,
+                    builder: (context, snapshot) {
+                      if (snapshot.hasData) {
+                        if(messages == null) messages = snapshot.data;
+                        return ListView.builder(
+                          controller: messagesScrollController,
+                          itemCount: messages.length,
+                          itemBuilder: (BuildContext context, int index) {
+                            return message(index);
+                          },
+                        );
+                      } else if (snapshot.hasError) {
+                        return Text("${snapshot.error}");
+                      }
+                      return Center(child: CircularProgressIndicator());
+                    }))));
   }
 
   Widget message(int index) {
@@ -114,7 +134,7 @@ class _ChatWidgetState extends State<ChatWidget> {
       Expanded(
           child: Bubble(
               margin: BubbleEdges.only(top: 15),
-              child: Text(messages[index], style: TextStyle(fontSize: 17)),
+              child: Text(messages[index].message, style: TextStyle(fontSize: 17)),
               nip: index % 2 == 0
                   ? BubbleNip.leftBottom
                   : BubbleNip.rightBottom)),
@@ -180,6 +200,16 @@ class _ChatWidgetState extends State<ChatWidget> {
     );
   }
 
+  scrollDown() {
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+      messagesScrollController.animateTo(
+        messagesScrollController.position.maxScrollExtent,
+        duration: Duration(milliseconds: 600),
+        curve: Curves.ease,
+      );
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     height = MediaQuery.of(context).size.height;
@@ -192,7 +222,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   }
 
   @override
-  void dispose(){
+  void dispose() {
     manager.clearInstance(socket);
     super.dispose();
   }
