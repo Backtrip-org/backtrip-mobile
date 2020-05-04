@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:backtrip/model/step.dart' as step_model;
+import 'package:backtrip/view/participants_list_widget.dart';
 import 'package:backtrip/view/step_detail_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -75,7 +76,14 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
                       /*2*/
                       Container(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: Column(children: [stepName(), address()]),
+                        child: Column(
+                            children: [
+                              stepName(),
+                              address(),
+                              SizedBox(height: 5),
+                              participants()
+                            ]
+                        ),
                       ),
                     ],
                   ),
@@ -113,6 +121,10 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
               style: Theme.of(context).textTheme.subhead
           ))
     ]);
+  }
+
+  Widget participants() {
+    return ParticipantsListWidget(widget._step.participants, 15);
   }
 
   @override

@@ -1,27 +1,29 @@
 import 'package:backtrip/model/user.dart';
 import 'package:flutter/material.dart';
-import 'package:backtrip/view/theme/backtrip_theme.dart';
 
 class ParticipantsListWidget extends StatefulWidget {
   final List<User> participants;
+  final double radius;
 
-  ParticipantsListWidget(this.participants);
+  ParticipantsListWidget(this.participants, [this.radius = 20]);
 
   @override
-  _ParticipantsListWidgetState createState() => _ParticipantsListWidgetState(participants);
+  _ParticipantsListWidgetState createState() => _ParticipantsListWidgetState(participants, radius);
 }
 
 
 class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
   final List<User> participants;
   final int maxParticipantsToDisplay = 4;
+  final double radius;
 
-  _ParticipantsListWidgetState(this.participants);
+  _ParticipantsListWidgetState(this.participants, this.radius);
 
   Widget getParticipantIconWidget(User participant) {
     String participantInitials = participant.firstName[0] + participant.lastName[0];
     return CircleAvatar(
       backgroundColor: Colors.grey,
+      radius: radius,
       child: Text(participantInitials,
           style: TextStyle(
             color: Colors.white,
