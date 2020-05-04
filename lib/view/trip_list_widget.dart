@@ -4,6 +4,7 @@ import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/create_trip_widget.dart';
+import 'package:backtrip/view/participants_list_widget.dart';
 import 'package:backtrip/view/trip_navbar_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -16,6 +17,7 @@ class TripList extends StatefulWidget {
 
 class _TripListState extends State<TripList> {
   Future<List<Trip>> futureTrips;
+  List<Trip> loadedTrips;
 
   @override
   void initState() {
@@ -54,6 +56,9 @@ class _TripListState extends State<TripList> {
                                 style: Theme.of(context).textTheme.headline,
                               ),
                             ),
+                            ParticipantsListWidget(
+                              trip.participants
+                            )
                           ],
                         ),
                       ),
