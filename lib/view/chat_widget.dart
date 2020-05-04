@@ -8,10 +8,12 @@ import 'package:backtrip/model/chat_message.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/service/chat_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/util/components.dart';
 import 'package:bubble/bubble.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/scheduler.dart';
+import 'package:backtrip/view/theme/backtrip_theme.dart';
 
 class ChatWidget extends StatefulWidget {
   Trip _trip;
@@ -28,7 +30,9 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   TextEditingController inputTextController = TextEditingController();
   ScrollController messagesScrollController = ScrollController();
+
   double height, width;
+
   SocketIOManager manager;
   SocketIO socket;
   bool isConnected = false;
@@ -64,16 +68,10 @@ class _ChatWidgetState extends State<ChatWidget> {
     socket.onError((error) => print("onError : ${error}"));
     socket.onPing((data) => print("onPing : ${data}"));
     socket.onPong((data) => print("onPong : ${data}"));
+
     socket.on("message", (data) => handleNewMessage(data));
 
     socket.connect();
-  }
-
-  handleNewMessage(data) {
-    setState(() {
-      messages.add(ChatMessage(id: 0, message: data, tripId: 0, userId: 0));
-    });
-    scrollDown();
   }
 
   handleConnect(data) {
@@ -93,6 +91,13 @@ class _ChatWidgetState extends State<ChatWidget> {
         }));
   }
 
+  handleNewMessage(data) {
+    setState(() {
+      messages.add(ChatMessage.fromJson(data));
+    });
+    scrollDown();
+  }
+
   Widget messageArea() {
     return Expanded(
         child: Padding(
@@ -108,53 +113,59 @@ class _ChatWidgetState extends State<ChatWidget> {
                           itemCount: messages.length,
                           itemBuilder: (BuildContext context, int index) {
                             scrollDown();
-                            return message(index);
+                            return message(messages[index]);
                           },
                         );
                       } else if (snapshot.hasError) {
-                        return Text("${snapshot.error}");
+                        Components.snackBar(context, snapshot.error,
+                            Theme.of(context).errorColor);
                       }
                       return Center(child: CircularProgressIndicator());
                     }))));
   }
 
-  Widget message(int index) {
+  Widget message(ChatMessage chatMessage) {
     return Padding(
-      padding: EdgeInsets.fromLTRB(2, 0, 2, 5),
+        padding: EdgeInsets.fromLTRB(2, 0, 2, 5),
         child: Row(children: [
-      Padding(
-          padding: EdgeInsets.all(5),
-          child: Visibility(
-              visible: index % 2 == 0 ? true : false,
-              child: CircleAvatar(
-                backgroundColor: Colors.grey,
-                child: Text('AJ',
-                    style: TextStyle(
-                      color: Colors.white,
-                    )),
-              ))),
-      Expanded(
-          child: Bubble(
-            color: index % 2 == 0 ? Colors.white : Theme.of(context).primaryColorLight,
-              padding: BubbleEdges.all(15),
-              margin: BubbleEdges.only(top: 10),
-              child:
-                  Text(messages[index].message, style: TextStyle(fontSize: 17)),
-              nip: index % 2 == 0
-                  ? BubbleNip.leftBottom
-                  : BubbleNip.rightBottom)),
-      Padding(
-          padding: EdgeInsets.all(5),
-          child: Visibility(
-              visible: index % 2 == 0 ? false : true,
-              child: CircleAvatar(
-                backgroundColor: Colors.grey,
-                child: Text('AJ',
-                    style: TextStyle(
-                      color: Colors.white,
-                    )),
-              ))),
-    ]));
+          Visibility(
+              visible: isFromCurrentUser(chatMessage) ? false : true,
+              child: messageCircleAvatar(chatMessage)),
+          bubble(chatMessage),
+          Visibility(
+              visible: isFromCurrentUser(chatMessage) ? true : false,
+              child: messageCircleAvatar(chatMessage)),
+        ]));
+  }
+
+  Widget messageCircleAvatar(ChatMessage chatMessage) {
+    return Padding(
+        padding: EdgeInsets.all(5),
+        child: CircleAvatar(
+          backgroundColor: Colors.grey,
+          child: Text('AJ',
+              style: TextStyle(
+                color: Colors.white,
+              )),
+        ));
+  }
+
+  Widget bubble(ChatMessage chatMessage) {
+    return Expanded(
+        child: Bubble(
+            color: isFromCurrentUser(chatMessage)
+                ? Color(0xFFececec)
+                : Colors.white,
+            padding: BubbleEdges.all(15),
+            margin: BubbleEdges.only(top: 10),
+            child: Text(chatMessage.message, style: TextStyle(fontSize: 17)),
+            nip: isFromCurrentUser(chatMessage)
+                ? BubbleNip.rightBottom
+                : BubbleNip.leftBottom));
+  }
+
+  isFromCurrentUser(ChatMessage message) {
+    return message.userId == BacktripApi.currentUser.id;
   }
 
   Widget chatInput() {
@@ -176,14 +187,15 @@ class _ChatWidgetState extends State<ChatWidget> {
                       const Radius.circular(10.0),
                     ),
                   ),
-                  hintText: 'Ecrivez votre message...',
-                  counterText: ''),
+                  hintText: 'Écrivez votre message...',
+                  counterText: ''
+              ),
             )));
   }
 
   Widget statusIcon() {
-    return Icon(Icons.signal_cellular_4_bar,
-        color: isConnected ? Colors.green : Colors.red);
+    return Icon(Icons.fiber_manual_record,
+        color: isConnected ? Theme.of(context).colorScheme.success : Theme.of(context).errorColor);
   }
 
   Widget sendButton() {
@@ -224,7 +236,7 @@ class _ChatWidgetState extends State<ChatWidget> {
     SchedulerBinding.instance.addPostFrameCallback((_) {
       messagesScrollController.animateTo(
         messagesScrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 600),
+        duration: Duration(milliseconds: 100),
         curve: Curves.ease,
       );
     });
