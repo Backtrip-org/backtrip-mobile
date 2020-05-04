@@ -70,7 +70,6 @@ class _ChatWidgetState extends State<ChatWidget> {
   }
 
   handleNewMessage(data) {
-    print("NEW MESSAGE");
     setState(() {
       messages.add(ChatMessage(id: 0, message: data, tripId: 0, userId: 0));
     });
@@ -97,17 +96,18 @@ class _ChatWidgetState extends State<ChatWidget> {
   Widget messageArea() {
     return Expanded(
         child: Padding(
-            padding: EdgeInsets.all(10),
+            padding: EdgeInsets.fromLTRB(10, 0, 10, 15),
             child: Container(
                 child: FutureBuilder<List<ChatMessage>>(
                     future: futureMessages,
                     builder: (context, snapshot) {
                       if (snapshot.hasData) {
-                        if(messages == null) messages = snapshot.data;
+                        if (messages == null) messages = snapshot.data;
                         return ListView.builder(
                           controller: messagesScrollController,
                           itemCount: messages.length,
                           itemBuilder: (BuildContext context, int index) {
+                            scrollDown();
                             return message(index);
                           },
                         );
@@ -119,7 +119,9 @@ class _ChatWidgetState extends State<ChatWidget> {
   }
 
   Widget message(int index) {
-    return Row(children: [
+    return Padding(
+      padding: EdgeInsets.fromLTRB(2, 0, 2, 5),
+        child: Row(children: [
       Padding(
           padding: EdgeInsets.all(5),
           child: Visibility(
@@ -133,8 +135,11 @@ class _ChatWidgetState extends State<ChatWidget> {
               ))),
       Expanded(
           child: Bubble(
-              margin: BubbleEdges.only(top: 15),
-              child: Text(messages[index].message, style: TextStyle(fontSize: 17)),
+            color: index % 2 == 0 ? Colors.white : Theme.of(context).primaryColorLight,
+              padding: BubbleEdges.all(15),
+              margin: BubbleEdges.only(top: 10),
+              child:
+                  Text(messages[index].message, style: TextStyle(fontSize: 17)),
               nip: index % 2 == 0
                   ? BubbleNip.leftBottom
                   : BubbleNip.rightBottom)),
@@ -149,7 +154,7 @@ class _ChatWidgetState extends State<ChatWidget> {
                       color: Colors.white,
                     )),
               ))),
-    ]);
+    ]));
   }
 
   Widget chatInput() {
@@ -162,7 +167,15 @@ class _ChatWidgetState extends State<ChatWidget> {
               maxLines: null,
               maxLength: 200,
               decoration: InputDecoration(
-                  border: InputBorder.none,
+                  border: new OutlineInputBorder(
+                    borderSide: BorderSide(
+                      width: 0,
+                      style: BorderStyle.none,
+                    ),
+                    borderRadius: const BorderRadius.all(
+                      const Radius.circular(10.0),
+                    ),
+                  ),
                   hintText: 'Ecrivez votre message...',
                   counterText: ''),
             )));
@@ -189,6 +202,13 @@ class _ChatWidgetState extends State<ChatWidget> {
 
   Widget inputArea() {
     return Container(
+      decoration: BoxDecoration(color: Colors.white, boxShadow: [
+        BoxShadow(
+          color: Colors.black26,
+          offset: Offset(1.0, 1.0), //(x,y)
+          blurRadius: 8.0,
+        )
+      ]),
       width: width,
       child: Row(
         children: [
@@ -214,11 +234,12 @@ class _ChatWidgetState extends State<ChatWidget> {
   Widget build(BuildContext context) {
     height = MediaQuery.of(context).size.height;
     width = MediaQuery.of(context).size.width;
-    return Column(
-        crossAxisAlignment: CrossAxisAlignment.center,
-        mainAxisSize: MainAxisSize.max,
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [messageArea(), inputArea()]);
+    return Container(
+        child: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.max,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [messageArea(), inputArea()]));
   }
 
   @override
