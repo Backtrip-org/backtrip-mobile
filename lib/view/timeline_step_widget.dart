@@ -35,7 +35,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
                       padding: const EdgeInsets.only(right: 5.0),
                       child: Divider(color: Colors.grey))),
               Text(
-                new DateFormat('EEEE d MMMM', 'fr_FR')
+                new DateFormat('EEEE d MMMM y', 'fr_FR')
                     .format(widget._step.startDatetime),
                 style: TextStyle(
                     color: Colors.black54, fontWeight: FontWeight.normal),
