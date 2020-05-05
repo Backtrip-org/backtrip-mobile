@@ -28,7 +28,7 @@ class TripService {
   }
 
   static List<Trip> parseTrips(String responseBody) {
-    Iterable data = json.decode(responseBody)['data'];
+    Iterable data = json.decode(responseBody);
     return data.map((model) => Trip.fromJson(model)).toList();
   }
 

@@ -16,20 +16,32 @@ class TripList extends StatefulWidget {
 }
 
 class _TripListState extends State<TripList> {
-  Future<List<Trip>> futureTrips;
-  List<Trip> loadedTrips;
+  Future<List<Trip>> ongoingTripsFuture;
+  Future<List<Trip>> comingTripsFuture;
+  Future<List<Trip>> finishedTripsFuture;
 
   @override
   void initState() {
     super.initState();
-    futureTrips = getTrips();
+    getTrips();
+  }
+
+  getTrips() {
+    this.setState(() {
+      ongoingTripsFuture =
+          UserService.getOngoingTrips(BacktripApi.currentUser.id);
+      comingTripsFuture =
+          UserService.getComingTrips(BacktripApi.currentUser.id);
+      finishedTripsFuture =
+          UserService.getFinishedTrips(BacktripApi.currentUser.id);
+    });
   }
 
   Widget tripCard(trip) {
     return Padding(
         padding: const EdgeInsets.all(5.0),
         child: new InkWell(
-          onTap: () => navigateToTripDetail(trip),
+          onTap: () => redirectToTripDetail(trip),
           child: Card(
             child: Column(
               children: [
@@ -56,9 +68,7 @@ class _TripListState extends State<TripList> {
                                 style: Theme.of(context).textTheme.headline,
                               ),
                             ),
-                            ParticipantsListWidget(
-                              trip.participants
-                            )
+                            ParticipantsListWidget(trip.participants)
                           ],
                         ),
                       ),
@@ -67,71 +77,78 @@ class _TripListState extends State<TripList> {
                   ),
                 )
               ],
-            ),)
-          ,
-        )
-    );
+            ),
+          ),
+        ));
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text("Voyages"),
-        ),
-        floatingActionButton: Builder(
-          builder: (ctx) {
-            return FloatingActionButton(
-              onPressed: () {
-                Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CreateTrip())
-                ).then((trip) {
-                  if (trip != null) {
-                    Components.snackBar(ctx,
-                        "Le voyage ${trip.name} a bien été créé !", Colors.green);
-                    this.setState(() {
-                      futureTrips = getTrips();
-                    });
-                  }
-                });
-              },
-              child: Icon(Icons.add),
-//          backgroundColor: secondary,
-            );
-          },
-        ),
-      body: Padding(
-          padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
-          child: FutureBuilder<List<Trip>>(
-              future: futureTrips,
-              builder: (context, snapshot) {
-                if (snapshot.hasData) {
-                  return ListView(
-                    children: <Widget>[
-                      Column(
-                          children: snapshot.data.map((trip) {
-                            return tripCard(trip);
-                          }).toList())
-                    ],
-                  );
-                } else if (snapshot.hasError) {
-                  return Text("${snapshot.error}");
-                }
-                return Center(child: CircularProgressIndicator());
-              })
-      )
-    );
+    return DefaultTabController(
+        length: 3,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text("Voyages"),
+            bottom: TabBar(tabs: [
+              Tab(text: "En cours"),
+              Tab(text: "À venir"),
+              Tab(text: "Terminés")
+            ]),
+          ),
+          body: TabBarView(children: [
+            tripList(ongoingTripsFuture),
+            tripList(comingTripsFuture),
+            tripList(finishedTripsFuture)
+          ]),
+          floatingActionButton: Builder(
+            builder: (ctx) {
+              return FloatingActionButton(
+                  onPressed: () {
+                    redirectToTripCreation(ctx);
+                  },
+                  child: Icon(Icons.add));
+            },
+          ),
+        ));
   }
 
-  void navigateToTripDetail(trip) {
+  Widget tripList(Future<List<Trip>> futureTrips) {
+    return Padding(
+        padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+        child: FutureBuilder<List<Trip>>(
+            future: futureTrips,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return ListView(
+                  children: <Widget>[
+                    Column(
+                        children: snapshot.data.map((trip) {
+                      return tripCard(trip);
+                    }).toList())
+                  ],
+                );
+              } else if (snapshot.hasError) {
+                return Components.snackBar(
+                    context, snapshot.error, Theme.of(context).errorColor);
+              }
+              return Center(child: CircularProgressIndicator());
+            }));
+  }
+
+  void redirectToTripDetail(trip) {
     Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => TripNavbar(trip))
-    );
+        context, MaterialPageRoute(builder: (context) => TripNavbar(trip)));
   }
 
-  Future<List<Trip>> getTrips() {
-    return UserService.getTrips(BacktripApi.currentUser.id);
+  void redirectToTripCreation(BuildContext ctx) {
+    Navigator.push(
+            context, MaterialPageRoute(builder: (context) => CreateTrip()))
+        .then((trip) {
+      if (trip != null) {
+        Components.snackBar(
+            ctx, "Le voyage ${trip.name} a bien été créé !", Colors.green);
+        getTrips();
+      }
+    });
   }
 }
