@@ -200,11 +200,31 @@ class _RegisterWidgetState extends State<RegisterWidget> {
 
   Widget _stepper(BuildContext scaffoldContext) {
     return Stepper(
-      currentStep: _currentStep,
-      steps: steps,
-      onStepContinue: () => _stepperContinue(scaffoldContext),
-      onStepCancel: _stepperCancel,
-      onStepTapped: _stepperTapped,
+        currentStep: _currentStep,
+        steps: steps,
+        onStepContinue: () => _stepperContinue(scaffoldContext),
+        onStepCancel: _stepperCancel,
+        onStepTapped: _stepperTapped,
+        controlsBuilder: (BuildContext context,
+            {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+          return Container(
+            padding: EdgeInsets.only(top: 5),
+            child: Row(
+              children: <Widget>[
+                RaisedButton(
+                  onPressed: onStepContinue,
+                  child: Text("CONTINUER",
+                      style: Theme.of(context).textTheme.button
+                  ),
+                ),
+                FlatButton(
+                  onPressed: onStepCancel,
+                  child: const Text('ANNULER'),
+                ),
+              ],
+            ),
+          );
+        }
     );
   }
 
