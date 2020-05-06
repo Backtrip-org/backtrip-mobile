@@ -2,7 +2,6 @@ import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/trip_invitation_widget.dart';
 import 'package:flutter/material.dart';
-import 'package:backtrip/view/theme/backtrip_theme.dart';
 
 class TripSettings extends StatefulWidget {
   final Trip _trip;
