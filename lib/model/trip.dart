@@ -23,4 +23,8 @@ class Trip {
         participants: _participants
     );
   }
+
+  bool hasCoverPicture() {
+    return this.picturePath != null;
+  }
 }
