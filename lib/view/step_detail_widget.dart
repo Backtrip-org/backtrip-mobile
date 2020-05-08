@@ -1,5 +1,10 @@
 import 'dart:core';
 
+import 'package:backtrip/service/trip_service.dart';
+import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/util/components.dart';
+import 'package:backtrip/util/exception/UnexpectedException.dart';
+import 'package:backtrip/view/participants_list_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:backtrip/model/step.dart' as step_model;
@@ -22,32 +27,63 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     initializeDateFormatting();
   }
 
+  void _joinStep(ctx) {
+    TripService.joinStep(widget._step, BacktripApi.currentUser.id)
+        .then((value) {
+      Components.snackBar(ctx, 'Vous avez rejoint l\'étape `${widget._step.name}`', Colors.green);
+      setState(() {
+        widget._step.participants = value;
+      });
+    }).catchError((e) {
+      if ( e is UnexpectedException) {
+        Components.snackBar(ctx, e.cause, Color(0xff8B0000));
+      } else {
+        Components.snackBar(
+            ctx,
+            "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.",
+            Color(0xff8B0000));
+      }
+    });
+  }
+
   Widget presentationCard() {
     return Card(
       child: Column(
         children: [
           Container(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Expanded(
-                  /*1*/
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              padding: const EdgeInsets.all(20),
+              child: Builder(
+                builder: (ctx) {
+                  return Row(
                     children: [
-                      /*2*/
-                      Container(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Column(children: [
-                          stepName(),
-                        ]),
+                      Expanded(
+                        /*1*/
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            /*2*/
+                            Container(
+                              padding: const EdgeInsets.only(bottom: 8),
+                              child: Column(children: [
+                                stepName(),
+                              ]),
+                            ),
+                          ],
+                        ),
                       ),
+                      Visibility(
+                        child: IconButton(
+                          padding: EdgeInsets.only(bottom: 3),
+                          onPressed: () => _joinStep(ctx),
+                          icon: Icon(Icons.person_add),
+                        ),
+                        visible: !currentUserIsParticipant(),
+                      )
+                      /*3*/
                     ],
-                  ),
-                ),
-                /*3*/
-              ],
-            ),
+                  );
+                },
+              )
           )
         ],
       ),
@@ -77,7 +113,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                           SizedBox(
                             height: 2,
                           ),
-                          participantsList(),
+                          ParticipantsListWidget(widget._step.participants),
                           SizedBox(
                             height: 7,
                           ),
@@ -118,35 +154,35 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
       Container(
           child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.calendar_today,
-            size: 17,
-            color: Theme.of(context).accentColor,
-          ),
-          Padding(
-              padding: const EdgeInsets.only(left: 2),
-              child: Text(getStepDate(),
-                  style: Theme.of(context).textTheme.subhead)),
-        ],
-      )),
+            children: <Widget>[
+              Icon(
+                Icons.calendar_today,
+                size: 17,
+                color: Theme.of(context).accentColor,
+              ),
+              Padding(
+                  padding: const EdgeInsets.only(left: 2),
+                  child: Text(getStepDate(),
+                      style: Theme.of(context).textTheme.subhead)),
+            ],
+          )),
       SizedBox(
         width: 40,
       ),
       Container(
           child: Row(
-        children: <Widget>[
-          Icon(
-            Icons.access_time,
-            size: 17,
-            color: Theme.of(context).accentColor,
-          ),
-          Padding(
-              padding: const EdgeInsets.only(left: 2),
-              child: Text(getStepTime(),
-                  style: Theme.of(context).textTheme.subhead))
-        ],
-      )),
+            children: <Widget>[
+              Icon(
+                Icons.access_time,
+                size: 17,
+                color: Theme.of(context).accentColor,
+              ),
+              Padding(
+                  padding: const EdgeInsets.only(left: 2),
+                  child: Text(getStepTime(),
+                      style: Theme.of(context).textTheme.subhead))
+            ],
+          )),
     ]);
   }
 
@@ -222,5 +258,11 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
 
   String getStepTime() {
     return new DateFormat('HH:mm', 'fr_FR').format(widget._step.startDatetime);
+  }
+
+  bool currentUserIsParticipant() {
+    return widget._step.participants.map((user) => user.id)
+        .toList()
+        .contains(BacktripApi.currentUser.id);
   }
 }

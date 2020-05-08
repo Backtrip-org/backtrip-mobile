@@ -25,6 +25,7 @@ class BacktripTheme {
       textSelectionColor: Color(0xFFB6BDC3),
       textSelectionHandleColor: Color(0xFF7DA9A9),
       tabBarTheme: TabBarTheme(indicator: UnderlineTabIndicator(borderSide: BorderSide(color: Color(0xFF7DA9A9), width: 3))),
+      buttonColor: Color(0xFF6C7584),
       buttonTheme: ButtonThemeData(
           buttonColor: Color(0xFF6C7584),
           textTheme: ButtonTextTheme.normal,
