@@ -41,7 +41,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   Widget build(BuildContext context) {
     return DefaultTabController(
         length: 2,
-        child: Scaffold(
+        /*child: Scaffold(
           appBar: AppBar(
             title: Text(_trip.name),
             bottom: TabBar(tabs: [
@@ -55,11 +55,26 @@ class _TimelineWidgetState extends State<TimelineWidget> {
                 onPressed: _redirectToTripSettings,
               )
             ],
+          ),*/
+        child: new Scaffold(
+          appBar: new PreferredSize(
+            preferredSize: Size.fromHeight(kToolbarHeight),
+            child: new Container(
+              color: new BacktripTheme().theme.primaryColor,
+              child: new SafeArea(
+                child: Column(
+                  children: <Widget>[
+                    new Expanded(child: new Container()),
+                    new TabBar(tabs: [
+                      Tab(text: "Personnelle"),
+                      Tab(text: "Globale"),
+                    ]),
+                  ],
+                ),
+              ),
+            ),
           ),
-          body: TabBarView(children: [
-            personalTimeline(),
-            globalTimeline()
-          ]),
+          body: TabBarView(children: [personalTimeline(), globalTimeline()]),
           floatingActionButton: Builder(
             builder: (ctx) {
               return FloatingActionButton(
@@ -147,7 +162,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   void _redirectToTripSettings() {
     Navigator.push(
         context,
-        MaterialPageRoute(builder: (BuildContext context) => TripSettings(_trip))
-    );
+        MaterialPageRoute(
+            builder: (BuildContext context) => TripSettings(_trip)));
   }
 }
