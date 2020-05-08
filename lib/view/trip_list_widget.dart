@@ -40,11 +40,8 @@ class _TripListState extends State<TripList> {
   }
 
   Widget getDefaultTripCoverPage() {
-    return Image.asset(
-        "assets/images/trip-default.png",
-        width: 600,
-        height: 200,
-        fit: BoxFit.cover);
+    return Image.asset("assets/images/trip-default.png",
+        width: 600, height: 200, fit: BoxFit.cover);
   }
 
   Widget getTripCoverPageFromAPI(Trip trip) {
@@ -57,16 +54,14 @@ class _TripListState extends State<TripList> {
                 headers: {HttpHeaders.authorizationHeader: snapshot.data},
                 width: 600,
                 height: 200,
-                fit: BoxFit.cover
-            );
+                fit: BoxFit.cover);
           }
           return getDefaultTripCoverPage();
-        }
-    );
+        });
   }
 
   Widget getTripCoverPage(Trip trip) {
-    if(trip.hasCoverPicture()) {
+    if (trip.hasCoverPicture()) {
       return getTripCoverPageFromAPI(trip);
     } else {
       return getDefaultTripCoverPage();
@@ -99,6 +94,10 @@ class _TripListState extends State<TripList> {
                                 style: Theme.of(context).textTheme.headline,
                               ),
                             ),
+                            Visibility(
+                              visible: trip.countdown > 0,
+                              child: countdown(trip),
+                            ),
                             ParticipantsListWidget(trip.participants)
                           ],
                         ),
@@ -111,6 +110,22 @@ class _TripListState extends State<TripList> {
             ),
           ),
         ));
+  }
+
+  Widget countdown(trip) {
+    return Padding(
+        padding: EdgeInsets.only(bottom: 15),
+        child: Row(children: [
+          Icon(
+            Icons.timer,
+            size: 22,
+            color: Theme.of(context).accentColor,
+          ),
+          Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text("J - ${trip.countdown}",
+                  style: Theme.of(context).textTheme.subhead))
+        ]));
   }
 
   @override
