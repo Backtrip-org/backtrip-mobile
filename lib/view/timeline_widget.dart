@@ -41,21 +41,6 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   Widget build(BuildContext context) {
     return DefaultTabController(
         length: 2,
-        /*child: Scaffold(
-          appBar: AppBar(
-            title: Text(_trip.name),
-            bottom: TabBar(tabs: [
-              Tab(text: "Personnelle"),
-              Tab(text: "Globale"),
-            ]),
-            actions: <Widget>[
-              IconButton(
-                icon: Icon(Icons.settings),
-                tooltip: 'Administration',
-                onPressed: _redirectToTripSettings,
-              )
-            ],
-          ),*/
         child: new Scaffold(
           appBar: new PreferredSize(
             preferredSize: Size.fromHeight(kToolbarHeight),
