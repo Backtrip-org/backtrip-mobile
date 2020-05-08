@@ -17,6 +17,7 @@ class RegisterWidget extends StatefulWidget {
 
 class _RegisterWidgetState extends State<RegisterWidget> {
   final List<GlobalKey<FormState>> _formKeys = [GlobalKey<FormState>(), GlobalKey<FormState>()];
+  final List<bool> _stepsCompleted = [false, false];
   final List<StepState> _stepStates = [StepState.editing, StepState.indexed];
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -29,7 +30,7 @@ class _RegisterWidgetState extends State<RegisterWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Voyages"),
+          title: Text("Créer votre compte"),
         ),
         body: Builder(
           builder: (scaffoldContext) => _stepper(scaffoldContext),
@@ -199,11 +200,31 @@ class _RegisterWidgetState extends State<RegisterWidget> {
 
   Widget _stepper(BuildContext scaffoldContext) {
     return Stepper(
-      currentStep: _currentStep,
-      steps: steps,
-      onStepContinue: () => _stepperContinue(scaffoldContext),
-      onStepCancel: _stepperCancel,
-      onStepTapped: _stepperTapped,
+        currentStep: _currentStep,
+        steps: steps,
+        onStepContinue: () => _stepperContinue(scaffoldContext),
+        onStepCancel: _stepperCancel,
+        onStepTapped: _stepperTapped,
+        controlsBuilder: (BuildContext context,
+            {VoidCallback onStepContinue, VoidCallback onStepCancel}) {
+          return Container(
+            padding: EdgeInsets.only(top: 5),
+            child: Row(
+              children: <Widget>[
+                RaisedButton(
+                  onPressed: onStepContinue,
+                  child: Text("CONTINUER",
+                      style: Theme.of(context).textTheme.button
+                  ),
+                ),
+                FlatButton(
+                  onPressed: onStepCancel,
+                  child: const Text('ANNULER'),
+                ),
+              ],
+            ),
+          );
+        }
     );
   }
 
@@ -216,8 +237,10 @@ class _RegisterWidgetState extends State<RegisterWidget> {
 
       if (_formKeys[_currentStep].currentState.validate()) {
         _stepStates[_currentStep] = StepState.complete;
+        _stepsCompleted[_currentStep] = true;
       } else {
         _stepStates[_currentStep] = StepState.error;
+        _stepsCompleted[_currentStep] = false;
         return;
       }
       if(_currentStep < steps.length - 1) {
@@ -231,8 +254,10 @@ class _RegisterWidgetState extends State<RegisterWidget> {
     setState(() {
       if (_formKeys[_currentStep].currentState.validate()) {
         _stepStates[_currentStep] = StepState.complete;
+        _stepsCompleted[_currentStep] = true;
       } else {
         _stepStates[_currentStep] = StepState.indexed;
+        _stepsCompleted[_currentStep] = false;
       }
 
       if(_currentStep > 0) {
@@ -246,8 +271,10 @@ class _RegisterWidgetState extends State<RegisterWidget> {
     setState(() {
       if (_formKeys[_currentStep].currentState.validate()) {
         _stepStates[_currentStep] = StepState.complete;
+        _stepsCompleted[_currentStep] = true;
       } else {
         _stepStates[_currentStep] = StepState.indexed;
+        _stepsCompleted[_currentStep] = false;
       }
 
       _currentStep = index;
@@ -314,8 +341,8 @@ class _RegisterWidgetState extends State<RegisterWidget> {
   }
 
   bool areAllFormKeyValid() {
-    for(GlobalKey<FormState> formKey in _formKeys) {
-      if (!formKey.currentState.validate()) {
+    for(bool stepCompleted in _stepsCompleted) {
+      if (!stepCompleted) {
         return false;
       }
     }
