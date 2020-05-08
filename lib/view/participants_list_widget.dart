@@ -1,4 +1,8 @@
+import 'dart:io';
+
 import 'package:backtrip/model/user.dart';
+import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/util/stored_token.dart';
 import 'package:flutter/material.dart';
 
 class ParticipantsListWidget extends StatefulWidget {
@@ -19,7 +23,25 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
 
   _ParticipantsListWidgetState(this.participants, this.radius);
 
-  Widget getParticipantIconWidget(User participant) {
+  Widget getParticipantWithPhoto(User participant) {
+    return FutureBuilder<String>(
+        future: StoredToken.getToken(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return CircleAvatar(
+              backgroundImage: NetworkImage(
+                  '${BacktripApi.path}/file/download/${participant.picturePath}',
+                  headers: {HttpHeaders.authorizationHeader: snapshot.data}
+              ),
+              radius: radius,
+            );
+          }
+          return getParticipantWithoutPhoto(participant);
+        }
+    );
+  }
+
+  Widget getParticipantWithoutPhoto(User participant) {
     String participantInitials = participant.firstName[0] + participant.lastName[0];
     return CircleAvatar(
       backgroundColor: Colors.grey,
@@ -31,13 +53,24 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
     );
   }
 
+  Widget getParticipantIconWidget(User participant) {
+    var result;
+    if (participant.hasProfilePicture()) {
+      result = getParticipantWithPhoto(participant);
+    } else {
+      result = getParticipantWithoutPhoto(participant);
+    }
+
+    return result;
+  }
+
   Widget getXMoreParticipantsWidget() {
     return Text(
-        (participants.length - maxParticipantsToDisplay).toString() + "+",
-        style: TextStyle(
+      (participants.length - maxParticipantsToDisplay).toString() + "+",
+      style: TextStyle(
           color: Theme.of(context).accentColor,
           fontSize: 20
-        ),
+      ),
     );
   }
 
@@ -86,8 +119,8 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
   @override
   Widget build(BuildContext context) {
     return Row(
-      mainAxisAlignment: MainAxisAlignment.start,
-      children: getAllParticipantsIcon()
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: getAllParticipantsIcon()
     );
   }
 

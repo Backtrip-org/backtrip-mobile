@@ -1,3 +1,4 @@
+import 'package:backtrip/view/chat_widget.dart';
 import 'package:backtrip/view/temp_widget.dart';
 import 'package:backtrip/view/timeline_widget.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
@@ -31,7 +32,7 @@ class _TripNavbarState extends State<TripNavbar> {
 
     _children = [
     TimelineWidget(_trip),
-    PlaceholderWidget(Colors.green), // temporary - in the end: chat
+    ChatWidget(_trip),
     PlaceholderWidget(Colors.blue) // temporary  in the end: spending
     ];
   }

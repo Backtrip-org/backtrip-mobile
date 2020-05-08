@@ -1,8 +1,10 @@
 import 'dart:core';
+import 'dart:io';
 
 import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
+import 'package:backtrip/util/stored_token.dart';
 import 'package:backtrip/view/create_trip_widget.dart';
 import 'package:backtrip/view/participants_list_widget.dart';
 import 'package:backtrip/view/trip_navbar_widget.dart';
@@ -37,6 +39,40 @@ class _TripListState extends State<TripList> {
     });
   }
 
+  Widget getDefaultTripCoverPage() {
+    return Image.asset(
+        "assets/images/trip-default.png",
+        width: 600,
+        height: 200,
+        fit: BoxFit.cover);
+  }
+
+  Widget getTripCoverPageFromAPI(Trip trip) {
+    return FutureBuilder<String>(
+        future: StoredToken.getToken(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Image.network(
+                '${BacktripApi.path}/file/download/${trip.picturePath}',
+                headers: {HttpHeaders.authorizationHeader: snapshot.data},
+                width: 600,
+                height: 200,
+                fit: BoxFit.cover
+            );
+          }
+          return getDefaultTripCoverPage();
+        }
+    );
+  }
+
+  Widget getTripCoverPage(Trip trip) {
+    if(trip.hasCoverPicture()) {
+      return getTripCoverPageFromAPI(trip);
+    } else {
+      return getDefaultTripCoverPage();
+    }
+  }
+
   Widget tripCard(trip) {
     return Padding(
         padding: const EdgeInsets.all(5.0),
@@ -45,12 +81,7 @@ class _TripListState extends State<TripList> {
           child: Card(
             child: Column(
               children: [
-                Image.asset(
-                    trip.picturePath?.isEmpty ??
-                        "assets/images/trip-default.png",
-                    width: 600,
-                    height: 200,
-                    fit: BoxFit.cover),
+                getTripCoverPage(trip),
                 Container(
                   padding: const EdgeInsets.all(32),
                   child: Row(

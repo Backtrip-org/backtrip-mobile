@@ -18,7 +18,7 @@ class BacktripTheme {
       }),
       primaryColorBrightness: Brightness.dark,
       primaryColor: Color(0xFF8bbabb),
-      primaryColorLight: Color(0xFFcbecdb),
+      primaryColorLight: Color(0xFFE5F1F1),
       primaryColorDark: Color(0xFF7DA9A9),
       accentColor: Color(0xFF6C7584),
       cursorColor: Color(0xFF6C7584),

@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:backtrip/util/constants.dart';
 import 'package:backtrip/util/exception/LoginException.dart';
 import 'package:backtrip/model/login.dart';
 import 'package:backtrip/util/backtrip_api.dart';
@@ -20,7 +21,7 @@ class AuthService {
       'email': email,
       'password': password,
     });
-    final response = await http.post(uri, headers: header, body: body).timeout(Duration(seconds: 5));
+    final response = await http.post(uri, headers: header, body: body).timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.ok) {
       Login login = Login.fromJson(json.decode(response.body));
@@ -44,7 +45,7 @@ class AuthService {
       'firstname': firstName,
       'lastname': lastName
     });
-    final response = await http.post(uri, headers: header, body: body).timeout(Duration(seconds: 5));
+    final response = await http.post(uri, headers: header, body: body).timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.created) {
       return login(email, password);

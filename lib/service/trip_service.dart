@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:backtrip/model/step.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/util/constants.dart';
 import 'package:backtrip/util/exception/StepException.dart';
 import 'package:backtrip/util/exception/TripAlreadyExistsException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
@@ -49,7 +50,7 @@ class TripService {
     });
     final response = await http
         .post(uri, headers: header, body: body)
-        .timeout(Duration(seconds: 5));
+        .timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.created) {
       return Step.fromJson(json.decode(response.body));
@@ -71,7 +72,7 @@ class TripService {
 //      'picture_path': null
     });
     final response = await http.post(uri, headers: header, body: body)
-        .timeout(Duration(seconds: 5));
+        .timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.created) {
       return Trip.fromJson(json.decode(response.body));
@@ -92,7 +93,7 @@ class TripService {
       'email': email
     });
     final response = await http.post(uri, headers: header, body: body)
-        .timeout(Duration(seconds: 5));
+        .timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.badRequest) {
       throw new UserNotFoundException();
