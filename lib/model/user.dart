@@ -16,4 +16,8 @@ class User {
         email: json['email']
     );
   }
+
+  bool hasProfilePicture() {
+    return this.picturePath != null;
+  }
 }
