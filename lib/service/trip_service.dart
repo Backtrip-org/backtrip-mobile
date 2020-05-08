@@ -14,7 +14,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 
 class TripService {
-  static Future<List<Step>> getTimeline(tripId) async {
+  static Future<List<Step>> getGlobalTimeline(tripId) async {
     var uri = '${BacktripApi.path}/trip/$tripId/timeline';
     var headers = {
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
@@ -24,7 +24,21 @@ class TripService {
     if (response.statusCode == HttpStatus.ok) {
       return compute(parseSteps, response.body);
     } else {
-      throw Exception('Failed to load timeline');
+      throw Exception('Failed to load global timeline');
+    }
+  }
+
+  static Future<List<Step>> getPersonalTimeline(tripId) async {
+    var uri = '${BacktripApi.path}/trip/$tripId/timeline/personal';
+    var headers = {
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    final response = await http.get(uri, headers: headers);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return compute(parseSteps, response.body);
+    } else {
+      throw Exception('Failed to load personal timeline');
     }
   }
 

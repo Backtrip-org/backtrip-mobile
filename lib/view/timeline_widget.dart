@@ -6,6 +6,7 @@ import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/create_step_widget.dart';
 import 'package:backtrip/view/timeline_step_widget.dart';
+import 'package:backtrip/view/trip_settings_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:timeline_list/timeline.dart';
@@ -24,37 +25,82 @@ class TimelineWidget extends StatefulWidget {
 
 class _TimelineWidgetState extends State<TimelineWidget> {
   final Trip _trip;
-  Future<List<step_model.Step>> _futureSteps;
+  Future<List<step_model.Step>> globalTimelineSteps;
+  Future<List<step_model.Step>> personalTimelineSteps;
 
   _TimelineWidgetState(this._trip);
 
   @override
   void initState() {
     super.initState();
-    _futureSteps = TripService.getTimeline(_trip.id);
+    globalTimelineSteps = TripService.getGlobalTimeline(_trip.id);
+    personalTimelineSteps = TripService.getPersonalTimeline(_trip.id);
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        floatingActionButton: FloatingActionButton(
-          onPressed: () {
-            navigateToStepCreation(context);
-          },
-          child: Icon(Icons.add),
-        ),
-        body: new FutureBuilder<List<step_model.Step>>(
-            future: _futureSteps,
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Timeline(
-                    children: getTimelineModelList(snapshot.data),
-                    position: TimelinePosition.Left);
-              } else if (snapshot.hasError) {
-                return Text("${snapshot.error}");
-              }
-              return Center(child: CircularProgressIndicator());
-            }));
+    return DefaultTabController(
+        length: 2,
+        child: Scaffold(
+          appBar: AppBar(
+            title: Text(_trip.name),
+            bottom: TabBar(tabs: [
+              Tab(text: "Personnelle"),
+              Tab(text: "Globale"),
+            ]),
+            actions: <Widget>[
+              IconButton(
+                icon: Icon(Icons.settings),
+                tooltip: 'Administration',
+                onPressed: _redirectToTripSettings,
+              )
+            ],
+          ),
+          body: TabBarView(children: [
+            personalTimeline(),
+            globalTimeline()
+          ]),
+          floatingActionButton: Builder(
+            builder: (ctx) {
+              return FloatingActionButton(
+                onPressed: () {
+                  navigateToStepCreation(context);
+                },
+                child: Icon(Icons.add),
+              );
+            },
+          ),
+        ));
+  }
+
+  Widget personalTimeline() {
+    return FutureBuilder<List<step_model.Step>>(
+        future: personalTimelineSteps,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Timeline(
+                children: getTimelineModelList(snapshot.data),
+                position: TimelinePosition.Left);
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          return Center(child: CircularProgressIndicator());
+        });
+  }
+
+  Widget globalTimeline() {
+    return FutureBuilder<List<step_model.Step>>(
+        future: globalTimelineSteps,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return Timeline(
+                children: getTimelineModelList(snapshot.data),
+                position: TimelinePosition.Left);
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          return Center(child: CircularProgressIndicator());
+        });
   }
 
   void navigateToStepCreation(BuildContext context) {
@@ -65,7 +111,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         Components.snackBar(
             context, "L'étape ${step.name} a bien été créée !", Colors.green);
         this.setState(() {
-          _futureSteps = TripService.getTimeline(_trip.id);
+          globalTimelineSteps = TripService.getGlobalTimeline(_trip.id);
         });
       }
     });
@@ -95,5 +141,12 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         : step.startDatetime.difference(previousStep.startDatetime).inDays !=
                 0 ||
             step.startDatetime.day != previousStep.startDatetime.day;
+  }
+
+  void _redirectToTripSettings() {
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (BuildContext context) => TripSettings(_trip))
+    );
   }
 }

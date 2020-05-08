@@ -40,16 +40,6 @@ class _TripNavbarState extends State<TripNavbar> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text(_trip.name),
-        actions: <Widget>[
-          IconButton(
-            icon: Icon(Icons.settings),
-            tooltip: 'Administration',
-            onPressed: _redirectToTripSettings,
-          )
-        ],
-      ),
       body: _children[_currentIndex],
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Colors.black,
