@@ -112,6 +112,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
             context, "L'étape ${step.name} a bien été créée !", Colors.green);
         this.setState(() {
           globalTimelineSteps = TripService.getGlobalTimeline(_trip.id);
+          personalTimelineSteps = TripService.getPersonalTimeline(_trip.id);
         });
       }
     });
