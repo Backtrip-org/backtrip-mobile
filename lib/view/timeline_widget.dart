@@ -6,6 +6,7 @@ import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/create_step_widget.dart';
 import 'package:backtrip/view/timeline_step_widget.dart';
+import 'package:backtrip/view/empty_list_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:timeline_list/timeline.dart';
@@ -81,9 +82,14 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         future: personalTimelineSteps,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return Timeline(
-                children: getTimelineModelList(snapshot.data),
-                position: TimelinePosition.Left);
+            if (snapshot.data.length > 0) {
+              return Timeline(
+                  children: getTimelineModelList(snapshot.data),
+                  position: TimelinePosition.Left);
+            } else {
+              return EmptyListWidget(
+                  "Vous ne participez à aucune étape", "Rejoignez-en une !");
+            }
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
           }
@@ -96,9 +102,14 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         future: globalTimelineSteps,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return Timeline(
-                children: getTimelineModelList(snapshot.data),
-                position: TimelinePosition.Left);
+            if (snapshot.data.length > 0) {
+              return Timeline(
+                  children: getTimelineModelList(snapshot.data),
+                  position: TimelinePosition.Left);
+            } else {
+              return EmptyListWidget(
+                  "Aucune étape n'a été créée", "Créez-en une !");
+            }
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
           }
@@ -108,7 +119,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
 
   void navigateToStepCreation(BuildContext context) {
     Navigator.push(context,
-        MaterialPageRoute(builder: (context) => CreateStepWidget(_trip)))
+            MaterialPageRoute(builder: (context) => CreateStepWidget(_trip)))
         .then((step) {
       if (step != null) {
         Components.snackBar(
@@ -121,17 +132,14 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   List<TimelineModel> getTimelineModelList(List<step_model.Step> stepList) {
     return stepList
         .map((step) {
-      return TimelineModel(
-          TimelineStepWidget(
-              isFirstStepOfTheDay(stepList, step),
-              step,
-              getTimelines
-          ),
-          position: TimelineItemPosition.random,
-          iconBackground: Colors.transparent,
-          icon: Icon(Icons.assistant_photo,
-              color: Theme.of(context).colorScheme.accentColorDark));
-    })
+          return TimelineModel(
+              TimelineStepWidget(
+                  isFirstStepOfTheDay(stepList, step), step, getTimelines),
+              position: TimelineItemPosition.random,
+              iconBackground: Colors.transparent,
+              icon: Icon(Icons.assistant_photo,
+                  color: Theme.of(context).colorScheme.accentColorDark));
+        })
         .cast<TimelineModel>()
         .toList();
   }
@@ -144,7 +152,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     return previousStep == null
         ? true
         : step.startDatetime.difference(previousStep.startDatetime).inDays !=
-        0 ||
-        step.startDatetime.day != previousStep.startDatetime.day;
+                0 ||
+            step.startDatetime.day != previousStep.startDatetime.day;
   }
 }

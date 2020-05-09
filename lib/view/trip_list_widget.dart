@@ -6,6 +6,7 @@ import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/stored_token.dart';
 import 'package:backtrip/view/create_trip_widget.dart';
+import 'package:backtrip/view/empty_list_widget.dart';
 import 'package:backtrip/view/participants_list_widget.dart';
 import 'package:backtrip/view/trip_navbar_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -21,6 +22,10 @@ class _TripListState extends State<TripList> {
   Future<List<Trip>> ongoingTripsFuture;
   Future<List<Trip>> comingTripsFuture;
   Future<List<Trip>> finishedTripsFuture;
+
+  final String ongoing = "En cours";
+  final String coming = "À venir";
+  final String finished = "Terminé";
 
   @override
   void initState() {
@@ -136,15 +141,15 @@ class _TripListState extends State<TripList> {
           appBar: AppBar(
             title: Text("Voyages"),
             bottom: TabBar(tabs: [
-              Tab(text: "En cours"),
-              Tab(text: "À venir"),
-              Tab(text: "Terminés")
+              Tab(text: ongoing),
+              Tab(text: coming),
+              Tab(text: finished)
             ]),
           ),
           body: TabBarView(children: [
-            tripList(ongoingTripsFuture),
-            tripList(comingTripsFuture),
-            tripList(finishedTripsFuture)
+            tripList(ongoingTripsFuture, ongoing.toLowerCase()),
+            tripList(comingTripsFuture, coming.toLowerCase()),
+            tripList(finishedTripsFuture, finished.toLowerCase())
           ]),
           floatingActionButton: Builder(
             builder: (ctx) {
@@ -158,21 +163,25 @@ class _TripListState extends State<TripList> {
         ));
   }
 
-  Widget tripList(Future<List<Trip>> futureTrips) {
+  Widget tripList(Future<List<Trip>> futureTrips, type) {
     return Padding(
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         child: FutureBuilder<List<Trip>>(
             future: futureTrips,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                return ListView(
-                  children: <Widget>[
-                    Column(
-                        children: snapshot.data.map((trip) {
-                      return tripCard(trip);
-                    }).toList())
-                  ],
-                );
+                if(snapshot.data.length > 0) {
+                  return ListView(
+                    children: <Widget>[
+                      Column(
+                          children: snapshot.data.map((trip) {
+                            return tripCard(trip);
+                          }).toList())
+                    ],
+                  );
+                } else {
+                  return EmptyListWidget("Aucun voyage $type");
+                }
               } else if (snapshot.hasError) {
                 return Components.snackBar(
                     context, snapshot.error, Theme.of(context).errorColor);
