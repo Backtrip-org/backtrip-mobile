@@ -191,9 +191,9 @@ class _TripListState extends State<TripList> {
             context, MaterialPageRoute(builder: (context) => CreateTrip()))
         .then((trip) {
       if (trip != null) {
-        Components.snackBar(
-            ctx, "Le voyage ${trip.name} a bien été créé !", Colors.green);
         getTrips();
+        Navigator.push(
+            context, MaterialPageRoute(builder: (context) => TripNavbar(trip)));
       }
     });
   }
