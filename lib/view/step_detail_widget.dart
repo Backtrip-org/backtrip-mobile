@@ -1,5 +1,6 @@
 import 'dart:core';
 
+import 'package:backtrip/model/user.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
@@ -21,10 +22,13 @@ class StepDetailWidget extends StatefulWidget {
 }
 
 class _StepDetailWidgetState extends State<StepDetailWidget> {
+  final List<User> _participants = <User>[];
+
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
+    _participants.addAll(widget._step.participants);
   }
 
   void _joinStep(ctx) {
@@ -32,7 +36,8 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         .then((value) {
       Components.snackBar(ctx, 'Vous avez rejoint l\'étape `${widget._step.name}`', Colors.green);
       setState(() {
-        widget._step.participants = value;
+        _participants.clear();
+        _participants.addAll(value);
       });
     }).catchError((e) {
       if ( e is UnexpectedException) {
@@ -113,7 +118,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                           SizedBox(
                             height: 2,
                           ),
-                          ParticipantsListWidget(widget._step.participants),
+                          ParticipantsListWidget(_participants),
                           SizedBox(
                             height: 7,
                           ),
