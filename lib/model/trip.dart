@@ -5,9 +5,10 @@ class Trip {
   String name;
   String picturePath;
   int creatorId;
+  int countdown;
   List<User> participants;
 
-  Trip({this.id, this.name, this.picturePath, this.creatorId, this.participants});
+  Trip({this.id, this.name, this.picturePath, this.creatorId, this.countdown, this.participants});
 
   factory Trip.fromJson(dynamic json) {
     var participantsJson = json['users_trips'] as List;
@@ -20,6 +21,7 @@ class Trip {
         name: json['name'],
         picturePath: json['picture_path'],
         creatorId: json['creator_id'],
+        countdown: json['countdown'] ?? 0,
         participants: _participants
     );
   }
