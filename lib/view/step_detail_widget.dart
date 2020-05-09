@@ -144,9 +144,15 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
   }
 
   Row participantLabel() {
+    var participantsText;
+    if(_participants.length == 0) {
+      participantsText = "Pas de participants";
+    } else {
+      participantsText = "Participants";
+    }
     return Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: [Text('Participants')]);
+        children: [Text(participantsText)]);
   }
 
   Widget stepName() {
