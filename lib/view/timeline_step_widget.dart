@@ -12,8 +12,9 @@ import 'package:intl/intl.dart';
 class TimelineStepWidget extends StatefulWidget {
   final bool _displayDay;
   final step_model.Step _step;
+  final VoidCallback onStepRefresh;
 
-  TimelineStepWidget(this._displayDay, this._step);
+  TimelineStepWidget(this._displayDay, this._step, [this.onStepRefresh]);
 
   @override
   _TimelineStepWidgetState createState() => _TimelineStepWidgetState();
@@ -155,6 +156,9 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
 //        }
         _participants.clear();
         _participants.addAll(step.participants);
+        if (widget.onStepRefresh != null) {
+          widget.onStepRefresh();
+        }
       });
     })
     ;

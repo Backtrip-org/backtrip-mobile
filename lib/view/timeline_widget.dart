@@ -33,6 +33,10 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   @override
   void initState() {
     super.initState();
+    getTimelines();
+  }
+
+  void getTimelines() {
     globalTimelineSteps = TripService.getGlobalTimeline(_trip.id);
     personalTimelineSteps = TripService.getPersonalTimeline(_trip.id);
   }
@@ -105,15 +109,12 @@ class _TimelineWidgetState extends State<TimelineWidget> {
 
   void navigateToStepCreation(BuildContext context) {
     Navigator.push(context,
-            MaterialPageRoute(builder: (context) => CreateStepWidget(_trip)))
+        MaterialPageRoute(builder: (context) => CreateStepWidget(_trip)))
         .then((step) {
       if (step != null) {
         Components.snackBar(
             context, "L'étape ${step.name} a bien été créée !", Colors.green);
-        this.setState(() {
-          globalTimelineSteps = TripService.getGlobalTimeline(_trip.id);
-          personalTimelineSteps = TripService.getPersonalTimeline(_trip.id);
-        });
+        getTimelines();
       }
     });
   }
@@ -121,13 +122,17 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   List<TimelineModel> getTimelineModelList(List<step_model.Step> stepList) {
     return stepList
         .map((step) {
-          return TimelineModel(
-              TimelineStepWidget(isFirstStepOfTheDay(stepList, step), step),
-              position: TimelineItemPosition.random,
-              iconBackground: Colors.transparent,
-              icon: Icon(Icons.assistant_photo,
-                  color: Theme.of(context).colorScheme.accentColorDark));
-        })
+      return TimelineModel(
+          TimelineStepWidget(
+              isFirstStepOfTheDay(stepList, step),
+              step,
+              getTimelines
+          ),
+          position: TimelineItemPosition.random,
+          iconBackground: Colors.transparent,
+          icon: Icon(Icons.assistant_photo,
+              color: Theme.of(context).colorScheme.accentColorDark));
+    })
         .cast<TimelineModel>()
         .toList();
   }
@@ -140,8 +145,8 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     return previousStep == null
         ? true
         : step.startDatetime.difference(previousStep.startDatetime).inDays !=
-                0 ||
-            step.startDatetime.day != previousStep.startDatetime.day;
+        0 ||
+        step.startDatetime.day != previousStep.startDatetime.day;
   }
 
   void _redirectToTripSettings() {
