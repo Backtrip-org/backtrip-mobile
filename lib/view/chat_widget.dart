@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:core';
 import 'package:adhara_socket_io/manager.dart';
 import 'package:adhara_socket_io/options.dart';
@@ -16,7 +15,7 @@ import 'package:flutter/scheduler.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
 
 class ChatWidget extends StatefulWidget {
-  Trip _trip;
+  final Trip _trip;
 
   ChatWidget(this._trip);
 
@@ -57,17 +56,17 @@ class _ChatWidgetState extends State<ChatWidget> {
         transports: [Transports.POLLING]));
 
     socket.onConnect((data) => handleConnect(data));
-    socket.onConnecting((data) => print("onConnecting : ${data}"));
-    socket.onConnectTimeout((data) => print("onConnectTimeOut : ${data}"));
-    socket.onConnectError((error) => print("onConnectError : ${error}"));
+    socket.onConnecting((data) => print("onConnecting : $data"));
+    socket.onConnectTimeout((data) => print("onConnectTimeOut : $data"));
+    socket.onConnectError((error) => print("onConnectError : $error"));
     socket.onDisconnect((data) => handleDisconnect(data));
-    socket.onReconnect((data) => print("onReconnect : ${data}"));
-    socket.onReconnecting((data) => print("onReconnecting : ${data}"));
-    socket.onReconnectError((error) => print("onReconnectError : ${error}"));
-    socket.onReconnectFailed((error) => print("onReconnectFailed : ${error}"));
-    socket.onError((error) => print("onError : ${error}"));
-    socket.onPing((data) => print("onPing : ${data}"));
-    socket.onPong((data) => print("onPong : ${data}"));
+    socket.onReconnect((data) => print("onReconnect : $data"));
+    socket.onReconnecting((data) => print("onReconnecting : $data"));
+    socket.onReconnectError((error) => print("onReconnectError : $error"));
+    socket.onReconnectFailed((error) => print("onReconnectFailed : $error"));
+    socket.onError((error) => print("onError : $error"));
+    socket.onPing((data) => print("onPing : $data"));
+    socket.onPong((data) => print("onPong : $data"));
 
     socket.on("message", (data) => handleNewMessage(data));
 
@@ -75,13 +74,13 @@ class _ChatWidgetState extends State<ChatWidget> {
   }
 
   handleConnect(data) {
-    print("onConnect : ${data}");
+    print("onConnect : $data");
     updateConnectionState();
     socket.emit("room_connection", [widget._trip.id]);
   }
 
   handleDisconnect(data) {
-    print("onDisconnect : ${data}");
+    print("onDisconnect : $data");
     updateConnectionState();
   }
 

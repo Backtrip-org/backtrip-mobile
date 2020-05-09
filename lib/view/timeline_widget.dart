@@ -6,7 +6,6 @@ import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/create_step_widget.dart';
 import 'package:backtrip/view/timeline_step_widget.dart';
-import 'package:backtrip/view/trip_settings_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:timeline_list/timeline.dart';
@@ -147,12 +146,5 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         : step.startDatetime.difference(previousStep.startDatetime).inDays !=
         0 ||
         step.startDatetime.day != previousStep.startDatetime.day;
-  }
-
-  void _redirectToTripSettings() {
-    Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (BuildContext context) => TripSettings(_trip)));
   }
 }
