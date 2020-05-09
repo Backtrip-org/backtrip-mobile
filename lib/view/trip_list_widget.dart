@@ -183,7 +183,10 @@ class _TripListState extends State<TripList> {
 
   void redirectToTripDetail(trip) {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => TripNavbar(trip)));
+        context, MaterialPageRoute(builder: (context) => TripNavbar(trip)))
+        .then((context) {
+          getTrips();
+    });
   }
 
   void redirectToTripCreation(BuildContext ctx) {
