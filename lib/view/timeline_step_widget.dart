@@ -21,13 +21,10 @@ class TimelineStepWidget extends StatefulWidget {
 }
 
 class _TimelineStepWidgetState extends State<TimelineStepWidget> {
-  final List<User> _participants = <User>[];
-
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
-    _participants.addAll(widget._step.participants);
   }
 
   Widget day() {
@@ -129,7 +126,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
   }
 
   Widget participants() {
-    return ParticipantsListWidget(_participants, 15);
+    return ParticipantsListWidget(widget._step.participants, 15);
   }
 
   @override
@@ -149,13 +146,11 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
     ).then((step) {
       setState(() {
         /* Update participants in widget._step but we don't need it now */
-//        for (var participant in step.participants) {
-//          if (!widget._step.participants.contains(participant)) {
-//            widget._step.participants.add(participant);
-//          }
-//        }
-        _participants.clear();
-        _participants.addAll(step.participants);
+        for (var participant in step.participants) {
+          if (!widget._step.participants.contains(participant)) {
+            widget._step.participants.add(participant);
+          }
+        }
         if (widget.onStepRefresh != null) {
           widget.onStepRefresh();
         }
