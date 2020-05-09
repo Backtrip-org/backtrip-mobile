@@ -38,6 +38,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
       setState(() {
         _participants.clear();
         _participants.addAll(value);
+        widget._step.participants = value;
       });
     }).catchError((e) {
       if ( e is UnexpectedException) {
@@ -242,7 +243,11 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text(widget._step.name),
+            title: Text(widget._step.name),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context, widget._step),
+            )
         ),
         body: SingleChildScrollView(
           child: Column(
