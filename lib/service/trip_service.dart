@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:backtrip/model/step.dart';
 import 'package:backtrip/model/trip.dart';
+import 'package:backtrip/model/user.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/constants.dart';
 import 'package:backtrip/util/exception/StepException.dart';
@@ -114,5 +115,29 @@ class TripService {
     } else if (response.statusCode != HttpStatus.noContent) {
       throw new UnexpectedException();
     }
+  }
+
+  static Future<List<User>> joinStep(Step step, int userId) async {
+    var uri = '${BacktripApi.path}/trip/${step.tripId}/step/${step.id}/participant';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    var body = jsonEncode(<String, int>{
+      'id': userId
+    });
+    final response = await http.post(uri, headers: header, body: body)
+        .timeout(Constants.timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return compute(parseStepParticipants, response.body);
+    } else {
+      throw new UnexpectedException();
+    }
+  }
+
+  static List<User> parseStepParticipants(String responseBody) {
+    Iterable data = json.decode(responseBody);
+    return data.map((model) => User.fromJson(model)).toList();
   }
 }

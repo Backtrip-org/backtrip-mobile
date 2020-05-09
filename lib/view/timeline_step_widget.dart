@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:backtrip/model/step.dart' as step_model;
+import 'package:backtrip/model/user.dart';
 import 'package:backtrip/view/participants_list_widget.dart';
 import 'package:backtrip/view/step_detail_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -11,18 +12,22 @@ import 'package:intl/intl.dart';
 class TimelineStepWidget extends StatefulWidget {
   final bool _displayDay;
   final step_model.Step _step;
+  final VoidCallback onStepRefresh;
 
-  TimelineStepWidget(this._displayDay, this._step);
+  TimelineStepWidget(this._displayDay, this._step, [this.onStepRefresh]);
 
   @override
   _TimelineStepWidgetState createState() => _TimelineStepWidgetState();
 }
 
 class _TimelineStepWidgetState extends State<TimelineStepWidget> {
+  final List<User> _participants = <User>[];
+
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
+    _participants.addAll(widget._step.participants);
   }
 
   Widget day() {
@@ -124,7 +129,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
   }
 
   Widget participants() {
-    return ParticipantsListWidget(widget._step.participants, 15);
+    return ParticipantsListWidget(_participants, 15);
   }
 
   @override
@@ -141,6 +146,21 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
     Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => StepDetailWidget(widget._step))
-    );
+    ).then((step) {
+      setState(() {
+        /* Update participants in widget._step but we don't need it now */
+//        for (var participant in step.participants) {
+//          if (!widget._step.participants.contains(participant)) {
+//            widget._step.participants.add(participant);
+//          }
+//        }
+        _participants.clear();
+        _participants.addAll(step.participants);
+        if (widget.onStepRefresh != null) {
+          widget.onStepRefresh();
+        }
+      });
+    })
+    ;
   }
 }
