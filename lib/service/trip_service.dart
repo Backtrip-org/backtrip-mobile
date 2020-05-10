@@ -84,7 +84,7 @@ class TripService {
     };
     var body = jsonEncode(<String, String>{
       'name': name,
-//      'picture_path': null
+      'picture_path': ''
     });
     final response = await http.post(uri, headers: header, body: body)
         .timeout(Constants.timeout);

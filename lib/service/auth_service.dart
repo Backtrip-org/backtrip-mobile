@@ -43,7 +43,8 @@ class AuthService {
       'email': email,
       'password': password,
       'firstname': firstName,
-      'lastname': lastName
+      'lastname': lastName,
+      'picture_path': ''
     });
     final response = await http.post(uri, headers: header, body: body).timeout(Constants.timeout);
 
