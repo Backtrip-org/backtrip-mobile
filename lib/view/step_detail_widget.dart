@@ -22,13 +22,10 @@ class StepDetailWidget extends StatefulWidget {
 }
 
 class _StepDetailWidgetState extends State<StepDetailWidget> {
-  final List<User> _participants = <User>[];
-
   @override
   void initState() {
     super.initState();
     initializeDateFormatting();
-    _participants.addAll(widget._step.participants);
   }
 
   void _joinStep(ctx) {
@@ -36,8 +33,6 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         .then((value) {
       Components.snackBar(ctx, 'Vous avez rejoint l\'étape `${widget._step.name}`', Colors.green);
       setState(() {
-        _participants.clear();
-        _participants.addAll(value);
         widget._step.participants = value;
       });
     }).catchError((e) {
@@ -119,7 +114,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                           SizedBox(
                             height: 2,
                           ),
-                          ParticipantsListWidget(_participants),
+                          ParticipantsListWidget(widget._step.participants),
                           SizedBox(
                             height: 7,
                           ),

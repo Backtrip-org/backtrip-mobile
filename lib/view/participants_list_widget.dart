@@ -12,16 +12,15 @@ class ParticipantsListWidget extends StatefulWidget {
   ParticipantsListWidget(this.participants, [this.radius = 20]);
 
   @override
-  _ParticipantsListWidgetState createState() => _ParticipantsListWidgetState(participants, radius);
+  _ParticipantsListWidgetState createState() => _ParticipantsListWidgetState(radius);
 }
 
 
 class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
-  final List<User> participants;
   final int maxParticipantsToDisplay = 4;
   final double radius;
 
-  _ParticipantsListWidgetState(this.participants, this.radius);
+  _ParticipantsListWidgetState(this.radius);
 
   Widget getParticipantWithPhoto(User participant) {
     return FutureBuilder<String>(
@@ -66,7 +65,7 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
 
   Widget getXMoreParticipantsWidget() {
     return Text(
-      (participants.length - maxParticipantsToDisplay).toString() + "+",
+      (widget.participants.length - maxParticipantsToDisplay).toString() + "+",
       style: TextStyle(
           color: Theme.of(context).accentColor,
           fontSize: 20
@@ -75,7 +74,7 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
   }
 
   List<User> getParticipants() {
-    var _participants = participants;
+    var _participants = widget.participants;
     if(tripHasMoreThanMaxParticipantsToDisplay()) {
       _participants = _participants.sublist(0, maxParticipantsToDisplay);
     }
@@ -84,7 +83,7 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
   }
 
   bool tripHasMoreThanMaxParticipantsToDisplay() {
-    return participants.length > maxParticipantsToDisplay;
+    return widget.participants.length > maxParticipantsToDisplay;
   }
 
   void addExtraParticipants(List<Widget> _participants) {
