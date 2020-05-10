@@ -1,6 +1,5 @@
 import 'dart:core';
 
-import 'package:backtrip/model/user.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
@@ -140,7 +139,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
 
   Row participantLabel() {
     var participantsText;
-    if(_participants.length == 0) {
+    if(widget._step.participants.length == 0) {
       participantsText = "Pas de participants";
     } else {
       participantsText = "Participants";
