@@ -179,20 +179,26 @@ class _RegisterWidgetState extends State<RegisterWidget> {
 
   List<Step> get steps => [
     Step(
-        title: Text('Compte'),
-        state: _stepStates[0],
-        content: Form(
+      title: Text('Compte'),
+      state: _stepStates[0],
+      content: Container(
+        child: Form(
           key: _formKeys[0],
           child: _accountStep(),
         ),
-        isActive: true
+        padding: EdgeInsets.all(3),
+      ),
+      isActive: true,
     ),
     Step(
         title: Text('Qui êtes-vous ?'),
-        content: Form(
-          key: _formKeys[1],
-          child: _identityStep(),
-        ) ,
+        content: Container(
+          padding: EdgeInsets.all(3),
+          child: Form(
+            key: _formKeys[1],
+            child: _identityStep(),
+          ),
+        ),
         state: _stepStates[1],
         isActive: true
     )
