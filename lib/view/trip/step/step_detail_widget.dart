@@ -4,7 +4,7 @@ import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
-import 'package:backtrip/view/participants_list_widget.dart';
+import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:backtrip/model/step.dart' as step_model;

@@ -1,11 +1,11 @@
-import 'package:backtrip/view/chat_widget.dart';
-import 'package:backtrip/view/temp_widget.dart';
-import 'package:backtrip/view/timeline_widget.dart';
+import 'package:backtrip/view/trip/chat/chat_widget.dart';
+import 'package:backtrip/view/common/temp_widget.dart';
+import 'package:backtrip/view/trip/timeline/timeline_widget.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
-import 'package:backtrip/view/trip_settings_widget.dart';
+import 'package:backtrip/view/trip/trip_settings_widget.dart';
 import 'package:flutter/material.dart';
 
-import '../model/trip.dart';
+import '../../model/trip.dart';
 
 class TripNavbar extends StatefulWidget {
   final Trip _trip;

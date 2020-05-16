@@ -2,8 +2,8 @@ import 'package:backtrip/service/auth_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/LoginException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
-import 'package:backtrip/view/register_widget.dart';
-import 'package:backtrip/view/trip_list_widget.dart';
+import 'package:backtrip/view/authentification/register_widget.dart';
+import 'package:backtrip/view/trip/trip_list_widget.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
 import 'package:flutter/material.dart';
 

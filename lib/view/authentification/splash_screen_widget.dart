@@ -1,6 +1,6 @@
 import 'package:backtrip/service/auth_service.dart';
-import 'package:backtrip/view/login_widget.dart';
-import 'package:backtrip/view/trip_list_widget.dart';
+import 'package:backtrip/view/authentification/login_widget.dart';
+import 'package:backtrip/view/trip/trip_list_widget.dart';
 import 'package:flutter/material.dart';
 
 
