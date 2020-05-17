@@ -1,10 +1,12 @@
 import 'dart:core';
+import 'dart:io';
 
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/StepException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
@@ -273,7 +275,7 @@ class _CreateStepState extends State<CreateStepWidget> {
           padding: EdgeInsets.only(top: 10),
           child: RaisedButton(
             onPressed: () {
-
+              getFilesFromPhone();
             },
             padding: EdgeInsets.symmetric(vertical: 15),
             child: Text("Ajouter des documents",
@@ -283,6 +285,10 @@ class _CreateStepState extends State<CreateStepWidget> {
                     .button),
           ),
         ));
+  }
+
+  Future<void> getFilesFromPhone() async {
+    List<File> files = await FilePicker.getMultiFile();
   }
 
   void createStep(BuildContext scaffoldContext) {
