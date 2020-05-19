@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:intl/intl.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
+import 'package:path/path.dart' as path;
 
 class CreateStepWidget extends StatefulWidget {
   final Trip _trip;
@@ -28,6 +29,8 @@ class _CreateStepState extends State<CreateStepWidget> {
   final List<StepState> _stepStates = [StepState.editing, StepState.indexed];
   final List<GlobalKey<FormState>> _formKeys = [GlobalKey<FormState>(), GlobalKey<FormState>()];
   final List<bool> _stepsCompleted = [false, false];
+  List<File> selectedFiles = new List<File>();
+  List<Widget> documentsWidgets = new List<Widget>();
   TextEditingController nameController = TextEditingController();
   DateTime _dateTime;
   int _currentStep = 0;
@@ -168,9 +171,11 @@ class _CreateStepState extends State<CreateStepWidget> {
 
   Widget _documentationStep() {
     return Container(
+      height: 150,
       child: Column(
         children: <Widget>[
-          _addDocumentsButton()
+          _documentList(),
+          _addDocumentsButton(),
         ],
       ),
     );
@@ -275,7 +280,24 @@ class _CreateStepState extends State<CreateStepWidget> {
           padding: EdgeInsets.only(top: 10),
           child: RaisedButton(
             onPressed: () {
-              getFilesFromPhone();
+              getFilesFromPhone().then( (value) {
+                  setState(() {
+                    documentsWidgets.clear();
+                    for(File file in selectedFiles) {
+                      print(path.basename(file.path));
+                      String filename = path.basename(file.path);
+                      documentsWidgets.add(
+                          new Card(
+                            child: Padding(
+                              padding: EdgeInsets.all(16.0),
+                              child: Text(filename),
+                            ),
+                          )
+                      );
+                    }
+                  });
+                }
+              );
             },
             padding: EdgeInsets.symmetric(vertical: 15),
             child: Text("Ajouter des documents",
@@ -287,8 +309,48 @@ class _CreateStepState extends State<CreateStepWidget> {
         ));
   }
 
+  Widget _documentList() {
+    return Expanded(
+      child: documentsWidgets.length > 0 ? ListView.builder(
+          itemCount: documentsWidgets.length,
+          itemBuilder: (BuildContext context, int index){
+            return Dismissible(
+              key: UniqueKey(),
+              direction: DismissDirection.endToStart,
+              child: documentsWidgets[index],
+              background: Container(),
+              secondaryBackground: Container(
+                child: Center(
+                  child: Text(
+                    'Supprimer',
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+                color: Colors.red,
+              ),
+              onDismissed: (direction) {
+                setState(() {
+                  documentsWidgets.removeAt(index);
+                  selectedFiles.removeAt(index);
+                });
+              },
+            );// return your widget
+          }) : Center(child: noDocumentsCard()),
+    );
+  }
+
+  Widget noDocumentsCard() {
+    return Card(
+      child: Padding(
+        padding: EdgeInsets.all(16.0),
+        child: Text("Aucun document n'a été ajouté."),
+      ),
+    );
+  }
+
   Future<void> getFilesFromPhone() async {
-    List<File> files = await FilePicker.getMultiFile();
+    List<File> pickedFiles = await FilePicker.getMultiFile();
+    selectedFiles.addAll(pickedFiles);
   }
 
   void createStep(BuildContext scaffoldContext) {
