@@ -7,6 +7,9 @@ class Step {
   int tripId;
   List<User> participants;
 
+  static const nameMinLength = 2;
+  static const nameMaxLength = 20;
+
   Step({this.id, this.name, this.startDatetime, this.tripId, this.participants});
 
   factory Step.fromJson(dynamic json) {

@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:backtrip/model/trip.dart';
+import 'package:backtrip/model/step.dart' as StepModel;
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/StepException.dart';
@@ -8,6 +9,7 @@ import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
 
@@ -38,9 +40,14 @@ class _CreateStepState extends State<CreateStepWidget> {
           ),
           TextFormField(
               controller: nameController,
+              inputFormatters: [
+                new LengthLimitingTextInputFormatter(StepModel.Step.nameMaxLength)
+              ],
               validator: (value) {
                 if (value.isEmpty) {
-                  return 'Veuillez renseigner un nom.';
+                  return 'Veuillez renseigner un nom';
+                } else if (value.length < StepModel.Step.nameMinLength) {
+                  return 'Le nom doit comporter au moins ${StepModel.Step.nameMinLength} caractères';
                 }
                 return null;
               },
