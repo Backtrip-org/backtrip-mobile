@@ -3,7 +3,7 @@ import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/util/exception/UserAlreadyExistsException.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
-import 'package:backtrip/view/trip_list_widget.dart';
+import 'package:backtrip/view/trip/trip_list_widget.dart';
 import 'package:flutter/material.dart';
 
 class RegisterWidget extends StatefulWidget {

@@ -5,13 +5,13 @@ import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/stored_token.dart';
-import 'package:backtrip/view/create_trip_widget.dart';
-import 'package:backtrip/view/empty_list_widget.dart';
-import 'package:backtrip/view/participants_list_widget.dart';
-import 'package:backtrip/view/trip_navbar_widget.dart';
+import 'package:backtrip/view/trip/create_trip_widget.dart';
+import 'package:backtrip/view/common/empty_list_widget.dart';
+import 'package:backtrip/view/common/participants_list_widget.dart';
+import 'package:backtrip/view/trip/trip_navbar_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import '../model/trip.dart';
+import '../../model/trip.dart';
 
 class TripList extends StatefulWidget {
   @override

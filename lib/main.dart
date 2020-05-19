@@ -1,4 +1,4 @@
-import 'package:backtrip/view/splash_screen_widget.dart';
+import 'package:backtrip/view/authentification/splash_screen_widget.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
 import 'package:flutter/material.dart';
 
