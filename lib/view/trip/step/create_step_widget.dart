@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:backtrip/model/trip.dart';
+import 'package:backtrip/model/step.dart' as StepModel;
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/StepException.dart';
@@ -125,8 +126,8 @@ class _CreateStepState extends State<CreateStepWidget> {
           child: RaisedButton(
             onPressed: () {
               if (_formKey.currentState.validate()) {
-                TripService.createStep(nameController.text.trim(),
-                        _dateTime.toString(), _trip.id)
+                StepModel.Step step = StepModel.Step(name: nameController.text.trim(), startDatetime: _dateTime, tripId: _trip.id);
+                TripService.createStep(step)
                     .then((step) {
                   Navigator.pop(context, step);
                 }).catchError((e) {

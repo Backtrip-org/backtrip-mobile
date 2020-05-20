@@ -53,16 +53,15 @@ class TripService {
     return data.map((model) => Step.fromJson(model)).toList();
   }
 
-  static Future<Step> createStep(String name, String date, tripId) async {
-    var uri = '${BacktripApi.path}/trip/$tripId/step';
+  static Future<Step> createStep(Step step) async {
+    var uri = '${BacktripApi.path}/trip/${step.tripId}/step';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
     };
-    var body = jsonEncode(<String, String>{
-      'name': name,
-      'start_datetime': date,
-    });
+
+    var body = jsonEncode(step.toJson());
+
     final response = await http
         .post(uri, headers: header, body: body)
         .timeout(Constants.timeout);
