@@ -10,15 +10,23 @@ class Step {
   String notes;
   int tripId;
   List<User> participants;
-  String type;
+  static const String type = 'Base';
 
-  Step({this.id, this.name, this.startDatetime, this.endDateTime, this.startAddress, this.phoneNumber, this.notes, this.tripId, this.participants, this.type = 'Base'});
+  Step(
+      {this.id,
+      this.name,
+      this.startDatetime,
+      this.endDateTime,
+      this.startAddress,
+      this.phoneNumber,
+      this.notes,
+      this.tripId,
+      this.participants});
 
   factory Step.fromJson(dynamic json) {
     var participantsJson = json['users_steps'] as List;
-    List<User> _participants = participantsJson
-        .map((user) => User.fromJson(user))
-        .toList();
+    List<User> _participants =
+        participantsJson.map((user) => User.fromJson(user)).toList();
 
     return Step(
         id: json['id'],
@@ -29,13 +37,10 @@ class Step {
         phoneNumber: json['phone_number'],
         notes: json['notes'],
         tripId: json['trip_id'],
-        type: json['type'],
-        participants: _participants
-    );
+        participants: _participants);
   }
 
-  Map<String, dynamic> toJson() =>
-      {
+  Map<String, dynamic> toJson() => {
         'name': name,
         'start_datetime': startDatetime?.toIso8601String(),
         'end_datetime': endDateTime?.toIso8601String(),
