@@ -1,5 +1,6 @@
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/user.dart';
+import 'package:flutter/material.dart' as material;
 
 class StepTransport extends Step {
   String reservationNumber;
@@ -7,6 +8,9 @@ class StepTransport extends Step {
   String endAddress;
 
   static const String type = 'Transport';
+
+  @override
+  final material.IconData icon = material.Icons.directions_walk;
 
   StepTransport(
       {id,

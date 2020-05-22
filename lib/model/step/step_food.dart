@@ -1,8 +1,12 @@
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/user.dart';
+import 'package:flutter/material.dart' as material;
 
 class StepFood extends Step {
   static const String type = 'Food';
+
+  @override
+  final material.IconData icon = material.Icons.fastfood;
 
   StepFood(
       {id,

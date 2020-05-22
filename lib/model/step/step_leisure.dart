@@ -1,8 +1,12 @@
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/user.dart';
+import 'package:flutter/material.dart' as material;
 
 class StepLeisure extends Step {
   static const String type = 'Leisure';
+
+  @override
+  final material.IconData icon = material.Icons.videogame_asset;
 
   StepLeisure(
       {id,

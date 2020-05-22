@@ -1,8 +1,12 @@
 import 'package:backtrip/model/step/step_transport.dart';
 import 'package:backtrip/model/user.dart';
+import 'package:flutter/material.dart' as material;
 
 class StepTransportTaxi extends StepTransport {
   static const String type = 'TransportTaxi';
+
+  @override
+  final material.IconData icon = material.Icons.local_taxi;
 
   StepTransportTaxi(
       {id,

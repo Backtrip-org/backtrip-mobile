@@ -1,4 +1,5 @@
 import 'package:backtrip/model/user.dart';
+import 'package:flutter/material.dart' as material;
 
 class Step {
   int id;
@@ -11,6 +12,7 @@ class Step {
   int tripId;
   List<User> participants;
   static const String type = 'Base';
+  final material.IconData icon = material.Icons.assistant_photo;
 
   Step(
       {this.id,
