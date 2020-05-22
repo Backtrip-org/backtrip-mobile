@@ -9,7 +9,7 @@ import 'package:backtrip/model/step/step_transport_taxi.dart';
 import 'package:backtrip/model/step/step_transport_train.dart';
 
 class StepFactory {
-  final Map<String, Function> StepEquivalences = {
+  final Map<String, Function> StepEquivalencies = {
     Step.type: (json) => Step.fromJson(json),
     StepFood.type: (json) => StepFood.fromJson(json),
     StepLeisure.type: (json) => StepLeisure.fromJson(json),
@@ -22,6 +22,6 @@ class StepFactory {
   };
 
   Step getStep(dynamic json) {
-    return StepEquivalences[json['type']](json);
+    return StepEquivalencies[json['type']](json);
   }
 }
