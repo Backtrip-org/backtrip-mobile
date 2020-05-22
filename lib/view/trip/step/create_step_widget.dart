@@ -1,7 +1,7 @@
 import 'dart:core';
 
 import 'package:backtrip/model/trip.dart';
-import 'package:backtrip/model/step.dart' as StepModel;
+import 'package:backtrip/model/step/step.dart' as StepModel;
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/StepException.dart';

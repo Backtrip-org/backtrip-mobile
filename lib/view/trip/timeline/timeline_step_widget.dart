@@ -1,6 +1,6 @@
 import 'dart:core';
 
-import 'package:backtrip/model/step.dart' as step_model;
+import 'package:backtrip/model/step/step.dart' as step_model;
 import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_widget.dart';
 import 'package:flutter/cupertino.dart';

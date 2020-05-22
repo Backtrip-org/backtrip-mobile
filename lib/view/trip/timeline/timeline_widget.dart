@@ -1,6 +1,6 @@
 import 'dart:core';
 
-import 'package:backtrip/model/step.dart' as step_model;
+import 'package:backtrip/model/step/step.dart' as step_model;
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
