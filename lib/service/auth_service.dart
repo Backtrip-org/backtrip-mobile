@@ -21,7 +21,9 @@ class AuthService {
       'email': email,
       'password': password,
     });
-    final response = await http.post(uri, headers: header, body: body).timeout(Constants.timeout);
+    final response = await http
+        .post(uri, headers: header, body: body)
+        .timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.ok) {
       Login login = Login.fromJson(json.decode(response.body));
@@ -34,7 +36,25 @@ class AuthService {
     }
   }
 
-  static Future<void> register(String email, String password, String firstName, String lastName) async {
+  static Future<void> logout() async {
+    var uri = '${BacktripApi.path}/auth/logout';
+
+    var headers = {
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+
+    final response =
+        await http.post(uri, headers: headers).timeout(Constants.timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      StoredToken.delete();
+    } else {
+      throw new UnexpectedException();
+    }
+  }
+
+  static Future<void> register(
+      String email, String password, String firstName, String lastName) async {
     var uri = '${BacktripApi.path}/user/';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -46,7 +66,9 @@ class AuthService {
       'lastname': lastName,
       'picture_path': ''
     });
-    final response = await http.post(uri, headers: header, body: body).timeout(Constants.timeout);
+    final response = await http
+        .post(uri, headers: header, body: body)
+        .timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.created) {
       return login(email, password);
@@ -64,8 +86,9 @@ class AuthService {
     };
     final response = await http.get(uri, headers: headers);
 
-    if(response.statusCode == HttpStatus.ok) {
-      BacktripApi.currentUser = new CurrentUser(json.decode(response.body)['id']);
+    if (response.statusCode == HttpStatus.ok) {
+      BacktripApi.currentUser =
+          new CurrentUser(json.decode(response.body)['id']);
     } else {
       throw new InvalidTokenException();
     }

@@ -1,10 +1,13 @@
 import 'dart:core';
 import 'dart:io';
 
+import 'package:backtrip/service/auth_service.dart';
 import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
+import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/util/stored_token.dart';
+import 'package:backtrip/view/authentification/login_widget.dart';
 import 'package:backtrip/view/trip/create_trip_widget.dart';
 import 'package:backtrip/view/common/empty_list_widget.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
@@ -140,6 +143,15 @@ class _TripListState extends State<TripList> {
         child: Scaffold(
           appBar: AppBar(
             title: Text("Voyages"),
+            actions: <Widget>[
+              Builder(
+                builder: (context) => IconButton(
+                  icon: Icon(Icons.exit_to_app, color: Colors.white),
+                  tooltip: 'Déconnexion',
+                  onPressed: () => logout(context),
+                ),
+              )
+            ],
             bottom: TabBar(tabs: [
               Tab(text: ongoing),
               Tab(text: coming),
@@ -170,13 +182,13 @@ class _TripListState extends State<TripList> {
             future: futureTrips,
             builder: (context, snapshot) {
               if (snapshot.hasData) {
-                if(snapshot.data.length > 0) {
+                if (snapshot.data.length > 0) {
                   return ListView(
                     children: <Widget>[
                       Column(
                           children: snapshot.data.map((trip) {
-                            return tripCard(trip);
-                          }).toList())
+                        return tripCard(trip);
+                      }).toList())
                     ],
                   );
                 } else {
@@ -192,9 +204,9 @@ class _TripListState extends State<TripList> {
 
   void redirectToTripDetail(trip) {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => TripNavbar(trip)))
+            context, MaterialPageRoute(builder: (context) => TripNavbar(trip)))
         .then((context) {
-          getTrips();
+      getTrips();
     });
   }
 
@@ -208,5 +220,18 @@ class _TripListState extends State<TripList> {
             context, MaterialPageRoute(builder: (context) => TripNavbar(trip)));
       }
     });
+  }
+
+  void logout(context) {
+    AuthService.logout().then((_) => redirectToLogin(context)).catchError(
+        (error) => Components.snackBar(
+            context, error, Theme.of(context).errorColor));
+  }
+
+  void redirectToLogin(context) {
+    Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (BuildContext context) => LoginWidget()),
+        (Route<dynamic> route) => false);
   }
 }
