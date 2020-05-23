@@ -5,11 +5,11 @@ import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
+import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:backtrip/model/step/step.dart' as step_model;
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 
 class StepDetailWidget extends StatefulWidget {
   final step_model.Step _step;
@@ -30,12 +30,13 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
   void _joinStep(ctx) {
     TripService.joinStep(widget._step, BacktripApi.currentUser.id)
         .then((value) {
-      Components.snackBar(ctx, 'Vous avez rejoint l\'étape `${widget._step.name}`', Colors.green);
+      Components.snackBar(ctx,
+          'Vous avez rejoint l\'étape `${widget._step.name}`', Colors.green);
       setState(() {
         widget._step.participants = value;
       });
     }).catchError((e) {
-      if ( e is UnexpectedException) {
+      if (e is UnexpectedException) {
         Components.snackBar(ctx, e.cause, Color(0xff8B0000));
       } else {
         Components.snackBar(
@@ -83,8 +84,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                     ],
                   );
                 },
-              )
-          )
+              ))
         ],
       ),
     );
@@ -107,7 +107,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                       Container(
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Column(children: [
-                          stepDate(),
+                          StepPeriodWidget(widget._step),
                           Divider(),
                           participantLabel(),
                           SizedBox(
@@ -139,7 +139,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
 
   Row participantLabel() {
     var participantsText;
-    if(widget._step.participants.length == 0) {
+    if (widget._step.participants.length == 0) {
       participantsText = "Pas de participants";
     } else {
       participantsText = "Participants";
@@ -150,77 +150,9 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
   }
 
   Widget stepName() {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children:[Text(widget._step.name,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25))]);
-  }
-
-  Widget stepDate() {
     return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-      Container(
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.calendar_today,
-                size: 17,
-                color: Theme.of(context).accentColor,
-              ),
-              Padding(
-                  padding: const EdgeInsets.only(left: 2),
-                  child: Text(getStepDate(),
-                      style: Theme.of(context).textTheme.subhead)),
-            ],
-          )),
-      SizedBox(
-        width: 40,
-      ),
-      Container(
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.access_time,
-                size: 17,
-                color: Theme.of(context).accentColor,
-              ),
-              Padding(
-                  padding: const EdgeInsets.only(left: 2),
-                  child: Text(getStepTime(),
-                      style: Theme.of(context).textTheme.subhead))
-            ],
-          )),
-    ]);
-  }
-
-  Widget participantsList() {
-    return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-      CircleAvatar(
-        backgroundColor: Colors.grey,
-        child: Text('AB',
-            style: TextStyle(
-              color: Colors.white,
-            )),
-      ),
-      SizedBox(
-        width: 3,
-      ),
-      CircleAvatar(
-        backgroundColor: Colors.grey,
-        child: Text('VG',
-            style: TextStyle(
-              color: Colors.white,
-            )),
-      ),
-      SizedBox(
-        width: 3,
-      ),
-      CircleAvatar(
-        backgroundColor: Colors.grey,
-        child: Text('CC',
-            style: TextStyle(
-              color: Colors.white,
-            )),
-      )
+      Text(widget._step.name,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25))
     ]);
   }
 
@@ -247,8 +179,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context, widget._step),
-            )
-        ),
+            )),
         body: SingleChildScrollView(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -262,16 +193,9 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         ));
   }
 
-  String getStepDate() {
-    return new DateFormat.yMMMd('fr_FR').format(widget._step.startDatetime);
-  }
-
-  String getStepTime() {
-    return new DateFormat('HH:mm', 'fr_FR').format(widget._step.startDatetime);
-  }
-
   bool currentUserIsParticipant() {
-    return widget._step.participants.map((user) => user.id)
+    return widget._step.participants
+        .map((user) => user.id)
         .toList()
         .contains(BacktripApi.currentUser.id);
   }
