@@ -28,24 +28,27 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     initializeDateFormatting();
   }
 
-  void _joinStep(ctx) {
-    TripService.joinStep(widget._step, BacktripApi.currentUser.id)
-        .then((value) {
-      Components.snackBar(ctx,
-          'Vous avez rejoint l\'étape `${widget._step.name}`', Colors.green);
-      setState(() {
-        widget._step.participants = value;
-      });
-    }).catchError((e) {
-      if (e is UnexpectedException) {
-        Components.snackBar(ctx, e.cause, Color(0xff8B0000));
-      } else {
-        Components.snackBar(
-            ctx,
-            "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.",
-            Color(0xff8B0000));
-      }
-    });
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+            title: Text(widget._step.name),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context, widget._step),
+            )),
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              presentationCard(),
+              informationCard(),
+              notesCard(),
+              documentsButton()
+            ],
+          ),
+        ));
   }
 
   Widget presentationCard() {
@@ -91,52 +94,40 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     );
   }
 
-  Widget informationCard() {
-    return Card(
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Expanded(
-                  /*1*/
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /*2*/
-                      Container(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Column(children: [
-                          StepPeriodWidget(widget._step),
-                          Divider(),
-                          phoneNumber(),
-                          participantLabel(),
-                          SizedBox(
-                            height: 7,
-                          ),
-                          ParticipantsListWidget(widget._step.participants),
-                          SizedBox(
-                            height: 7,
-                          ),
-                          photoLabel(),
-                        ]),
-                      ),
-                    ],
-                  ),
-                ),
-                /*3*/
-              ],
-            ),
-          )
-        ],
-      ),
-    );
+  Widget stepName() {
+    return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+      Text(widget._step.name,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25))
+    ]);
   }
 
-  Row photoLabel() {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.start, children: [Text('Photos')]);
+  bool currentUserIsParticipant() {
+    return widget._step.participants
+        .map((user) => user.id)
+        .toList()
+        .contains(BacktripApi.currentUser.id);
+  }
+
+  Widget informationCard() {
+    return Card(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                period(),
+                phoneNumber(),
+                participants(),
+                photoLabel(),
+        ]),
+    ));
+  }
+
+  Widget period() {
+    return Column(children: [
+      StepPeriodWidget(widget._step),
+      Divider(),
+    ]);
   }
 
   Widget phoneNumber() {
@@ -163,6 +154,19 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         ]));
   }
 
+  Widget participants() {
+    return Column(children: [
+      participantLabel(),
+      SizedBox(
+        height: 7,
+      ),
+      ParticipantsListWidget(widget._step.participants),
+      SizedBox(
+        height: 7,
+      ),
+    ]);
+  }
+
   Row participantLabel() {
     var participantsText;
     if (widget._step.participants.length == 0) {
@@ -175,11 +179,9 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         children: [Text(participantsText)]);
   }
 
-  Widget stepName() {
-    return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-      Text(widget._step.name,
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25))
-    ]);
+  Row photoLabel() {
+    return Row(
+        mainAxisAlignment: MainAxisAlignment.start, children: [Text('Photos')]);
   }
 
   Widget notesCard() {
@@ -215,33 +217,23 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         ));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            title: Text(widget._step.name),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context, widget._step),
-            )),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              presentationCard(),
-              informationCard(),
-              notesCard(),
-              documentsButton()
-            ],
-          ),
-        ));
-  }
-
-  bool currentUserIsParticipant() {
-    return widget._step.participants
-        .map((user) => user.id)
-        .toList()
-        .contains(BacktripApi.currentUser.id);
+  void _joinStep(context) {
+    TripService.joinStep(widget._step, BacktripApi.currentUser.id)
+        .then((value) {
+      Components.snackBar(context,
+          'Vous avez rejoint l\'étape `${widget._step.name}`', Colors.green);
+      setState(() {
+        widget._step.participants = value;
+      });
+    }).catchError((e) {
+      if (e is UnexpectedException) {
+        Components.snackBar(context, e.cause, Color(0xff8B0000));
+      } else {
+        Components.snackBar(
+            context,
+            "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.",
+            Color(0xff8B0000));
+      }
+    });
   }
 }
