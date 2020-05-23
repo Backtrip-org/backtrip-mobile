@@ -43,7 +43,7 @@ class StepPeriodWidget extends StatelessWidget {
                 color: material.Theme.of(context).accentColor,
               ),
               Padding(
-                  padding: const EdgeInsets.only(left: 4),
+                  padding: const EdgeInsets.only(left: 8),
                   child: Text(DateFormat.yMMMd('fr_FR').format(date),
                       style: material.Theme.of(context).textTheme.subhead)),
             ],

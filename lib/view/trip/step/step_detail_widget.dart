@@ -10,6 +10,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:backtrip/model/step/step.dart' as step_model;
 import 'package:intl/date_symbol_data_local.dart';
+import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 
 class StepDetailWidget extends StatefulWidget {
   final step_model.Step _step;
@@ -109,9 +110,10 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                         child: Column(children: [
                           StepPeriodWidget(widget._step),
                           Divider(),
+                          phoneNumber(),
                           participantLabel(),
                           SizedBox(
-                            height: 2,
+                            height: 7,
                           ),
                           ParticipantsListWidget(widget._step.participants),
                           SizedBox(
@@ -135,6 +137,30 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
   Row photoLabel() {
     return Row(
         mainAxisAlignment: MainAxisAlignment.start, children: [Text('Photos')]);
+  }
+
+  Widget phoneNumber() {
+    var phoneNumber = widget._step.phoneNumber ?? "0";
+    return Visibility(
+        visible: widget._step.phoneNumber != null,
+        child: Column(children: [
+          Padding(
+              padding: EdgeInsets.symmetric(vertical: 5),
+              child: Row(children: [
+                Icon(Icons.phone,
+                    size: 20, color: Theme.of(context).accentColor),
+                SizedBox(width: 5),
+                InkWell(
+                    child: Text(phoneNumber,
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: 16,
+                          letterSpacing: 1,
+                        )),
+                    onTap: () => UrlLauncher.launch('tel:+${phoneNumber}'))
+              ])),
+          Divider()
+        ]));
   }
 
   Row participantLabel() {
