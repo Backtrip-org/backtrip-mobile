@@ -8,6 +8,9 @@ class Trip {
   int countdown;
   List<User> participants;
 
+  static const nameMinLength = 2;
+  static const nameMaxLength = 20;
+
   Trip({this.id, this.name, this.picturePath, this.creatorId, this.countdown, this.participants});
 
   factory Trip.fromJson(dynamic json) {

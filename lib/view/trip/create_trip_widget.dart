@@ -1,8 +1,10 @@
+import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/TripAlreadyExistsException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 class CreateTrip extends StatefulWidget {
   CreateTrip();
@@ -24,9 +26,14 @@ class _CreateTripState extends State<CreateTrip> {
         children: <Widget>[
           TextFormField(
               controller: _nameController,
+              inputFormatters: [
+                new LengthLimitingTextInputFormatter(Trip.nameMaxLength)
+              ],
               validator: (value) {
                 if (value.isEmpty) {
-                  return 'Veuillez renseigner un nom.';
+                  return 'Veuillez renseigner un nom';
+                } else if (value.length < Trip.nameMinLength) {
+                  return 'Le nom doit comporter au moins ${Trip.nameMinLength} caractères';
                 }
                 return null;
               },
