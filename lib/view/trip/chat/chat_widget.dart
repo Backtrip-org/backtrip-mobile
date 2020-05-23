@@ -116,8 +116,10 @@ class _ChatWidgetState extends State<ChatWidget> {
                           },
                         );
                       } else if (snapshot.hasError) {
-                        Components.snackBar(context, snapshot.error,
-                            Theme.of(context).errorColor);
+                        WidgetsBinding.instance.addPostFrameCallback((_) {
+                          Components.snackBar(context, snapshot.error,
+                              Theme.of(context).errorColor);
+                        });
                       }
                       return Center(child: CircularProgressIndicator());
                     }))));
