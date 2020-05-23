@@ -156,6 +156,24 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     ]);
   }
 
+  Widget notesCard() {
+    return Card(
+        child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                Row(children: [
+                  Icon(Icons.short_text),
+                  SizedBox(width: 5),
+                  Text("Notes", style: Theme.of(context).textTheme.title)
+                ]),
+                SizedBox(height: 5),
+                Text(widget._step.notes ?? "Aucune note pour le moment !")
+              ],
+            )));
+  }
+
   Container documentsButton() {
     return Container(
         margin: const EdgeInsets.only(left: 15.0, right: 15.0),
@@ -187,6 +205,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             children: <Widget>[
               presentationCard(),
               informationCard(),
+              notesCard(),
               documentsButton()
             ],
           ),
