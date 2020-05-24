@@ -357,7 +357,11 @@ class _CreateStepState extends State<CreateStepWidget> {
       TripService.createStep(nameController.text.trim(),
           _dateTime.toString(), _trip.id)
           .then((step) {
-        Navigator.pop(context, step);
+            Future.wait(selectedFiles.map((File selectedFile) async {
+              await TripService.addDocumentToStep(_trip.id, step.id, selectedFile);
+            })).then((response) {
+              Navigator.pop(context, step);
+            });
       }).catchError((e) {
         if (e is BadStepException || e is UnexpectedException) {
           Components.snackBar(
