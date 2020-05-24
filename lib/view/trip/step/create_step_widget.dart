@@ -287,11 +287,14 @@ class _CreateStepState extends State<CreateStepWidget> {
                       print(path.basename(file.path));
                       String filename = path.basename(file.path);
                       documentsWidgets.add(
-                          new Card(
-                            child: Padding(
-                              padding: EdgeInsets.all(16.0),
-                              child: Text(filename),
-                            ),
+                          new SizedBox(
+                              width: MediaQuery.of(context).size.width,
+                              child: new Card(
+                                child: Padding(
+                                  padding: EdgeInsets.all(16.0),
+                                  child: Text(filename),
+                                ),
+                              )
                           )
                       );
                     }
@@ -340,11 +343,14 @@ class _CreateStepState extends State<CreateStepWidget> {
   }
 
   Widget noDocumentsCard() {
-    return Card(
-      child: Padding(
-        padding: EdgeInsets.all(16.0),
-        child: Text("Aucun document n'a été ajouté."),
-      ),
+    return SizedBox(
+      width: MediaQuery.of(context).size.width,
+      child: Card(
+        child: Padding(
+          padding: EdgeInsets.all(16.0),
+          child: Text("Aucun document n'a été ajouté."),
+        ),
+      )
     );
   }
 
