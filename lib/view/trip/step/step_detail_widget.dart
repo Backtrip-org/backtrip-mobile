@@ -1,10 +1,12 @@
 import 'dart:core';
 
+import 'package:backtrip/model/step/step_transport.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
+import 'package:backtrip/view/trip/step/step_detail_transport_widget.dart';
 import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -44,6 +46,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             children: <Widget>[
               presentationCard(),
               informationCard(),
+              stepTypeRelatedContent(),
               notesCard(),
               documentsButton()
             ],
@@ -111,21 +114,21 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
   Widget informationCard() {
     return Card(
         child: Padding(
-          padding: const EdgeInsets.all(20),
-          child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                period(),
-                phoneNumber(),
-                participants(),
-                photoLabel(),
-        ]),
+      padding: const EdgeInsets.all(20),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        title(Icons.info_outline, "Informations générales"),
+        period(),
+        phoneNumber(),
+        participants(),
+      ]),
     ));
   }
 
   Widget period() {
     return Column(children: [
-      StepPeriodWidget(widget._step),
+      Padding(
+          padding: EdgeInsets.fromLTRB(4, 4, 0, 0),
+          child: StepPeriodWidget(widget._step)),
       Divider(),
     ]);
   }
@@ -161,9 +164,6 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         height: 7,
       ),
       ParticipantsListWidget(widget._step.participants),
-      SizedBox(
-        height: 7,
-      ),
     ]);
   }
 
@@ -179,6 +179,14 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         children: [Text(participantsText)]);
   }
 
+  Widget stepTypeRelatedContent() {
+    return Column(children: <Widget>[
+      if (widget._step is StepTransport)
+        StepDetailTransportWidget(widget._step as StepTransport),
+    ]);
+
+  }
+
   Row photoLabel() {
     return Row(
         mainAxisAlignment: MainAxisAlignment.start, children: [Text('Photos')]);
@@ -191,12 +199,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                Row(children: [
-                  Icon(Icons.short_text),
-                  SizedBox(width: 5),
-                  Text("Notes", style: Theme.of(context).textTheme.title)
-                ]),
-                SizedBox(height: 5),
+                title(Icons.short_text, "Notes"),
                 Text(widget._step.notes ?? "Aucune note pour le moment !")
               ],
             )));
@@ -215,6 +218,16 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                 style: Theme.of(context).textTheme.button),
           ),
         ));
+  }
+
+  Widget title(icon, text) {
+    return Padding(
+        padding: EdgeInsets.only(bottom: 10),
+        child: Row(children: [
+          Icon(icon),
+          SizedBox(width: 5),
+          Text(text, style: Theme.of(context).textTheme.title)
+        ]));
   }
 
   void _joinStep(context) {
