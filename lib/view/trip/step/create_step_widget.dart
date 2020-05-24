@@ -28,7 +28,7 @@ class _CreateStepState extends State<CreateStepWidget> {
   final _formKey = GlobalKey<FormState>();
   final List<StepState> _stepStates = [StepState.editing, StepState.indexed];
   final List<GlobalKey<FormState>> _formKeys = [GlobalKey<FormState>(), GlobalKey<FormState>()];
-  final List<bool> _stepsCompleted = [false, false];
+  final List<bool> _stepsCompleted = [false, true];
   List<File> selectedFiles = new List<File>();
   List<Widget> documentsWidgets = new List<Widget>();
   TextEditingController nameController = TextEditingController();

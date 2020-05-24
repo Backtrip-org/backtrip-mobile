@@ -1,7 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:backtrip/model/Document.dart';
 import 'package:backtrip/model/step.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/user.dart';
@@ -85,12 +84,6 @@ class TripService {
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
     };
-    /*var body = jsonEncode(<String, File>{
-      'file': file
-    });
-    final response = await http
-        .post(uri, headers: header, body: body)
-        .timeout(Constants.timeout);*/
 
     var request = http.MultipartRequest('POST', Uri.parse(uri));
     request.headers.addAll(header);
