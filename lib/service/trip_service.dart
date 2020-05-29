@@ -6,6 +6,7 @@ import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/constants.dart';
+import 'package:backtrip/util/exception/AddDocumentToStepException.dart';
 import 'package:backtrip/util/exception/StepException.dart';
 import 'package:backtrip/util/exception/TripAlreadyExistsException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
@@ -13,6 +14,7 @@ import 'package:backtrip/util/exception/UserNotFoundException.dart';
 import 'package:backtrip/util/stored_token.dart';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
 
 class TripService {
   static Future<List<Step>> getGlobalTimeline(tripId) async {
@@ -71,6 +73,34 @@ class TripService {
       return Step.fromJson(json.decode(response.body));
     } else if (response.statusCode == HttpStatus.badRequest) {
       throw new BadStepException();
+    } else {
+      throw new UnexpectedException();
+    }
+  }
+
+  static Future<void> addDocumentToStep(tripId, stepId, File file) async {
+    var uri = '${BacktripApi.path}/trip/$tripId/step/$stepId/document';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+
+    var request = http.MultipartRequest('POST', Uri.parse(uri));
+    request.headers.addAll(header);
+    request.files.add(
+      http.MultipartFile.fromBytes(
+          'file',
+          file.readAsBytesSync(),
+          filename: path.basename(file.path)
+      )
+    );
+
+    final response = await request.send();
+
+    if(response.statusCode == HttpStatus.ok) {
+      return;
+    } else if (response.statusCode == HttpStatus.badRequest) {
+      throw new AddDocumentToStepException();
     } else {
       throw new UnexpectedException();
     }
