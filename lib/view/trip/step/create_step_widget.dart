@@ -42,22 +42,22 @@ class _CreateStepState extends State<CreateStepWidget> {
   int _currentStep = 0;
   bool displayTransportType = false;
 
-  static var _stepsTypes = [
-    "Hébergement",
-    "Restauration",
-    "Transport",
-    "Loisir",
-    "Autre",
-  ];
+  static var _stepsTypes = {
+    "Hébergement" : "Lodging",
+    "Restauration" : "Food",
+    "Transport" : "Transport",
+    "Loisir" : "Leisure",
+    "Autre" : "Base",
+  };
 
-  static var _transportStepsTypes = [
-    "Avion",
-    "Train",
-    "Taxi",
-    "Car / Bus",
-  ];
-  String _currentSelectedValue = _stepsTypes[0];
-  String _currentSelectedTransportValue = _transportStepsTypes[0];
+  static var _transportStepsTypes = {
+    "Avion" : "TransportPlane",
+    "Train" : "TransportTrain",
+    "Taxi" : "TransportTaxi",
+    "Car / Bus" : "TransportBus",
+  };
+  String _currentSelectedValue = _stepsTypes.keys.toList()[0];
+  String _currentSelectedTransportValue = _transportStepsTypes.keys.toList()[0];
 
   _CreateStepState(this._trip);
 
@@ -352,10 +352,10 @@ class _CreateStepState extends State<CreateStepWidget> {
                     }
                   });
                 },
-                items: _stepsTypes.map((String value) {
+                items: _stepsTypes.entries.map((value) {
                   return DropdownMenuItem<String>(
-                    value: value,
-                    child: Text(value),
+                    value: value.key,
+                    child: Text(value.key),
                   );
                 }).toList(),
               ),
@@ -383,10 +383,10 @@ class _CreateStepState extends State<CreateStepWidget> {
                       state.didChange(newValue);
                     });
                   },
-                  items: _transportStepsTypes.map((String value) {
+                  items: _transportStepsTypes.entries.map((value) {
                     return DropdownMenuItem<String>(
-                      value: value,
-                      child: Text(value),
+                      value: value.key,
+                      child: Text(value.key),
                     );
                   }).toList(),
                 ),
