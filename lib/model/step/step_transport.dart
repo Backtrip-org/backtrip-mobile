@@ -36,6 +36,10 @@ class StepTransport extends Step {
             tripId: tripId,
             participants: participants);
 
+  bool hasTransportContent() {
+    return this.reservationNumber != null || this.transportNumber != null;
+  }
+
   @override
   factory StepTransport.fromJson(dynamic json) {
     var participantsJson = json['users_steps'] as List;

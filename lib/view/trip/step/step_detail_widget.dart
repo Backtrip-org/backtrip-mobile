@@ -1,15 +1,18 @@
 import 'dart:core';
 
+import 'package:backtrip/model/step/step_transport.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
+import 'package:backtrip/view/trip/step/step_detail_transport_widget.dart';
+import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:backtrip/model/step/step.dart' as step_model;
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
+import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 
 class StepDetailWidget extends StatefulWidget {
   final step_model.Step _step;
@@ -27,23 +30,28 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     initializeDateFormatting();
   }
 
-  void _joinStep(ctx) {
-    TripService.joinStep(widget._step, BacktripApi.currentUser.id)
-        .then((value) {
-      Components.snackBar(ctx, 'Vous avez rejoint l\'étape `${widget._step.name}`', Colors.green);
-      setState(() {
-        widget._step.participants = value;
-      });
-    }).catchError((e) {
-      if ( e is UnexpectedException) {
-        Components.snackBar(ctx, e.cause, Color(0xff8B0000));
-      } else {
-        Components.snackBar(
-            ctx,
-            "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.",
-            Color(0xff8B0000));
-      }
-    });
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+            title: Text(widget._step.name),
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () => Navigator.pop(context, widget._step),
+            )),
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: <Widget>[
+              presentationCard(),
+              informationCard(),
+              stepTypeRelatedContent(),
+              notesCard(),
+              documentsButton()
+            ],
+          ),
+        ));
   }
 
   Widget presentationCard() {
@@ -83,63 +91,85 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                     ],
                   );
                 },
-              )
-          )
+              ))
         ],
       ),
     );
+  }
+
+  Widget stepName() {
+    return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
+      Text(widget._step.name,
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25))
+    ]);
+  }
+
+  bool currentUserIsParticipant() {
+    return widget._step.participants
+        .map((user) => user.id)
+        .toList()
+        .contains(BacktripApi.currentUser.id);
   }
 
   Widget informationCard() {
     return Card(
-      child: Column(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(20),
-            child: Row(
-              children: [
-                Expanded(
-                  /*1*/
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      /*2*/
-                      Container(
-                        padding: const EdgeInsets.only(bottom: 8),
-                        child: Column(children: [
-                          stepDate(),
-                          Divider(),
-                          participantLabel(),
-                          SizedBox(
-                            height: 2,
-                          ),
-                          ParticipantsListWidget(widget._step.participants),
-                          SizedBox(
-                            height: 7,
-                          ),
-                          photoLabel(),
-                        ]),
-                      ),
-                    ],
-                  ),
-                ),
-                /*3*/
-              ],
-            ),
-          )
-        ],
-      ),
-    );
+        child: Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+        title(Icons.info_outline, "Informations générales"),
+        period(),
+        phoneNumber(),
+        participants(),
+      ]),
+    ));
   }
 
-  Row photoLabel() {
-    return Row(
-        mainAxisAlignment: MainAxisAlignment.start, children: [Text('Photos')]);
+  Widget period() {
+    return Column(children: [
+      Padding(
+          padding: EdgeInsets.fromLTRB(4, 4, 0, 0),
+          child: StepPeriodWidget(widget._step)),
+      Divider(),
+    ]);
+  }
+
+  Widget phoneNumber() {
+    var phoneNumber = widget._step.phoneNumber ?? "0";
+    return Visibility(
+        visible: widget._step.phoneNumber != null,
+        child: Column(children: [
+          Padding(
+              padding: EdgeInsets.symmetric(vertical: 5),
+              child: Row(children: [
+                Icon(Icons.phone,
+                    size: 20, color: Theme.of(context).accentColor),
+                SizedBox(width: 5),
+                InkWell(
+                    child: Text(phoneNumber,
+                        style: TextStyle(
+                          decoration: TextDecoration.underline,
+                          fontSize: 16,
+                          letterSpacing: 1,
+                        )),
+                    onTap: () => UrlLauncher.launch('tel:+${phoneNumber}'))
+              ])),
+          Divider()
+        ]));
+  }
+
+  Widget participants() {
+    return Column(children: [
+      participantLabel(),
+      SizedBox(
+        height: 7,
+      ),
+      ParticipantsListWidget(widget._step.participants),
+    ]);
   }
 
   Row participantLabel() {
     var participantsText;
-    if(widget._step.participants.length == 0) {
+    if (widget._step.participants.length == 0) {
       participantsText = "Pas de participants";
     } else {
       participantsText = "Participants";
@@ -149,79 +179,30 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         children: [Text(participantsText)]);
   }
 
-  Widget stepName() {
+  Widget stepTypeRelatedContent() {
+    return Column(children: <Widget>[
+      if (widget._step is StepTransport)
+        StepDetailTransportWidget(widget._step as StepTransport),
+    ]);
+
+  }
+
+  Row photoLabel() {
     return Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children:[Text(widget._step.name,
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25))]);
+        mainAxisAlignment: MainAxisAlignment.start, children: [Text('Photos')]);
   }
 
-  Widget stepDate() {
-    return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-      Container(
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.calendar_today,
-                size: 17,
-                color: Theme.of(context).accentColor,
-              ),
-              Padding(
-                  padding: const EdgeInsets.only(left: 2),
-                  child: Text(getStepDate(),
-                      style: Theme.of(context).textTheme.subhead)),
-            ],
-          )),
-      SizedBox(
-        width: 40,
-      ),
-      Container(
-          child: Row(
-            children: <Widget>[
-              Icon(
-                Icons.access_time,
-                size: 17,
-                color: Theme.of(context).accentColor,
-              ),
-              Padding(
-                  padding: const EdgeInsets.only(left: 2),
-                  child: Text(getStepTime(),
-                      style: Theme.of(context).textTheme.subhead))
-            ],
-          )),
-    ]);
-  }
-
-  Widget participantsList() {
-    return Row(mainAxisAlignment: MainAxisAlignment.start, children: [
-      CircleAvatar(
-        backgroundColor: Colors.grey,
-        child: Text('AB',
-            style: TextStyle(
-              color: Colors.white,
-            )),
-      ),
-      SizedBox(
-        width: 3,
-      ),
-      CircleAvatar(
-        backgroundColor: Colors.grey,
-        child: Text('VG',
-            style: TextStyle(
-              color: Colors.white,
-            )),
-      ),
-      SizedBox(
-        width: 3,
-      ),
-      CircleAvatar(
-        backgroundColor: Colors.grey,
-        child: Text('CC',
-            style: TextStyle(
-              color: Colors.white,
-            )),
-      )
-    ]);
+  Widget notesCard() {
+    return Card(
+        child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                title(Icons.short_text, "Notes"),
+                Text(widget._step.notes ?? "Aucune note pour le moment !")
+              ],
+            )));
   }
 
   Container documentsButton() {
@@ -239,40 +220,33 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         ));
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-            title: Text(widget._step.name),
-            leading: IconButton(
-              icon: Icon(Icons.arrow_back),
-              onPressed: () => Navigator.pop(context, widget._step),
-            )
-        ),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              presentationCard(),
-              informationCard(),
-              documentsButton()
-            ],
-          ),
-        ));
+  Widget title(icon, text) {
+    return Padding(
+        padding: EdgeInsets.only(bottom: 10),
+        child: Row(children: [
+          Icon(icon),
+          SizedBox(width: 5),
+          Text(text, style: Theme.of(context).textTheme.title)
+        ]));
   }
 
-  String getStepDate() {
-    return new DateFormat.yMMMd('fr_FR').format(widget._step.startDatetime);
-  }
-
-  String getStepTime() {
-    return new DateFormat('HH:mm', 'fr_FR').format(widget._step.startDatetime);
-  }
-
-  bool currentUserIsParticipant() {
-    return widget._step.participants.map((user) => user.id)
-        .toList()
-        .contains(BacktripApi.currentUser.id);
+  void _joinStep(context) {
+    TripService.joinStep(widget._step, BacktripApi.currentUser.id)
+        .then((value) {
+      Components.snackBar(context,
+          'Vous avez rejoint l\'étape `${widget._step.name}`', Colors.green);
+      setState(() {
+        widget._step.participants = value;
+      });
+    }).catchError((e) {
+      if (e is UnexpectedException) {
+        Components.snackBar(context, e.cause, Color(0xff8B0000));
+      } else {
+        Components.snackBar(
+            context,
+            "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.",
+            Color(0xff8B0000));
+      }
+    });
   }
 }

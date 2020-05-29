@@ -34,7 +34,7 @@ class BacktripTheme {
       floatingActionButtonTheme:
           FloatingActionButtonThemeData(backgroundColor: Color(0xFF8bbabb)),
       textTheme:
-          TextTheme(button: TextStyle(fontSize: 17, color: Colors.white)));
+          TextTheme(button: TextStyle(fontSize: 17, color: Colors.white), caption: TextStyle(fontSize: 13)));
 }
 
 extension ExtendedColorScheme on ColorScheme {
