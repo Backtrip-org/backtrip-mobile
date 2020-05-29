@@ -32,14 +32,35 @@ class _CreateStepState extends State<CreateStepWidget> {
   List<File> selectedFiles = new List<File>();
   List<Widget> documentsWidgets = new List<Widget>();
   TextEditingController nameController = TextEditingController();
-  DateTime _dateTime;
+  TextEditingController phoneNumberController = TextEditingController();
+  TextEditingController addressController = TextEditingController();
+  DateTime _startDateTime;
+  DateTime _endDateTime;
   int _currentStep = 0;
+  bool displayTransportType = false;
+
+  static var _stepsTypes = [
+    "Hébergement",
+    "Restauration",
+    "Transport",
+    "Loisir",
+    "Autre",
+  ];
+
+  static var _transportStepsTypes = [
+    "Avion",
+    "Train",
+    "Taxi",
+    "Car / Bus",
+  ];
+  String _currentSelectedValue = _stepsTypes[0];
+  String _currentSelectedTransportValue = _transportStepsTypes[0];
 
   _CreateStepState(this._trip);
 
   List<Step> get steps => [
     Step(
-      title: Text('Informations sur votre étape'),
+      title: Text('Informations'),
       state: _stepStates[0],
       content: Container(
         child: Form(
@@ -51,7 +72,7 @@ class _CreateStepState extends State<CreateStepWidget> {
       isActive: true,
     ),
     Step(
-        title: Text('Voulez-vous ajouter un document ?'),
+        title: Text('Documents'),
         content: Container(
           padding: EdgeInsets.all(3),
           child: Form(
@@ -67,6 +88,7 @@ class _CreateStepState extends State<CreateStepWidget> {
   Widget _stepper(BuildContext scaffoldContext) {
     return Stepper(
         currentStep: _currentStep,
+        type: StepperType.horizontal,
         steps: steps,
         onStepContinue: () => _stepperContinue(scaffoldContext),
         onStepCancel: _stepperCancel,
@@ -162,8 +184,18 @@ class _CreateStepState extends State<CreateStepWidget> {
       child: Column(
         children: <Widget>[
           _stepNameField(),
-          SizedBox(height: 10),
-          _stepDateField(),
+          _startStepDateField(),
+          _endStepDateField(),
+          _phoneNumberField(),
+          _addressField(),
+          SizedBox(
+              height: 10
+          ),
+          _stepType(),
+          SizedBox(
+            height: 10
+          ),
+          displayTransportType == true ? _transportStepType() : new Container(),
         ],
       ),
     );
@@ -186,9 +218,6 @@ class _CreateStepState extends State<CreateStepWidget> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          SizedBox(
-            height: 10,
-          ),
           TextFormField(
               controller: nameController,
               validator: (value) {
@@ -198,75 +227,157 @@ class _CreateStepState extends State<CreateStepWidget> {
                 return null;
               },
               keyboardType: TextInputType.text,
-              decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Theme.of(context).primaryColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Theme.of(context).accentColor),
-                  ),
-                  border: InputBorder.none,
-                  fillColor: Theme.of(context).colorScheme.textFieldFillColor,
-                  prefixIcon: Icon(Icons.directions_bike),
-                  labelText: "Nom de l'étape",
-                  filled: true)),
+              decoration: inputDecoration("Nom de l'étape", Icon(Icons.directions_bike))),
         ],
       ),
     );
   }
 
-  Widget _stepDateField() {
+  Widget _startStepDateField() {
     final format = new DateFormat("yyyy-MM-dd HH:mm:ss");
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          SizedBox(
-            height: 10,
-          ),
           DateTimeField(
               format: format,
               autovalidate: false,
               validator: (date) =>
-                  date == null ? 'Veuillez saisir une date' : null,
+              date == null ? 'Veuillez saisir une date' : null,
               onShowPicker: (context, currentValue) async {
-                final date = await showDatePicker(
-                    context: context,
-                    firstDate: DateTime(DateTime.now().month),
-                    initialDate: currentValue ?? DateTime.now(),
-                    lastDate: DateTime(DateTime.now().year + 30));
-                if (date != null) {
-                  final time = await showTimePicker(
-                    context: context,
-                    initialTime:
-                        TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
-                  );
-                  return DateTimeField.combine(date, time);
-                } else {
-                  return currentValue;
-                }
+                return showDateTimePicker(context, currentValue);
               },
               onChanged: (date) => setState(() {
-                    _dateTime = date;
-                  }),
-              decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderSide:
-                        BorderSide(color: Theme.of(context).primaryColor),
-                  ),
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Theme.of(context).accentColor),
-                  ),
-                  border: InputBorder.none,
-                  fillColor: Theme.of(context).colorScheme.textFieldFillColor,
-                  prefixIcon: Icon(Icons.date_range),
-                  labelText: "Date et heure",
-                  filled: true)),
+                _startDateTime = date;
+              }),
+              decoration: inputDecoration("Date et heure de début", Icon(Icons.date_range))),
         ],
       ),
+    );
+  }
+
+  Widget _endStepDateField() {
+    final format = new DateFormat("yyyy-MM-dd HH:mm:ss");
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          DateTimeField(
+              format: format,
+              autovalidate: false,
+              validator: (date) =>
+              date == null ? 'Veuillez saisir une date' : null,
+              onShowPicker: (context, currentValue) async {
+                return showDateTimePicker(context, currentValue);
+              },
+              onChanged: (date) => setState(() {
+                _endDateTime = date;
+              }),
+              decoration: inputDecoration("Date et heure de fin", Icon(Icons.date_range))),
+        ],
+      ),
+    );
+  }
+
+  Widget _phoneNumberField() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+            height: 10
+          ),
+          TextFormField(
+              controller: phoneNumberController,
+              keyboardType: TextInputType.phone,
+              decoration: inputDecoration("Numéro de téléphone", Icon(Icons.phone))),
+        ],
+      ),
+    );
+  }
+
+  Widget _addressField() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+              height: 10
+          ),
+          TextFormField(
+              controller: addressController,
+              keyboardType: TextInputType.text,
+              decoration: inputDecoration("Adresse", Icon(Icons.location_on))),
+        ],
+      ),
+    );
+  }
+
+  Widget _stepType() {
+    return Container(
+      child: FormField<String>(
+        builder: (FormFieldState<String> state) {
+          return InputDecorator(
+            decoration: inputDecoration("Choisissez le type d'étape", Icon(Icons.directions_bike)),
+            isEmpty: _currentSelectedValue == '',
+            child: DropdownButtonHideUnderline(
+              child: DropdownButton<String>(
+                value: _currentSelectedValue,
+                isDense: true,
+                onChanged: (String newValue) {
+                  setState(() {
+                    _currentSelectedValue = newValue;
+                    state.didChange(newValue);
+                    if(_currentSelectedValue == "Transport") {
+                      displayTransportType = true;
+                    } else {
+                      displayTransportType = false;
+                    }
+                  });
+                },
+                items: _stepsTypes.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+              ),
+            ),
+          );
+        },
+      )
+    );
+  }
+
+  Widget _transportStepType() {
+    return Container(
+        child: FormField<String>(
+          builder: (FormFieldState<String> state) {
+            return InputDecorator(
+              decoration: inputDecoration("Choisissez le type de transport", Icon(Icons.directions_bus)),
+              isEmpty: _currentSelectedTransportValue == '',
+              child: DropdownButtonHideUnderline(
+                child: DropdownButton<String>(
+                  value: _currentSelectedTransportValue,
+                  isDense: true,
+                  onChanged: (String newValue) {
+                    setState(() {
+                      _currentSelectedTransportValue = newValue;
+                      state.didChange(newValue);
+                    });
+                  },
+                  items: _transportStepsTypes.map((String value) {
+                    return DropdownMenuItem<String>(
+                      value: value,
+                      child: Text(value),
+                    );
+                  }).toList(),
+                ),
+              ),
+            );
+          },
+        )
     );
   }
 
@@ -359,9 +470,44 @@ class _CreateStepState extends State<CreateStepWidget> {
     selectedFiles.addAll(pickedFiles);
   }
 
+  InputDecoration inputDecoration(String label, Icon icon) {
+    return InputDecoration(
+        focusedBorder: OutlineInputBorder(
+          borderSide:
+          BorderSide(color: Theme.of(context).primaryColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderSide:
+          BorderSide(color: Theme.of(context).accentColor),
+        ),
+        border: InputBorder.none,
+        fillColor: Theme.of(context).colorScheme.textFieldFillColor,
+        prefixIcon: icon,
+        labelText: label,
+        filled: true);
+  }
+
+  Future<DateTime>showDateTimePicker(context, currentValue) async {
+    final date = await showDatePicker(
+        context: context,
+        firstDate: DateTime(DateTime.now().month),
+        initialDate: currentValue ?? DateTime.now(),
+        lastDate: DateTime(DateTime.now().year + 30));
+    if (date != null) {
+      final time = await showTimePicker(
+        context: context,
+        initialTime:
+        TimeOfDay.fromDateTime(currentValue ?? DateTime.now()),
+      );
+      return DateTimeField.combine(date, time);
+    } else {
+      return currentValue;
+    }
+  }
+
   void createStep(BuildContext scaffoldContext) {
       TripService.createStep(nameController.text.trim(),
-          _dateTime.toString(), _trip.id)
+          _startDateTime.toString(), _trip.id)
           .then((step) {
             Future.wait(selectedFiles.map((File selectedFile) async {
               await TripService.addDocumentToStep(_trip.id, step.id, selectedFile);
