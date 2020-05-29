@@ -11,6 +11,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
+import 'package:flutter_conditional_rendering/conditional.dart';
 import 'package:flutter/services.dart';
 import 'package:intl/intl.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
@@ -27,7 +28,6 @@ class CreateStepWidget extends StatefulWidget {
 
 class _CreateStepState extends State<CreateStepWidget> {
   final Trip _trip;
-  final _formKey = GlobalKey<FormState>();
   final List<StepState> _stepStates = [StepState.editing, StepState.indexed];
   final List<GlobalKey<FormState>> _formKeys = [GlobalKey<FormState>(), GlobalKey<FormState>()];
   final List<bool> _stepsCompleted = [false, true];
@@ -36,6 +36,9 @@ class _CreateStepState extends State<CreateStepWidget> {
   TextEditingController nameController = TextEditingController();
   TextEditingController phoneNumberController = TextEditingController();
   TextEditingController addressController = TextEditingController();
+  TextEditingController reservationNumberController = TextEditingController();
+  TextEditingController transportNumberController = TextEditingController();
+  TextEditingController arrivalAddressController = TextEditingController();
   DateTime _startDateTime;
   DateTime _endDateTime;
   int _currentStep = 0;
@@ -184,21 +187,34 @@ class _CreateStepState extends State<CreateStepWidget> {
   Widget _informationStep() {
     return Container(
       child: Column(
-        children: <Widget>[
-          _stepNameField(),
-          _startStepDateField(),
-          _endStepDateField(),
-          _phoneNumberField(),
-          _addressField(),
-          SizedBox(
-              height: 10
-          ),
-          _stepType(),
-          SizedBox(
-            height: 10
-          ),
-          displayTransportType == true ? _transportStepType() : new Container(),
-        ],
+        children:
+          Conditional.list(
+            context: context,
+            conditionBuilder: (BuildContext context) => displayTransportType,
+            widgetBuilder: (BuildContext context) => <Widget>[
+              _stepNameField(),
+              _startStepDateField(),
+              _endStepDateField(),
+              _phoneNumberField(),
+              _addressField(),
+              SizedBox(height: 10),
+              _stepType(),
+              SizedBox(height: 10),
+              _transportStepType(),
+              _reservationNumberField(),
+              _transportNumberField(),
+              _arrivalAddressField(),
+            ],
+            fallbackBuilder: (BuildContext context) => <Widget>[
+              _stepNameField(),
+              _startStepDateField(),
+              _endStepDateField(),
+              _phoneNumberField(),
+              _addressField(),
+              SizedBox(height: 10),
+              _stepType(),
+            ],
+          )
       ),
     );
   }
@@ -385,6 +401,57 @@ class _CreateStepState extends State<CreateStepWidget> {
             );
           },
         )
+    );
+  }
+
+  Widget _reservationNumberField() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+              height: 10
+          ),
+          TextFormField(
+              controller: reservationNumberController,
+              keyboardType: TextInputType.text,
+              decoration: inputDecoration("Numéro de réservation", Icon(Icons.library_books))),
+        ],
+      ),
+    );
+  }
+
+  Widget _transportNumberField() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+              height: 10
+          ),
+          TextFormField(
+              controller: transportNumberController,
+              keyboardType: TextInputType.text,
+              decoration: inputDecoration("Numéro du transport", Icon(Icons.directions_bus))),
+        ],
+      ),
+    );
+  }
+
+  Widget _arrivalAddressField() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          SizedBox(
+              height: 10
+          ),
+          TextFormField(
+              controller: arrivalAddressController,
+              keyboardType: TextInputType.text,
+              decoration: inputDecoration("Adresse d'arrivé", Icon(Icons.location_on))),
+        ],
+      ),
     );
   }
 
