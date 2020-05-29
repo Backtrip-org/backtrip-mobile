@@ -14,7 +14,7 @@ description: A new Flutter application.
 version: 1.0.0+1
 
 environment:
-  sdk: ">=2.1.0 <3.0.0"
+  sdk: ">=2.2.2 <3.0.0"
 
 dependencies:
   flutter:
@@ -23,6 +23,7 @@ dependencies:
   flutter_secure_storage: ^3.3.2
   timeline_list: ^0.0.3
   datetime_picker_formfield: ^1.0.0
+  flutter_conditional_rendering: ^1.1.1
   intl: ^0.16.1
   bubble: ^1.1.9+1
   adhara_socket_io: ^0.4.1
