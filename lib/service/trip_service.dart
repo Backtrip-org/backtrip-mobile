@@ -1,7 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:backtrip/model/step.dart';
+import 'package:backtrip/model/step/step.dart';
+import 'package:backtrip/model/step/step_factory.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:backtrip/util/backtrip_api.dart';
@@ -52,19 +53,18 @@ class TripService {
 
   static List<Step> parseSteps(String responseBody) {
     Iterable data = json.decode(responseBody);
-    return data.map((model) => Step.fromJson(model)).toList();
+    return data.map((model) => StepFactory().getStep(model)).toList();
   }
 
-  static Future<Step> createStep(String name, String date, tripId) async {
-    var uri = '${BacktripApi.path}/trip/$tripId/step';
+  static Future<Step> createStep(Step step) async {
+    var uri = '${BacktripApi.path}/trip/${step.tripId}/step';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
     };
-    var body = jsonEncode(<String, String>{
-      'name': name,
-      'start_datetime': date,
-    });
+
+    var body = jsonEncode(step.toJson());
+
     final response = await http
         .post(uri, headers: header, body: body)
         .timeout(Constants.timeout);

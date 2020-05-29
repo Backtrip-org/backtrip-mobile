@@ -7,7 +7,7 @@ import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:backtrip/model/step.dart' as step_model;
+import 'package:backtrip/model/step/step.dart' as step_model;
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:intl/intl.dart';
 

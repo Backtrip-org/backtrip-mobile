@@ -2,7 +2,7 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:backtrip/model/trip.dart';
-import 'package:backtrip/model/step.dart' as StepModel;
+import 'package:backtrip/model/step/step.dart' as StepModel;
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/StepException.dart';
@@ -288,25 +288,25 @@ class _CreateStepState extends State<CreateStepWidget> {
           child: RaisedButton(
             onPressed: () {
               getFilesFromPhone().then( (value) {
-                  setState(() {
-                    documentsWidgets.clear();
-                    for(File file in selectedFiles) {
-                      print(path.basename(file.path));
-                      String filename = path.basename(file.path);
-                      documentsWidgets.add(
-                          new SizedBox(
-                              width: MediaQuery.of(context).size.width,
-                              child: new Card(
-                                child: Padding(
-                                  padding: EdgeInsets.all(16.0),
-                                  child: Text(filename),
-                                ),
-                              )
-                          )
-                      );
-                    }
-                  });
-                }
+                setState(() {
+                  documentsWidgets.clear();
+                  for(File file in selectedFiles) {
+                    print(path.basename(file.path));
+                    String filename = path.basename(file.path);
+                    documentsWidgets.add(
+                        new SizedBox(
+                            width: MediaQuery.of(context).size.width,
+                            child: new Card(
+                              child: Padding(
+                                padding: EdgeInsets.all(16.0),
+                                child: Text(filename),
+                              ),
+                            )
+                        )
+                    );
+                  }
+                });
+              }
               );
             },
             padding: EdgeInsets.symmetric(vertical: 15),
@@ -367,8 +367,8 @@ class _CreateStepState extends State<CreateStepWidget> {
   }
 
   void createStep(BuildContext scaffoldContext) {
-      TripService.createStep(nameController.text.trim(),
-          _dateTime.toString(), _trip.id)
+    StepModel.Step step = StepModel.Step(name: nameController.text.trim(), startDatetime: _dateTime, tripId: _trip.id);
+      TripService.createStep(step)
           .then((step) {
             Future.wait(selectedFiles.map((File selectedFile) async {
               await TripService.addDocumentToStep(_trip.id, step.id, selectedFile);

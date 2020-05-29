@@ -1,6 +1,6 @@
 import 'dart:core';
 
-import 'package:backtrip/model/step.dart' as step_model;
+import 'package:backtrip/model/step/step.dart' as step_model;
 import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -76,15 +76,8 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
                     children: [
                       /*2*/
                       Container(
-                        padding: const EdgeInsets.only(bottom: 8),
                         child: Column(
-                            children: [
-                              stepName(),
-                              address(),
-                              SizedBox(height: 5),
-                              participants()
-                            ]
-                        ),
+                            children: [stepName(), address(), participants()]),
                       ),
                     ],
                   ),
@@ -110,22 +103,28 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
   }
 
   Widget address() {
-    return Row(children: [
-      Icon(
-        Icons.place,
-        size: 17,
-        color: Theme.of(context).accentColor,
-      ),
-      Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Text("4 rue du marché, Paris", // TODO: bind real address
-              style: Theme.of(context).textTheme.subhead
-          ))
-    ]);
+    return Visibility(
+        visible: widget._step.startAddress != null &&
+            widget._step.startAddress != '',
+        child: Row(children: [
+          Icon(
+            Icons.place,
+            size: 17,
+            color: Theme.of(context).accentColor,
+          ),
+          Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text(widget._step.startAddress ?? '',
+                  style: Theme.of(context).textTheme.subhead))
+        ]));
   }
 
   Widget participants() {
-    return ParticipantsListWidget(widget._step.participants, 15);
+    return Visibility(
+        visible: widget._step.participants.length > 0,
+        child: Padding(
+            padding: EdgeInsets.only(top: 10),
+            child: ParticipantsListWidget(widget._step.participants, 15)));
   }
 
   @override
@@ -141,8 +140,8 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
   void navigateToStepDetail() {
     Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => StepDetailWidget(widget._step))
-    ).then((step) {
+        MaterialPageRoute(
+            builder: (context) => StepDetailWidget(widget._step))).then((step) {
       setState(() {
         /* Update participants in widget._step but we don't need it now */
         for (var participant in step.participants) {
@@ -154,7 +153,6 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
           widget.onStepRefresh();
         }
       });
-    })
-    ;
+    });
   }
 }
