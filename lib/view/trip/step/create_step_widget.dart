@@ -1,6 +1,14 @@
 import 'dart:core';
 import 'dart:io';
 
+import 'package:backtrip/model/step/step_food.dart';
+import 'package:backtrip/model/step/step_leisure.dart';
+import 'package:backtrip/model/step/step_lodging.dart';
+import 'package:backtrip/model/step/step_transport.dart';
+import 'package:backtrip/model/step/step_transport_bus.dart';
+import 'package:backtrip/model/step/step_transport_plane.dart';
+import 'package:backtrip/model/step/step_transport_taxi.dart';
+import 'package:backtrip/model/step/step_transport_train.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/step/step.dart' as StepModel;
 import 'package:backtrip/service/trip_service.dart';
@@ -45,21 +53,23 @@ class _CreateStepState extends State<CreateStepWidget> {
   bool displayTransportType = false;
 
   static var _stepsTypes = {
-    "Hébergement" : "Lodging",
-    "Restauration" : "Food",
-    "Transport" : "Transport",
-    "Loisir" : "Leisure",
-    "Autre" : "Base",
+    "Hébergement" : StepLodging.type,
+    "Restauration" : StepFood.type,
+    "Transport" : StepTransport.type,
+    "Loisir" : StepLeisure.type,
+    "Autre" : StepModel.Step.type,
   };
 
   static var _transportStepsTypes = {
-    "Avion" : "TransportPlane",
-    "Train" : "TransportTrain",
-    "Taxi" : "TransportTaxi",
-    "Car / Bus" : "TransportBus",
+    "Avion" : StepTransportPlane.type,
+    "Train" : StepTransportTrain.type,
+    "Taxi" : StepTransportTaxi.type,
+    "Car / Bus" : StepTransportBus.type,
   };
-  String _currentSelectedValue = _stepsTypes.keys.toList()[0];
-  String _currentSelectedTransportValue = _transportStepsTypes.keys.toList()[0];
+  String _selectedStepTypeKey = _stepsTypes.keys.toList()[0];
+  String _selectedTransportKey = _transportStepsTypes.keys.toList()[0];
+  String _selectedStepTypeValue = _stepsTypes.values.toList()[0];
+  String _selectedTransportValue = _transportStepsTypes.values.toList()[0];
 
   _CreateStepState(this._trip);
 
@@ -343,16 +353,17 @@ class _CreateStepState extends State<CreateStepWidget> {
         builder: (FormFieldState<String> state) {
           return InputDecorator(
             decoration: inputDecoration("Choisissez le type d'étape", Icon(Icons.directions_bike)),
-            isEmpty: _currentSelectedValue == '',
+            isEmpty: _selectedStepTypeKey == '',
             child: DropdownButtonHideUnderline(
               child: DropdownButton<String>(
-                value: _currentSelectedValue,
+                value: _selectedStepTypeKey,
                 isDense: true,
-                onChanged: (String newValue) {
+                onChanged: (String selectedType) {
                   setState(() {
-                    _currentSelectedValue = newValue;
-                    state.didChange(newValue);
-                    if(_currentSelectedValue == "Transport") {
+                    _selectedStepTypeKey = selectedType;
+                    _selectedStepTypeValue = _stepsTypes[selectedType];
+                    state.didChange(selectedType);
+                    if(_selectedStepTypeValue == StepTransport.type) {
                       displayTransportType = true;
                     } else {
                       displayTransportType = false;
@@ -379,15 +390,16 @@ class _CreateStepState extends State<CreateStepWidget> {
           builder: (FormFieldState<String> state) {
             return InputDecorator(
               decoration: inputDecoration("Choisissez le type de transport", Icon(Icons.directions_bus)),
-              isEmpty: _currentSelectedTransportValue == '',
+              isEmpty: _selectedTransportKey == '',
               child: DropdownButtonHideUnderline(
                 child: DropdownButton<String>(
-                  value: _currentSelectedTransportValue,
+                  value: _selectedTransportKey,
                   isDense: true,
-                  onChanged: (String newValue) {
+                  onChanged: (String selectedTransportType) {
                     setState(() {
-                      _currentSelectedTransportValue = newValue;
-                      state.didChange(newValue);
+                      _selectedTransportKey = selectedTransportType;
+                      _selectedTransportValue = _transportStepsTypes[selectedTransportType];
+                      state.didChange(selectedTransportType);
                     });
                   },
                   items: _transportStepsTypes.entries.map((value) {
@@ -469,7 +481,6 @@ class _CreateStepState extends State<CreateStepWidget> {
                 setState(() {
                   documentsWidgets.clear();
                   for(File file in selectedFiles) {
-                    print(path.basename(file.path));
                     String filename = path.basename(file.path);
                     documentsWidgets.add(
                         new SizedBox(
@@ -579,9 +590,56 @@ class _CreateStepState extends State<CreateStepWidget> {
     }
   }
 
+  StepModel.Step getCurrentStepToCreate(){
+    if(_selectedStepTypeValue == StepTransport.type) {
+      return getCurrentTransportStep();
+    } else {
+      return getCurrentStep();
+    }
+  }
+
+  StepModel.Step getCurrentTransportStep() {
+    if(_selectedTransportValue == StepTransportBus.type) {
+      return new StepTransportBus(name: nameController.text.trim(), startDatetime: _startDateTime, endDateTime: _endDateTime,
+          startAddress: addressController.text.trim(), phoneNumber: phoneNumberController.text.trim(), tripId: _trip.id,
+          reservationNumber: reservationNumberController.text.trim(), transportNumber: transportNumberController.text.trim(),
+          endAddress: arrivalAddressController.text.trim());
+    } else if(_selectedTransportValue == StepTransportPlane.type) {
+      return new StepTransportPlane(name: nameController.text.trim(), startDatetime: _startDateTime, endDateTime: _endDateTime,
+          startAddress: addressController.text.trim(), phoneNumber: phoneNumberController.text.trim(), tripId: _trip.id,
+          reservationNumber: reservationNumberController.text.trim(), transportNumber: transportNumberController.text.trim(),
+          endAddress: arrivalAddressController.text.trim());
+    } else if(_selectedTransportValue == StepTransportTaxi.type) {
+      return new StepTransportTaxi(name: nameController.text.trim(), startDatetime: _startDateTime, endDateTime: _endDateTime,
+          startAddress: addressController.text.trim(), phoneNumber: phoneNumberController.text.trim(), tripId: _trip.id,
+          reservationNumber: reservationNumberController.text.trim(), transportNumber: transportNumberController.text.trim(),
+          endAddress: arrivalAddressController.text.trim());
+    } else {
+      return new StepTransportTrain(name: nameController.text.trim(), startDatetime: _startDateTime, endDateTime: _endDateTime,
+          startAddress: addressController.text.trim(), phoneNumber: phoneNumberController.text.trim(), tripId: _trip.id,
+          reservationNumber: reservationNumberController.text.trim(), transportNumber: transportNumberController.text.trim(),
+          endAddress: arrivalAddressController.text.trim());
+    }
+  }
+
+  StepModel.Step getCurrentStep() {
+    if(_selectedStepTypeValue == StepModel.Step.type) {
+      return new StepModel.Step(name: nameController.text.trim(), startDatetime: _startDateTime, endDateTime: _endDateTime,
+          startAddress: addressController.text.trim(), phoneNumber: phoneNumberController.text.trim(), tripId: _trip.id);
+    } else if(_selectedStepTypeValue == StepFood.type) {
+      return new StepFood(name: nameController.text.trim(), startDatetime: _startDateTime, endDateTime: _endDateTime,
+          startAddress: addressController.text.trim(), phoneNumber: phoneNumberController.text.trim(), tripId: _trip.id);
+    } else if( _selectedStepTypeValue == StepLeisure.type) {
+      return new StepLeisure(name: nameController.text.trim(), startDatetime: _startDateTime, endDateTime: _endDateTime,
+          startAddress: addressController.text.trim(), phoneNumber: phoneNumberController.text.trim(), tripId: _trip.id);
+    } else {
+      return new StepLodging(name: nameController.text.trim(), startDatetime: _startDateTime, endDateTime: _endDateTime,
+          startAddress: addressController.text.trim(), phoneNumber: phoneNumberController.text.trim(), tripId: _trip.id);
+    }
+  }
+
   void createStep(BuildContext scaffoldContext) {
-    StepModel.Step step = StepModel.Step(name: nameController.text.trim(), startDatetime: _dateTime, tripId: _trip.id);
-      TripService.createStep(step)
+      TripService.createStep(getCurrentStepToCreate())
           .then((step) {
             Future.wait(selectedFiles.map((File selectedFile) async {
               await TripService.addDocumentToStep(_trip.id, step.id, selectedFile);
