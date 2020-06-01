@@ -9,11 +9,10 @@ class PlacesService {
 
   static Future<List<Place>> getSuggestions(String query) async {
     var uri = '$apiURL/?q=$query&lang=fr&limit=5';
-
     final response = await http.get(uri);
 
     if (response.statusCode == HttpStatus.ok) {
-      return compute(parsePlaces, response.body);
+      return compute(parsePlaces, utf8.decode(response.body.runes.toList()));
     } else {
       throw Exception('Failed to load places');
     }
