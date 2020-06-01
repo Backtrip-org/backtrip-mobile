@@ -299,8 +299,6 @@ class _CreateStepState extends State<CreateStepWidget> {
           DateTimeField(
               format: format,
               autovalidate: false,
-              validator: (date) =>
-              date == null ? 'Veuillez saisir une date' : null,
               onShowPicker: (context, currentValue) async {
                 return showDateTimePicker(context, currentValue);
               },
@@ -461,7 +459,7 @@ class _CreateStepState extends State<CreateStepWidget> {
           TextFormField(
               controller: arrivalAddressController,
               keyboardType: TextInputType.text,
-              decoration: inputDecoration("Adresse d'arrivé", Icon(Icons.location_on))),
+              decoration: inputDecoration("Adresse d'arrivée", Icon(Icons.location_on))),
         ],
       ),
     );
