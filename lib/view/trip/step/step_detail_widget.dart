@@ -170,7 +170,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
   Widget phoneNumber() {
     var phoneNumber = widget._step.phoneNumber ?? "0";
     return Visibility(
-        visible: widget._step.phoneNumber != null,
+        visible: widget._step.phoneNumber != null && widget._step.phoneNumber != '',
         child: Column(children: [
           Padding(
               padding: EdgeInsets.symmetric(vertical: 5),
