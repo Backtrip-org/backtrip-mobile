@@ -7,8 +7,8 @@ class Coordinate {
 
   factory Coordinate.fromPhotonJson(dynamic json) {
     return Coordinate(
-        json[0],
-        json[1]
+        json[1],
+        json[0]
     );
   }
 
