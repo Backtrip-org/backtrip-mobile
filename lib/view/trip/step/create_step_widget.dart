@@ -77,6 +77,9 @@ class _CreateStepState extends State<CreateStepWidget> {
   String _selectedStepTypeValue = _stepsTypes.values.toList()[0];
   String _selectedTransportValue = _transportStepsTypes.values.toList()[0];
 
+  Place _selectedStartAddress;
+  Place _selectedArrivalAddress;
+
   _CreateStepState(this._trip);
 
   List<Step> get steps => [
@@ -356,6 +359,7 @@ class _CreateStepState extends State<CreateStepWidget> {
               },
               onSuggestionSelected: (Place suggestion) {
                 addressController.text = suggestion.getAddress();
+                _selectedStartAddress = suggestion;
               },
               noItemsFoundBuilder: (context) =>
                   Container(width: 0.0, height: 0.0)),
@@ -486,6 +490,7 @@ class _CreateStepState extends State<CreateStepWidget> {
               },
               onSuggestionSelected: (Place suggestion) {
                 arrivalAddressController.text = suggestion.getAddress();
+                _selectedArrivalAddress = suggestion;
               },
               noItemsFoundBuilder: (context) =>
                   Container(width: 0.0, height: 0.0)),
@@ -619,45 +624,45 @@ class _CreateStepState extends State<CreateStepWidget> {
           name: nameController.text.trim(),
           startDatetime: _startDateTime,
           endDateTime: _endDateTime,
-          startAddress: addressController.text.trim(),
+          startAddress: _selectedStartAddress,
           phoneNumber: phoneNumberController.text.trim(),
           tripId: _trip.id,
           reservationNumber: reservationNumberController.text.trim(),
           transportNumber: transportNumberController.text.trim(),
-          endAddress: arrivalAddressController.text.trim());
+          endAddress: _selectedArrivalAddress);
     } else if (_selectedTransportValue == StepTransportPlane.type) {
       return new StepTransportPlane(
           name: nameController.text.trim(),
           startDatetime: _startDateTime,
           endDateTime: _endDateTime,
-          startAddress: addressController.text.trim(),
+          startAddress: _selectedStartAddress,
           phoneNumber: phoneNumberController.text.trim(),
           tripId: _trip.id,
           reservationNumber: reservationNumberController.text.trim(),
           transportNumber: transportNumberController.text.trim(),
-          endAddress: arrivalAddressController.text.trim());
+          endAddress: _selectedArrivalAddress);
     } else if (_selectedTransportValue == StepTransportTaxi.type) {
       return new StepTransportTaxi(
           name: nameController.text.trim(),
           startDatetime: _startDateTime,
           endDateTime: _endDateTime,
-          startAddress: addressController.text.trim(),
+          startAddress: _selectedStartAddress,
           phoneNumber: phoneNumberController.text.trim(),
           tripId: _trip.id,
           reservationNumber: reservationNumberController.text.trim(),
           transportNumber: transportNumberController.text.trim(),
-          endAddress: arrivalAddressController.text.trim());
+          endAddress: _selectedArrivalAddress);
     } else {
       return new StepTransportTrain(
           name: nameController.text.trim(),
           startDatetime: _startDateTime,
           endDateTime: _endDateTime,
-          startAddress: addressController.text.trim(),
+          startAddress: _selectedStartAddress,
           phoneNumber: phoneNumberController.text.trim(),
           tripId: _trip.id,
           reservationNumber: reservationNumberController.text.trim(),
           transportNumber: transportNumberController.text.trim(),
-          endAddress: arrivalAddressController.text.trim());
+          endAddress: _selectedArrivalAddress);
     }
   }
 
@@ -667,7 +672,7 @@ class _CreateStepState extends State<CreateStepWidget> {
           name: nameController.text.trim(),
           startDatetime: _startDateTime,
           endDateTime: _endDateTime,
-          startAddress: addressController.text.trim(),
+          startAddress: _selectedStartAddress,
           phoneNumber: phoneNumberController.text.trim(),
           tripId: _trip.id);
     } else if (_selectedStepTypeValue == StepFood.type) {
@@ -675,7 +680,7 @@ class _CreateStepState extends State<CreateStepWidget> {
           name: nameController.text.trim(),
           startDatetime: _startDateTime,
           endDateTime: _endDateTime,
-          startAddress: addressController.text.trim(),
+          startAddress: _selectedStartAddress,
           phoneNumber: phoneNumberController.text.trim(),
           tripId: _trip.id);
     } else if (_selectedStepTypeValue == StepLeisure.type) {
@@ -683,7 +688,7 @@ class _CreateStepState extends State<CreateStepWidget> {
           name: nameController.text.trim(),
           startDatetime: _startDateTime,
           endDateTime: _endDateTime,
-          startAddress: addressController.text.trim(),
+          startAddress: _selectedStartAddress,
           phoneNumber: phoneNumberController.text.trim(),
           tripId: _trip.id);
     } else {
@@ -691,7 +696,7 @@ class _CreateStepState extends State<CreateStepWidget> {
           name: nameController.text.trim(),
           startDatetime: _startDateTime,
           endDateTime: _endDateTime,
-          startAddress: addressController.text.trim(),
+          startAddress: _selectedStartAddress,
           phoneNumber: phoneNumberController.text.trim(),
           tripId: _trip.id);
     }

@@ -14,9 +14,9 @@ class Place {
     return '$name, $postcode $city, $country';
   }
 
-  factory Place.fromJson(dynamic json) {
+  factory Place.fromPhotonJson(dynamic json) {
     return Place(
-      Coordinate(1,1),
+      Coordinate.fromPhotonJson(json['geometry']['coordinates']),
       json['properties']['country'] ?? '',
       json['properties']['city'] ?? '',
       json['properties']['postcode'] ?? '',
@@ -24,4 +24,27 @@ class Place {
       json['properties']['state'] ?? '',
     );
   }
+
+  factory Place.fromJson(dynamic json) {
+    if (json == null)
+      return null;
+
+    return Place(
+      Coordinate.fromJson(json['coordinates']),
+      json['country'] ?? '',
+      json['city'] ?? '',
+      json['postcode'] ?? '',
+      json['name'] ?? '',
+      json['state'] ?? '',
+    );
+  }
+
+  Map<String, dynamic> toJson() => {
+    'coordinate': coordinate?.toJson(),
+    'country': country,
+    'city': city,
+    'postcode': postcode,
+    'name': name,
+    'state': state
+  };
 }

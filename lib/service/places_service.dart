@@ -20,6 +20,6 @@ class PlacesService {
 
   static List<Place> parsePlaces(String responseBody) {
     Iterable data = json.decode(responseBody)['features'];
-    return data.map((model) => Place.fromJson(model)).toList();
+    return data.map((model) => Place.fromPhotonJson(model)).toList();
   }
 }
