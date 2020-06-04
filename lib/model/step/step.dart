@@ -1,4 +1,5 @@
 import 'package:backtrip/model/place/place.dart';
+import 'package:backtrip/model/step/step_transport.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:flutter/material.dart' as material;
 
@@ -29,6 +30,10 @@ class Step {
       this.notes,
       this.tripId,
       this.participants});
+
+  bool hasEndAddress() {
+    return this is StepTransport && (this as StepTransport).endAddress?.coordinate != null;
+  }
 
   factory Step.fromJson(dynamic json) {
     var participantsJson = json['users_steps'] as List;

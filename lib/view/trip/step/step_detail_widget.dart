@@ -6,13 +6,12 @@ import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
+import 'package:backtrip/view/trip/step/map_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_transport_widget.dart';
 import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:backtrip/model/step/step.dart' as step_model;
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 
@@ -26,6 +25,7 @@ class StepDetailWidget extends StatefulWidget {
 }
 
 class _StepDetailWidgetState extends State<StepDetailWidget> {
+
   @override
   void initState() {
     super.initState();
@@ -46,7 +46,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              if (widget._step.startAddress?.coordinate != null) map(),
+              if (widget._step.startAddress?.coordinate != null) MapWidget(widget._step),
               presentationCard(),
               informationCard(),
               stepTypeRelatedContent(),
@@ -54,37 +54,6 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
               documentsButton()
             ],
           ),
-        ));
-  }
-
-  Widget map() {
-    return Container(
-        height: 200,
-        child: FlutterMap(
-          options: MapOptions(
-            center: LatLng(widget._step.startAddress.coordinate.latitude,
-                widget._step.startAddress.coordinate.longitude),
-            zoom: 15.0,
-          ),
-          layers: [
-            TileLayerOptions(
-                urlTemplate:
-                    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-                subdomains: ['a', 'b', 'c']),
-            MarkerLayerOptions(
-              markers: [
-                Marker(
-                  width: 80.0,
-                  height: 80.0,
-                  point: LatLng(widget._step.startAddress.coordinate.latitude,
-                      widget._step.startAddress.coordinate.longitude),
-                  builder: (ctx) => Container(
-                    child: Icon(Icons.place, color: Colors.black),
-                  ),
-                ),
-              ],
-            ),
-          ],
         ));
   }
 
@@ -170,7 +139,8 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
   Widget phoneNumber() {
     var phoneNumber = widget._step.phoneNumber ?? "0";
     return Visibility(
-        visible: widget._step.phoneNumber != null && widget._step.phoneNumber != '',
+        visible:
+            widget._step.phoneNumber != null && widget._step.phoneNumber != '',
         child: Column(children: [
           Padding(
               padding: EdgeInsets.symmetric(vertical: 5),
