@@ -28,6 +28,7 @@ dependencies:
   adhara_socket_io: ^0.4.1
   file_picker: ^1.7.1
   url_launcher: ^5.4.10
+  flutter_launcher_icons: ^0.7.5
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -36,6 +37,13 @@ dependencies:
 dev_dependencies:
   flutter_test:
     sdk: flutter
+
+flutter_icons: # update: flutter pub run flutter_launcher_icons:main
+  android: true
+  ios: true
+  image_path: assets/images/backtrip-logo-small.png
+  adaptive_icon_background: assets/images/backtrip-logo-background-white.png
+  adaptive_icon_foreground: assets/images/backtrip-logo-small-foreground.png
 
 
 # For information on the generic Dart part of this file, see the
