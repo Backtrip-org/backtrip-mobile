@@ -114,7 +114,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
       ),
       Padding(
           padding: const EdgeInsets.only(left: 10),
-          child: Text(widget._step.startAddress.getAddress(),
+          child: Text(widget._step.startAddress.getLongAddress(),
               style: Theme.of(context).textTheme.subhead))
     ]);
   }

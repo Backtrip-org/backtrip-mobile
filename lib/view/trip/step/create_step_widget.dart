@@ -355,10 +355,12 @@ class _CreateStepState extends State<CreateStepWidget> {
               itemBuilder: (context, Place suggestion) {
                 return ListTile(
                     leading: Icon(Icons.place),
-                    title: Text(suggestion.getAddress()));
+                    title: Text(suggestion.getTitleAddress()),
+                    subtitle: Text(suggestion.getSubtitleAddress())
+                );
               },
               onSuggestionSelected: (Place suggestion) {
-                addressController.text = suggestion.getAddress();
+                addressController.text = suggestion.getLongAddress();
                 _selectedStartAddress = suggestion;
               },
               noItemsFoundBuilder: (context) =>
@@ -486,10 +488,12 @@ class _CreateStepState extends State<CreateStepWidget> {
               itemBuilder: (context, Place suggestion) {
                 return ListTile(
                     leading: Icon(Icons.place),
-                    title: Text(suggestion.getAddress()));
+                    title: Text(suggestion.getTitleAddress()),
+                    subtitle: Text(suggestion.getSubtitleAddress())
+                );
               },
               onSuggestionSelected: (Place suggestion) {
-                arrivalAddressController.text = suggestion.getAddress();
+                arrivalAddressController.text = suggestion.getLongAddress();
                 _selectedArrivalAddress = suggestion;
               },
               noItemsFoundBuilder: (context) =>
