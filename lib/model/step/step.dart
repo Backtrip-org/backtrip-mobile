@@ -1,3 +1,4 @@
+import 'package:backtrip/model/file.dart';
 import 'package:backtrip/model/place/place.dart';
 import 'package:backtrip/model/step/step_transport.dart';
 import 'package:backtrip/model/user.dart';
@@ -13,6 +14,7 @@ class Step {
   String notes;
   int tripId;
   List<User> participants;
+  List<File> files;
 
   static const String type = 'Base';
   final material.IconData icon = material.Icons.assistant_photo;
@@ -29,16 +31,25 @@ class Step {
       this.phoneNumber,
       this.notes,
       this.tripId,
-      this.participants});
+      this.participants,
+      this.files});
 
   bool hasEndAddress() {
-    return this is StepTransport && (this as StepTransport).endAddress?.coordinate != null;
+    return this is StepTransport &&
+        (this as StepTransport).endAddress?.coordinate != null;
+  }
+  
+  List<File> getPhotos() {
+    return files.where((file) => file.isPhoto()).toList();
   }
 
   factory Step.fromJson(dynamic json) {
     var participantsJson = json['users_steps'] as List;
     List<User> _participants =
         participantsJson.map((user) => User.fromJson(user)).toList();
+
+    var filesJson = json['files'] as List;
+    List<File> _files = filesJson.map((file) => File.fromJson(file)).toList();
 
     return Step(
         id: json['id'],
@@ -49,7 +60,8 @@ class Step {
         phoneNumber: json['phone_number'],
         notes: json['notes'],
         tripId: json['trip_id'],
-        participants: _participants);
+        participants: _participants,
+        files: _files);
   }
 
   Map<String, dynamic> toJson() => {
