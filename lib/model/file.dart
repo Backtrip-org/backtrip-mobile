@@ -1,5 +1,5 @@
 class File {
-  int id;
+  String id;
   String name;
   String extension;
   String type;
@@ -17,7 +17,7 @@ class File {
         name: json['name'],
         extension: json['extension'],
         type: json['type'],
-        createdDate: json['created_date']
+        createdDate: DateTime.tryParse(json['created_date'].toString())
     );
   }
 }

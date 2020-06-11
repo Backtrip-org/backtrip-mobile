@@ -7,6 +7,7 @@ import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:backtrip/view/trip/step/map_widget.dart';
+import 'package:backtrip/view/trip/step/photo_carousel_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_transport_widget.dart';
 import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -51,6 +52,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
               informationCard(),
               stepTypeRelatedContent(),
               notesCard(),
+              photosCard(),
               documentsButton()
             ],
           ),
@@ -204,6 +206,19 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
               children: [
                 title(Icons.short_text, "Notes"),
                 Text(widget._step.notes ?? "Aucune note pour le moment !")
+              ],
+            )));
+  }
+
+  Widget photosCard() {
+    return Card(
+        child: Padding(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                title(Icons.photo_camera, "Photos"),
+                PhotoCarouselWidget(widget._step.getPhotos())
               ],
             )));
   }

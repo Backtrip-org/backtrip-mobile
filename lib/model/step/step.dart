@@ -40,16 +40,16 @@ class Step {
   }
   
   List<File> getPhotos() {
-    return files.where((file) => file.isPhoto()).toList();
+    return files?.where((file) => file.isPhoto())?.toList();
   }
 
   factory Step.fromJson(dynamic json) {
     var participantsJson = json['users_steps'] as List;
-    List<User> _participants =
+    List<User> participants =
         participantsJson.map((user) => User.fromJson(user)).toList();
 
     var filesJson = json['files'] as List;
-    List<File> _files = filesJson.map((file) => File.fromJson(file)).toList();
+    List<File> files = filesJson.map((file) => File.fromJson(file)).toList();
 
     return Step(
         id: json['id'],
@@ -60,8 +60,8 @@ class Step {
         phoneNumber: json['phone_number'],
         notes: json['notes'],
         tripId: json['trip_id'],
-        participants: _participants,
-        files: _files);
+        participants: participants,
+        files: files);
   }
 
   Map<String, dynamic> toJson() => {
