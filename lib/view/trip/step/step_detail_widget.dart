@@ -1,4 +1,5 @@
 import 'dart:core';
+import 'dart:io';
 
 import 'package:backtrip/model/step/step_transport.dart';
 import 'package:backtrip/service/trip_service.dart';
@@ -13,6 +14,7 @@ import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:backtrip/model/step/step.dart' as step_model;
+import 'package:image_picker/image_picker.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:url_launcher/url_launcher.dart' as UrlLauncher;
 
@@ -26,6 +28,7 @@ class StepDetailWidget extends StatefulWidget {
 }
 
 class _StepDetailWidgetState extends State<StepDetailWidget> {
+  final picker = ImagePicker();
 
   @override
   void initState() {
@@ -47,7 +50,8 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              if (widget._step.startAddress?.coordinate != null) MapWidget(widget._step),
+              if (widget._step.startAddress?.coordinate != null)
+                MapWidget(widget._step),
               presentationCard(),
               informationCard(),
               stepTypeRelatedContent(),
@@ -217,7 +221,10 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                title(Icons.photo_camera, "Photos"),
+                title(Icons.image, "Photos",
+                    actionIcon: Icons.add_a_photo,
+                    action: _getPhoto,
+                    actionLabel: "Ajouter"),
                 PhotoCarouselWidget(widget._step.getPhotos())
               ],
             )));
@@ -238,13 +245,24 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         ));
   }
 
-  Widget title(icon, text) {
+  Widget title(icon, text, {actionIcon, action, actionLabel}) {
     return Padding(
         padding: EdgeInsets.only(bottom: 10),
         child: Row(children: [
           Icon(icon),
           SizedBox(width: 5),
-          Text(text, style: Theme.of(context).textTheme.title)
+          Text(text, style: Theme.of(context).textTheme.title),
+          Spacer(),
+          if (actionIcon != null)
+            OutlineButton.icon(
+                icon: Icon(
+                  actionIcon,
+                  size: 20,
+                  color: Theme.of(context).accentColor,
+                ),
+                label: Text(actionLabel,
+                    style: Theme.of(context).textTheme.subhead),
+                onPressed: action)
         ]));
   }
 
@@ -266,5 +284,56 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             Color(0xff8B0000));
       }
     });
+  }
+
+  Future _getPhoto() async {
+    final pickedFile = await picker.getImage(source: ImageSource.gallery);
+
+    _showUploadPhotoConfirmationDialog(File(pickedFile.path));
+  }
+
+  Future<void> _showUploadPhotoConfirmationDialog(pickedImage) async {
+    return showDialog<void>(
+      context: context,
+      barrierDismissible: false, // user must tap button!
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Row(children: [
+            Icon(Icons.add_a_photo),
+            SizedBox(width: 10),
+            Text('Confirmation')
+          ]),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Container(
+                  height: 200,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.all(Radius.circular(5)),
+                      image: DecorationImage(
+                          fit: BoxFit.fitWidth, image: FileImage(pickedImage))),
+                ),
+                SizedBox(height: 20),
+                Center(child: Text('Voulez-vous envoyer cette image ?')),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            FlatButton(
+              child: Text('ANNULER'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            FlatButton(
+              child: Text('CONFIRMER'),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
   }
 }
