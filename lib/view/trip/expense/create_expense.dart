@@ -102,6 +102,7 @@ class _CreateExpenseState extends State<CreateExpense> {
                   ),
                 ],
               ),
+              SizedBox(height: 5),
               Row(
                 children: <Widget>[
                   Expanded(
