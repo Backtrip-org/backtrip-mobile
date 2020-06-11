@@ -280,6 +280,12 @@ class _CreateExpenseState extends State<CreateExpense> {
         for (int i = 0; i < payerCounter; i++) {
           totalAmount +=
               double.parse(_participantsAmountController[i].text.trim());
+          if(!userHasOneExpectedRefund(selectedPayers[i])) {
+            Components.snackBar(
+                context, '${selectedPayers[i]} apparaît plusieurs fois dans la liste des remboursements',
+                Color(0xff8B0000));
+            break;
+          }
         }
 
         if (totalAmount.compareTo(
@@ -290,6 +296,16 @@ class _CreateExpenseState extends State<CreateExpense> {
         }
       }
     }
+  }
+
+  bool userHasOneExpectedRefund(String userName) {
+    int occurrences = 0;
+
+    selectedPayers.forEach((String selectedPlayer) => {
+      if(selectedPlayer == userName) occurrences++
+    });
+
+    return occurrences == 1;
   }
 
   @override
