@@ -1,9 +1,20 @@
+import 'dart:convert';
+import 'dart:io';
+
+import 'package:backtrip/model/Expense.dart';
+import 'package:backtrip/model/Owe.dart';
 import 'package:backtrip/model/trip.dart';
+import 'package:backtrip/model/user.dart';
+import 'package:backtrip/service/trip_service.dart';
+import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
+import 'package:backtrip/util/constants.dart';
 import 'package:backtrip/util/percentage.dart';
+import 'package:backtrip/util/stored_token.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
 
+import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
@@ -19,18 +30,49 @@ class CreateExpense extends StatefulWidget {
 
 class _CreateExpenseState extends State<CreateExpense> {
   final _formKey = GlobalKey<FormState>();
-  final TextEditingController _expenseAmountController = TextEditingController();
+  final TextEditingController _expenseAmountController =
+      TextEditingController();
   List<TextEditingController> _participantsAmountController = [];
   List<TextEditingController> _participantsPercentController = [];
   List<Column> payers = new List<Column>();
-  List<String> participants = [
-    "Alexis",
-    "Barlomotho",
-    "Vinchiant",
-    "gétane",
-    "Chezquilianne"
-  ];
-  List<String> selectedPayers = [];
+  List<User> participants = [];
+  List<User> selectedPayers = [];
+  User mainPayer;
+
+  @override
+  void initState() {
+    super.initState();
+    participants = widget._trip.participants;
+    mainPayer = participants[0];
+  }
+
+  Widget dropDownListMainPayer() {
+    return Container(child: FormField<String>(
+      builder: (FormFieldState<String> state) {
+        return InputDecorator(
+          decoration: inputDecoration("Payeur principal", Icon(Icons.person)),
+          child: DropdownButtonHideUnderline(
+            child: DropdownButton<String>(
+              value: mainPayer.firstName,
+              isDense: true,
+              onChanged: (String payer) {
+                setState(() {
+                  mainPayer = findUserWithUsername(payer);
+                  state.didChange(payer);
+                });
+              },
+              items: participants.map((value) {
+                return DropdownMenuItem<String>(
+                  value: value.firstName,
+                  child: Text(value.firstName),
+                );
+              }).toList(),
+            ),
+          ),
+        );
+      },
+    ));
+  }
 
   Widget _expenseAmountField() {
     return Container(
@@ -48,17 +90,22 @@ class _CreateExpenseState extends State<CreateExpense> {
               keyboardType: TextInputType.number,
               onChanged: (String value) {
                 setState(() {
-                  for(int i = 0; i < _participantsAmountController.length; i++){
-                    _participantsPercentController[i].text =
-                        Percentage.calculatePercentageFromTwoValues(
-                            double.parse(_participantsAmountController[i].text.trim()),
-                            double.parse(_expenseAmountController.text.trim())).toString();
+                  for (int i = 0;
+                      i < _participantsAmountController.length;
+                      i++) {
+                    _participantsPercentController[i]
+                        .text = Percentage.calculatePercentageFromTwoValues(
+                            double.parse(
+                                _participantsAmountController[i].text.trim()),
+                            double.parse(_expenseAmountController.text.trim()))
+                        .toString();
 
-                    _participantsAmountController[i].text =
-                        Percentage.calculateValueFromPercentageAndValue(
+                    _participantsAmountController[i]
+                        .text = Percentage.calculateValueFromPercentageAndValue(
                             double.parse(_expenseAmountController.text.trim()),
-                            double.parse(_participantsPercentController[i].text.trim())
-                        ).toString();
+                            double.parse(
+                                _participantsPercentController[i].text.trim()))
+                        .toString();
                   }
                 });
               },
@@ -143,18 +190,18 @@ class _CreateExpenseState extends State<CreateExpense> {
           decoration: inputDecoration("Payeur", Icon(Icons.person)),
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: selectedPayers[counter],
+              value: selectedPayers[counter].firstName,
               isDense: true,
               onChanged: (String payer) {
-                selectedPayers[counter] = payer;
+                selectedPayers[counter] = findUserWithUsername(payer);
                 setState(() {
                   state.didChange(payer);
                 });
               },
               items: participants.map((value) {
                 return DropdownMenuItem<String>(
-                  value: value,
-                  child: Text(value),
+                  value: value.firstName,
+                  child: Text(value.firstName),
                 );
               }).toList(),
             ),
@@ -181,18 +228,20 @@ class _CreateExpenseState extends State<CreateExpense> {
               keyboardType: TextInputType.number,
               onChanged: (String value) {
                 setState(() {
-                  if(_expenseAmountController.text.trim() != '') {
-                    _participantsPercentController[counter].text =
-                        Percentage.calculatePercentageFromTwoValues(
-                            double.parse(_participantsAmountController[counter].text.trim()),
-                            double.parse(_expenseAmountController.text.trim())
-                        ).toString();
+                  if (_expenseAmountController.text.trim() != '') {
+                    _participantsPercentController[counter]
+                        .text = Percentage.calculatePercentageFromTwoValues(
+                            double.parse(_participantsAmountController[counter]
+                                .text
+                                .trim()),
+                            double.parse(_expenseAmountController.text.trim()))
+                        .toString();
                   } else {
                     _participantsPercentController[counter].text = '0';
                   }
                 });
               },
-              decoration:  InputDecoration(
+              decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                     borderSide:
                         BorderSide(color: Theme.of(context).primaryColor),
@@ -227,25 +276,27 @@ class _CreateExpenseState extends State<CreateExpense> {
               keyboardType: TextInputType.number,
               onChanged: (String value) {
                 setState(() {
-                  if(_expenseAmountController.text.trim() != '') {
-                    _participantsAmountController[counter].text =
-                        Percentage.calculateValueFromPercentageAndValue(
+                  if (_expenseAmountController.text.trim() != '') {
+                    _participantsAmountController[counter]
+                        .text = Percentage.calculateValueFromPercentageAndValue(
                             double.parse(_expenseAmountController.text.trim()),
-                            double.parse(_participantsPercentController[counter].text.trim())
-                        ).toString();
+                            double.parse(_participantsPercentController[counter]
+                                .text
+                                .trim()))
+                        .toString();
                   } else {
                     _participantsAmountController[counter].text = '0';
                   }
                 });
               },
-              decoration:  InputDecoration(
+              decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
                     borderSide:
-                    BorderSide(color: Theme.of(context).primaryColor),
+                        BorderSide(color: Theme.of(context).primaryColor),
                   ),
                   enabledBorder: OutlineInputBorder(
                     borderSide:
-                    BorderSide(color: Theme.of(context).accentColor),
+                        BorderSide(color: Theme.of(context).accentColor),
                   ),
                   fillColor: Color(0xfff3f3f4),
                   suffixIcon: Icon(Icons.local_pizza),
@@ -275,38 +326,50 @@ class _CreateExpenseState extends State<CreateExpense> {
     int payerCounter = _participantsAmountController.length;
     double totalAmount = 0;
     if (_formKey.currentState.validate()) {
-      if (payerCounter == 0) {
-        //TODO: validate
-      } else {
-        for (int i = 0; i < payerCounter; i++) {
-          totalAmount +=
-              double.parse(_participantsAmountController[i].text.trim());
-          if(!userHasOneExpectedRefund(selectedPayers[i])) {
-            Components.snackBar(
-                context, '${selectedPayers[i]} apparaît plusieurs fois dans la liste des remboursements',
-                Color(0xff8B0000));
-            break;
-          }
-        }
-
-        if (totalAmount.compareTo(
-            double.parse(_expenseAmountController.text.trim())) == 1) {
+      for (int i = 0; i < payerCounter; i++) {
+        totalAmount +=
+            double.parse(_participantsAmountController[i].text.trim());
+        if (userHasMoreThanOneExpectedRefund(selectedPayers[i].firstName)) {
           Components.snackBar(
-              context, "Le montant du remboursement est trop élevé",
+              context,
+              '${selectedPayers[i].firstName} apparaît plusieurs fois dans la liste des remboursements',
               Color(0xff8B0000));
+          return;
         }
       }
+
+      if (totalAmount
+              .compareTo(double.parse(_expenseAmountController.text.trim())) ==
+          1) {
+        Components.snackBar(context,
+            "Le montant du remboursement est trop élevé", Color(0xff8B0000));
+        return;
+      }
+
+      TripService.createExpense(double.parse(_expenseAmountController.text.trim()), mainPayer, widget._trip).then((expense) => {
+        for (int i = 0; i < payerCounter; i++) {
+          TripService.createOwe(double.parse(_participantsAmountController[i].text.trim()), selectedPayers[i].id, expense.id, widget._trip)
+        }
+      });
     }
   }
 
-  bool userHasOneExpectedRefund(String userName) {
+  bool userHasMoreThanOneExpectedRefund(String userName) {
     int occurrences = 0;
 
-    selectedPayers.forEach((String selectedPlayer) => {
-      if(selectedPlayer == userName) occurrences++
-    });
+    selectedPayers.forEach((User selectedPlayer) =>
+        {if (selectedPlayer.firstName == userName) occurrences++});
 
-    return occurrences == 1;
+    if (mainPayer.firstName == userName) occurrences++;
+
+    return occurrences != 1;
+  }
+
+  User findUserWithUsername(String username) {
+    return participants
+        .where((user) => user.firstName == username)
+        .toList()
+        .first;
   }
 
   @override
@@ -316,24 +379,26 @@ class _CreateExpenseState extends State<CreateExpense> {
         title: Text("Ajouter une dépense"),
       ),
       body: Form(
-        key: _formKey,
+          key: _formKey,
           child: SingleChildScrollView(
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              SizedBox(height: 10),
-              _expenseAmountField(),
-              SizedBox(height: 30),
-              expenseParticipantsLabelAndButton(),
-              Divider(),
-              payerList(),
-            ],
-          ),
-        ),
-      )),
+            padding: const EdgeInsets.all(20.0),
+            child: Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  SizedBox(height: 10),
+                  dropDownListMainPayer(),
+                  SizedBox(height: 10),
+                  _expenseAmountField(),
+                  SizedBox(height: 30),
+                  expenseParticipantsLabelAndButton(),
+                  Divider(),
+                  payerList(),
+                ],
+              ),
+            ),
+          )),
       floatingActionButton: Builder(
         builder: (ctx) {
           return FloatingActionButton(
