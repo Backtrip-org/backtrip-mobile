@@ -1,3 +1,5 @@
+import 'package:backtrip/model/place/place.dart';
+import 'package:backtrip/model/step/step_transport.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:flutter/material.dart' as material;
 
@@ -6,7 +8,7 @@ class Step {
   String name;
   DateTime startDatetime;
   DateTime endDateTime;
-  String startAddress;
+  Place startAddress;
   String phoneNumber;
   String notes;
   int tripId;
@@ -29,6 +31,10 @@ class Step {
       this.tripId,
       this.participants});
 
+  bool hasEndAddress() {
+    return this is StepTransport && (this as StepTransport).endAddress?.coordinate != null;
+  }
+
   factory Step.fromJson(dynamic json) {
     var participantsJson = json['users_steps'] as List;
     List<User> _participants =
@@ -39,7 +45,7 @@ class Step {
         name: json['name'],
         startDatetime: DateTime.tryParse(json['start_datetime'].toString()),
         endDateTime: DateTime.tryParse(json['end_datetime'].toString()),
-        startAddress: json['start_address'],
+        startAddress: Place.fromJson(json['start_address']),
         phoneNumber: json['phone_number'],
         notes: json['notes'],
         tripId: json['trip_id'],
@@ -50,7 +56,7 @@ class Step {
         'name': name,
         'start_datetime': startDatetime?.toIso8601String(),
         'end_datetime': endDateTime?.toIso8601String(),
-        'start_address': startAddress,
+        'start_address': startAddress?.toJson(),
         'phone_number': phoneNumber,
         'notes': notes,
         'type': type,

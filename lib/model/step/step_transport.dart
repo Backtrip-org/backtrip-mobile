@@ -1,3 +1,4 @@
+import 'package:backtrip/model/place/place.dart';
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:flutter/material.dart' as material;
@@ -5,7 +6,7 @@ import 'package:flutter/material.dart' as material;
 class StepTransport extends Step {
   String reservationNumber;
   String transportNumber;
-  String endAddress;
+  Place endAddress;
 
   static const String type = 'Transport';
 
@@ -51,8 +52,8 @@ class StepTransport extends Step {
         name: json['name'],
         startDatetime: DateTime.tryParse(json['start_datetime'].toString()),
         endDateTime: DateTime.tryParse(json['end_datetime'].toString()),
-        startAddress: json['start_address'],
-        endAddress: json['end_address'],
+        startAddress: Place.fromJson(json['start_address']),
+        endAddress: Place.fromJson(json['end_address']),
         phoneNumber: json['phone_number'],
         notes: json['notes'],
         reservationNumber: json['reservation_number'],
@@ -66,8 +67,8 @@ class StepTransport extends Step {
         'name': name,
         'start_datetime': startDatetime?.toIso8601String(),
         'end_datetime': endDateTime?.toIso8601String(),
-        'start_address': startAddress,
-        'end_address': endAddress,
+        'start_address': startAddress?.toJson(),
+        'end_address': endAddress?.toJson(),
         'phone_number': phoneNumber,
         'notes': notes,
         'reservation_number': reservationNumber,

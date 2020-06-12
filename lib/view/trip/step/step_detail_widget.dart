@@ -6,6 +6,7 @@ import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
+import 'package:backtrip/view/trip/step/map_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_transport_widget.dart';
 import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -24,6 +25,7 @@ class StepDetailWidget extends StatefulWidget {
 }
 
 class _StepDetailWidgetState extends State<StepDetailWidget> {
+
   @override
   void initState() {
     super.initState();
@@ -44,6 +46,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
+              if (widget._step.startAddress?.coordinate != null) MapWidget(widget._step),
               presentationCard(),
               informationCard(),
               stepTypeRelatedContent(),
@@ -136,7 +139,8 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
   Widget phoneNumber() {
     var phoneNumber = widget._step.phoneNumber ?? "0";
     return Visibility(
-        visible: widget._step.phoneNumber != null,
+        visible:
+            widget._step.phoneNumber != null && widget._step.phoneNumber != '',
         child: Column(children: [
           Padding(
               padding: EdgeInsets.symmetric(vertical: 5),
@@ -184,7 +188,6 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
       if (widget._step is StepTransport)
         StepDetailTransportWidget(widget._step as StepTransport),
     ]);
-
   }
 
   Row photoLabel() {
