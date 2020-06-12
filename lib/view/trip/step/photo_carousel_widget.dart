@@ -2,15 +2,11 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:backtrip/model/file.dart';
-import 'package:backtrip/model/step/step_transport.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/stored_token.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:backtrip/model/step/step.dart' as step_model;
-import 'package:flutter_map/flutter_map.dart';
-import 'package:latlong/latlong.dart';
 
 class PhotoCarouselWidget extends StatefulWidget {
   final List<File> _files;
