@@ -7,6 +7,7 @@ import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:backtrip/view/trip/step/map_widget.dart';
+import 'package:backtrip/view/trip/step/place_rating_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_transport_widget.dart';
 import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -25,7 +26,6 @@ class StepDetailWidget extends StatefulWidget {
 }
 
 class _StepDetailWidgetState extends State<StepDetailWidget> {
-
   @override
   void initState() {
     super.initState();
@@ -46,7 +46,8 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             mainAxisAlignment: MainAxisAlignment.center,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: <Widget>[
-              if (widget._step.startAddress?.coordinate != null) MapWidget(widget._step),
+              if (widget._step.startAddress?.coordinate != null)
+                MapWidget(widget._step),
               presentationCard(),
               informationCard(),
               stepTypeRelatedContent(),
@@ -75,9 +76,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                             /*2*/
                             Container(
                               padding: const EdgeInsets.only(bottom: 8),
-                              child: Column(children: [
-                                stepName(),
-                              ]),
+                              child: Column(children: [stepName(), ratings()]),
                             ),
                           ],
                         ),
@@ -105,6 +104,21 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
       Text(widget._step.name,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25))
     ]);
+  }
+
+  Widget ratings() {
+    return Column(
+      children: [
+        if (widget._step.hasStartAddressRating())
+          Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: PlaceRatingWidget(widget._step.startAddress)),
+        if (widget._step.hasEndAddressRating())
+          Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: PlaceRatingWidget((widget._step as StepTransport).endAddress))
+      ],
+    );
   }
 
   bool currentUserIsParticipant() {

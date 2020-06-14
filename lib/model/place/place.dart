@@ -9,8 +9,9 @@ class Place {
   String city;
   String postcode;
   String state;
+  double rating;
 
-  Place(this.coordinate, this.name, this.street, this.houseNumber, this.country, this.city, this.postcode, this.state);
+  Place(this.coordinate, this.name, this.street, this.houseNumber, this.country, this.city, this.postcode, this.state, {this.rating});
 
   String getTitleAddress() {
     String houseNumberAndStreet = [houseNumber,street].where((str) => str != null && str != '').join(' ');
@@ -61,6 +62,7 @@ class Place {
       json['city'] ?? '',
       json['postcode'] ?? '',
       json['state'] ?? '',
+      rating: json['rating']
     );
   }
 

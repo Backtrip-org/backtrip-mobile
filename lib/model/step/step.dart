@@ -32,7 +32,16 @@ class Step {
       this.participants});
 
   bool hasEndAddress() {
-    return this is StepTransport && (this as StepTransport).endAddress?.coordinate != null;
+    return this is StepTransport &&
+        (this as StepTransport).endAddress?.coordinate != null;
+  }
+
+  bool hasStartAddressRating() {
+    return this.startAddress != null && this.startAddress.rating != null;
+  }
+
+  bool hasEndAddressRating() {
+    return hasEndAddress() && (this as StepTransport).endAddress.rating != null;
   }
 
   factory Step.fromJson(dynamic json) {

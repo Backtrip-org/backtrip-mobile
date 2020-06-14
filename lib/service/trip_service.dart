@@ -67,7 +67,7 @@ class TripService {
 
     final response = await http
         .post(uri, headers: header, body: body)
-        .timeout(Constants.timeout);
+        .timeout(Constants.longTimeout);
 
     if (response.statusCode == HttpStatus.created) {
       return Step.fromJson(json.decode(response.body));
