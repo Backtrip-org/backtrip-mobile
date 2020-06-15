@@ -1,6 +1,6 @@
 import 'package:backtrip/view/trip/chat/chat_widget.dart';
 import 'package:backtrip/view/common/temp_widget.dart';
-import 'package:backtrip/view/trip/expense/expense_details.dart';
+import 'package:backtrip/view/trip/expense/refunds_details.dart';
 import 'package:backtrip/view/trip/timeline/timeline_widget.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
 import 'package:backtrip/view/trip/trip_settings_widget.dart';
@@ -34,7 +34,7 @@ class _TripNavbarState extends State<TripNavbar> {
     _children = [
     TimelineWidget(_trip),
     ChatWidget(_trip),
-    ExpenseDetails(_trip),
+    RefundsDetails(_trip),
     ];
   }
 
