@@ -164,6 +164,7 @@ class _CreateExpenseState extends State<CreateExpense> {
     return Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
         child: ListView.separated(
+          physics: NeverScrollableScrollPhysics(),
           itemCount: payers.length,
           shrinkWrap: true,
           itemBuilder: (BuildContext context, int index) {
