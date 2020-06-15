@@ -170,4 +170,18 @@ class TripService {
     Iterable data = json.decode(responseBody);
     return data.map((model) => User.fromJson(model)).toList();
   }
+
+  static Future<void> closeTrip(int tripId) async {
+    var uri = '${BacktripApi.path}/trip/$tripId/close';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    final response = await http.patch(uri, headers: header)
+        .timeout(Constants.timeout);
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw new UnexpectedException();
+    }
+  }
 }
