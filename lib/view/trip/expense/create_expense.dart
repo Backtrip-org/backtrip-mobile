@@ -1,20 +1,13 @@
-import 'dart:convert';
-import 'dart:io';
-
-import 'package:backtrip/model/Expense.dart';
-import 'package:backtrip/model/Owe.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:backtrip/service/trip_service.dart';
-import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
-import 'package:backtrip/util/constants.dart';
+import 'package:backtrip/util/exception/ExpenseException.dart';
+import 'package:backtrip/util/exception/OweException.dart';
 import 'package:backtrip/util/percentage.dart';
-import 'package:backtrip/util/stored_token.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
 
-import 'package:http/http.dart' as http;
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/services.dart';
 import 'package:backtrip/view/theme/backtrip_theme.dart';
@@ -327,28 +320,43 @@ class _CreateExpenseState extends State<CreateExpense> {
     double totalAmount = 0;
     if (_formKey.currentState.validate()) {
       for (int i = 0; i < payerCounter; i++) {
-        totalAmount +=
-            double.parse(_participantsAmountController[i].text.trim());
+        totalAmount += double.parse(_participantsAmountController[i].text.trim());
         if (userHasMoreThanOneExpectedRefund(selectedPayers[i].firstName)) {
-          Components.snackBar(
-              context,
-              '${selectedPayers[i].firstName} apparaît plusieurs fois dans la liste des remboursements',
-              Color(0xff8B0000));
+          Components.snackBar(context, '${selectedPayers[i].firstName} apparaît plusieurs fois dans la liste des remboursements', Color(0xff8B0000));
           return;
         }
       }
 
-      if (totalAmount
-              .compareTo(double.parse(_expenseAmountController.text.trim())) ==
-          1) {
-        Components.snackBar(context,
-            "Le montant du remboursement est trop élevé", Color(0xff8B0000));
+      if (totalAmount.compareTo(double.parse(_expenseAmountController.text.trim())) == 1) {
+        Components.snackBar(context, "Le montant du remboursement est trop élevé", Color(0xff8B0000));
         return;
       }
 
       TripService.createExpense(double.parse(_expenseAmountController.text.trim()), mainPayer, widget._trip).then((expense) => {
-        for (int i = 0; i < payerCounter; i++) {
-          TripService.createOwe(double.parse(_participantsAmountController[i].text.trim()), selectedPayers[i].id, expense.id, widget._trip)
+        Future.wait([createOwes(payerCounter, expense.id)]).then((response) {
+          Navigator.pop(context);
+        })
+
+      }).catchError((e) {
+        if (e is ExpenseException) {
+          Components.snackBar(context, e.cause, Color(0xff8B0000));
+        } else {
+          Components.snackBar(
+              context, "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.", Color(0xff8B0000));
+        }
+      });
+    }
+  }
+
+  Future<void> createOwes(int payerCounter, expenseId) async {
+    for (int i = 0; i < payerCounter; i++) {
+      await TripService.createOwe(double.parse(_participantsAmountController[i].text.trim()), selectedPayers[i].id, expenseId, widget._trip)
+      .catchError((e) {
+        if(e is OweException) {
+          Components.snackBar(context, e.cause, Color(0xff8B0000));
+        } else {
+          Components.snackBar(
+              context, "Le serveur est inaccessible. Veuillez vérifier votre connexion internet.", Color(0xff8B0000));
         }
       });
     }

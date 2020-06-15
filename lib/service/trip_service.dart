@@ -10,6 +10,8 @@ import 'package:backtrip/model/user.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/constants.dart';
 import 'package:backtrip/util/exception/AddDocumentToStepException.dart';
+import 'package:backtrip/util/exception/ExpenseException.dart';
+import 'package:backtrip/util/exception/OweException.dart';
 import 'package:backtrip/util/exception/StepException.dart';
 import 'package:backtrip/util/exception/TripAlreadyExistsException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
@@ -191,7 +193,7 @@ class TripService {
     if (response.statusCode == HttpStatus.ok) {
       return Expense.fromJson(json.decode(response.body));
     } else {
-
+      throw ExpenseException();
     }
   }
 
@@ -213,7 +215,7 @@ class TripService {
     if (response.statusCode == HttpStatus.ok) {
       return Owe.fromJson(json.decode(response.body));
     } else {
-
+      throw OweException();
     }
   }
 }
