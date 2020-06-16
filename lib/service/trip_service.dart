@@ -197,7 +197,7 @@ class TripService {
     }
   }
 
-  static Future<void> createOwe(double amount, int userId, int expenseId, Trip trip) async {
+  static Future<void> createOwe(double amount, int userId, int expenseId, Trip trip, int payeeId) async {
     var uri = '${BacktripApi.path}/trip/${trip.id}/owe';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -206,7 +206,8 @@ class TripService {
     var body = jsonEncode(<String, String>{
       'cost': amount.toString(),
       'user_id': userId.toString(),
-      'expense_id': expenseId.toString()
+      'expense_id': expenseId.toString(),
+      'payee_id': payeeId.toString()
     });
     final response = await http
         .post(uri, headers: header, body: body)
