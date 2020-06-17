@@ -1,4 +1,10 @@
+import 'package:backtrip/model/Operation.dart';
 import 'package:backtrip/model/trip.dart';
+import 'package:backtrip/model/user.dart';
+import 'package:backtrip/service/trip_service.dart';
+import 'package:backtrip/service/user_service.dart';
+import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/trip/expense/create_expense.dart';
 import 'package:flutter/material.dart';
 
@@ -15,141 +21,53 @@ class RefundsDetails extends StatefulWidget {
 
 class _RefundsDetailsState extends State<RefundsDetails> {
   List<Card> refundsCardList;
+  List<Operation> operations;
   final GlobalKey<AnimatedCircularChartState> _chartKey = new GlobalKey<AnimatedCircularChartState>();
 
   @override
   void initState() {
     super.initState();
     refundsCardList = new List<Card>();
+    operations = new List<Operation>();
     getRefunds();
   }
 
-  void getRefunds() {
-    Card card = Card(
-      child: new Container(
-        alignment: Alignment.center,
-        padding: new EdgeInsets.fromLTRB(10, 30, 10, 30),
-        child: new Row(
-          children: <Widget>[
-            Container(
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.brown.shade800,
-                child: Text('AB'),
-              ),
-            ),
-            SizedBox(width: 10),
-            Container(
-              child: Text(
-                'Alexis',
-                style: new TextStyle(
-                  fontSize: 20.0,
-                ),
-              ),
-            ),
-            Expanded(
-              child: new Padding(
-                padding: const EdgeInsets.all(20.0),
-              ),
-            ),
-            Column(
-              children: <Widget>[
-                Container(
-                    child: Text(
-                      '143.54€',
-                      style: new TextStyle(
-                          fontSize: 20.0,
-                          color: Colors.lightGreen
-                      ),
-                    )
-                ),
-                Container(
-                    child: Text(
-                      'à recevoir',
-                      style: new TextStyle(
-                          fontSize: 15.0,
-                          color: Colors.lightGreen
-                      ),
-                    )
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+  Future<void> getRefunds() async {
+    operations = await TripService.getTransactionsToBeMade(widget._trip, BacktripApi.currentUser.id);
 
-    Card refundCard = Card(
-      child: new Container(
-        alignment: Alignment.center,
-        padding: new EdgeInsets.fromLTRB(10, 30, 10, 30),
-        child: new Row(
-          children: <Widget>[
-            Container(
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.brown.shade800,
-                child: Text('CC'),
-              ),
-            ),
-            SizedBox(width: 10),
-            Container(
-              child: Text(
-                'Célia',
-                style: new TextStyle(
-                  fontSize: 20.0,
-                ),
-              ),
-            ),
-            Expanded(
-              child: new Padding(
-                padding: const EdgeInsets.all(20.0),
-              ),
-            ),
-            Column(
-              children: <Widget>[
-                Container(
-                    child: Text(
-                      '45.68€',
-                      style: new TextStyle(
-                          fontSize: 20.0,
-                          color: Colors.red
-                      ),
-                    )
-                ),
-                Container(
-                    child: Text(
-                      'à rembourser',
-                      style: new TextStyle(
-                          fontSize: 15.0,
-                          color: Colors.red
-                      ),
-                    )
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-    );
+    for(Operation operation in operations) {
+      User user;
+      if(BacktripApi.currentUser.id == operation.payeeId) {
+        user = await UserService.getUserById(operation.emitterId);
+        Card operationCard = await createNewOperationCard(operation.amount.toString(), Colors.lightGreen, 'à recevoir', user);
+        setState(() {
+          refundsCardList.add(operationCard);
+        });
+      } else {
+        user = await UserService.getUserById(operation.payeeId);
+        Card operationCard = await createNewOperationCard(operation.amount.toString(), Colors.red, 'à rembourser', user);
+        setState(() {
+          refundsCardList.add(operationCard);
+        });
+      }
+    }
+  }
 
-    Card card2 = Card(
+  Future<Card> createNewOperationCard(String amount, Color color, String operationText, User user) async {
+    CircleAvatar avatar = await Components.getParticipantWithPhoto(user);
+    return Card(
       child: new Container(
         alignment: Alignment.center,
         padding: new EdgeInsets.fromLTRB(10, 30, 10, 30),
         child: new Row(
           children: <Widget>[
             Container(
-              child: CircleAvatar(
-                radius: 20,
-                backgroundColor: Colors.brown.shade800,
-                child: Text('VG'),
-              ),
+              child: avatar,
             ),
             SizedBox(width: 10),
             Container(
               child: Text(
-                'Vincent',
+                user.firstName,
                 style: new TextStyle(
                   fontSize: 20.0,
                 ),
@@ -164,19 +82,19 @@ class _RefundsDetailsState extends State<RefundsDetails> {
               children: <Widget>[
                 Container(
                     child: Text(
-                      '103.49€',
+                      amount + '€',
                       style: new TextStyle(
                           fontSize: 20.0,
-                          color: Colors.lightGreen
+                          color: color
                       ),
                     )
                 ),
                 Container(
                     child: Text(
-                      'à recevoir',
+                      operationText,
                       style: new TextStyle(
                           fontSize: 15.0,
-                          color: Colors.lightGreen
+                          color: color
                       ),
                     )
                 ),
@@ -186,9 +104,6 @@ class _RefundsDetailsState extends State<RefundsDetails> {
         ),
       ),
     );
-    refundsCardList.add(card);
-    refundsCardList.add(refundCard);
-    refundsCardList.add(card2);
   }
 
   Widget circularChart() {
@@ -261,7 +176,14 @@ class _RefundsDetailsState extends State<RefundsDetails> {
   }
 
   void redirectToExpenseCreation(context) {
-    Navigator.push(context,
-        MaterialPageRoute(builder: (context) => CreateExpense(widget._trip)));
+    setState(() {
+      refundsCardList.clear();
+      operations.clear();
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => CreateExpense(widget._trip)))
+          .then((context) {
+        getRefunds();
+      });
+    });
   }
 }

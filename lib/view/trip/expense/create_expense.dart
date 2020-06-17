@@ -349,9 +349,9 @@ class _CreateExpenseState extends State<CreateExpense> {
     }
   }
 
-  Future<void> createOwes(int payerCounter, expenseId) async {
+  Future<void> createOwes(int payerCounter, int expenseId) async {
     for (int i = 0; i < payerCounter; i++) {
-      await TripService.createOwe(double.parse(_participantsAmountController[i].text.trim()), selectedPayers[i].id, expenseId, widget._trip, mainPayer.id)
+      await TripService.createOwe(double.parse(_participantsAmountController[i].text.trim()), selectedPayers[i].id, expenseId, widget._trip, mainPayer.id, widget._trip.id)
       .catchError((e) {
         if(e is OweException) {
           Components.snackBar(context, e.cause, Color(0xff8B0000));

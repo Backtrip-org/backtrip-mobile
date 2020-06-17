@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:backtrip/model/Expense.dart';
+import 'package:backtrip/model/Operation.dart';
 import 'package:backtrip/model/Owe.dart';
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/step/step_factory.dart';
@@ -11,6 +12,7 @@ import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/constants.dart';
 import 'package:backtrip/util/exception/AddDocumentToStepException.dart';
 import 'package:backtrip/util/exception/ExpenseException.dart';
+import 'package:backtrip/util/exception/OperationException.dart';
 import 'package:backtrip/util/exception/OweException.dart';
 import 'package:backtrip/util/exception/StepException.dart';
 import 'package:backtrip/util/exception/TripAlreadyExistsException.dart';
@@ -53,6 +55,11 @@ class TripService {
   static List<Trip> parseTrips(String responseBody) {
     Iterable data = json.decode(responseBody);
     return data.map((model) => Trip.fromJson(model)).toList();
+  }
+
+  static List<Operation> parseOperations(String responseBody) {
+    Iterable data = json.decode(responseBody);
+    return data.map((model) => Operation.fromJson(model)).toList();
   }
 
   static List<Step> parseSteps(String responseBody) {
@@ -197,17 +204,18 @@ class TripService {
     }
   }
 
-  static Future<void> createOwe(double amount, int userId, int expenseId, Trip trip, int payeeId) async {
+  static Future<void> createOwe(double amount, int userId, int expenseId, Trip trip, int payeeId, int tripId) async {
     var uri = '${BacktripApi.path}/trip/${trip.id}/owe';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
-    };
+  };
     var body = jsonEncode(<String, String>{
       'cost': amount.toString(),
-      'user_id': userId.toString(),
+      'emitter_id': userId.toString(),
       'expense_id': expenseId.toString(),
-      'payee_id': payeeId.toString()
+      'payee_id': payeeId.toString(),
+      'trip_id': tripId.toString()
     });
     final response = await http
         .post(uri, headers: header, body: body)
@@ -217,6 +225,21 @@ class TripService {
       return Owe.fromJson(json.decode(response.body));
     } else {
       throw OweException();
+    }
+  }
+
+  static Future<List<Operation>> getTransactionsToBeMade(Trip trip, int userId) async {
+    var uri = '${BacktripApi.path}/trip/${trip.id}/transactionsToBeMade/$userId';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    final response = await http.get(uri, headers: header);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return compute(parseOperations, response.body);
+    } else {
+      throw OperationException();
     }
   }
 }
