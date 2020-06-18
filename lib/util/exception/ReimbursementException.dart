@@ -1,7 +1,7 @@
-class OweException implements Exception {
+class ReimbursementException implements Exception {
   String cause;
 
-  OweException() {
+  ReimbursementException() {
     this.cause = "Impossible de créer le remboursement.";
   }
 }

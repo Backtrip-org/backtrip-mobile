@@ -3,7 +3,7 @@ import 'dart:io';
 
 import 'package:backtrip/model/Expense.dart';
 import 'package:backtrip/model/Operation.dart';
-import 'package:backtrip/model/Owe.dart';
+import 'package:backtrip/model/Reimbursement.dart';
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/step/step_factory.dart';
 import 'package:backtrip/model/trip.dart';
@@ -13,7 +13,7 @@ import 'package:backtrip/util/constants.dart';
 import 'package:backtrip/util/exception/AddDocumentToStepException.dart';
 import 'package:backtrip/util/exception/ExpenseException.dart';
 import 'package:backtrip/util/exception/OperationException.dart';
-import 'package:backtrip/util/exception/OweException.dart';
+import 'package:backtrip/util/exception/ReimbursementException.dart';
 import 'package:backtrip/util/exception/StepException.dart';
 import 'package:backtrip/util/exception/TripAlreadyExistsException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
@@ -204,8 +204,8 @@ class TripService {
     }
   }
 
-  static Future<void> createOwe(double amount, int userId, int expenseId, Trip trip, int payeeId, int tripId) async {
-    var uri = '${BacktripApi.path}/trip/${trip.id}/owe';
+  static Future<void> createReimbursement(double amount, int userId, int expenseId, Trip trip, int payeeId, int tripId) async {
+    var uri = '${BacktripApi.path}/trip/${trip.id}/reimbursement';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
@@ -222,9 +222,9 @@ class TripService {
         .timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.ok) {
-      return Owe.fromJson(json.decode(response.body));
+      return Reimbursement.fromJson(json.decode(response.body));
     } else {
-      throw OweException();
+      throw ReimbursementException();
     }
   }
 
