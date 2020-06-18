@@ -1,3 +1,4 @@
+import 'package:backtrip/model/file.dart';
 import 'package:backtrip/model/place/place.dart';
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/user.dart';
@@ -18,7 +19,8 @@ class StepFood extends Step {
       phoneNumber,
       notes,
       tripId,
-      participants})
+      participants,
+      files})
       : super(
             id: id,
             name: name,
@@ -28,13 +30,17 @@ class StepFood extends Step {
             phoneNumber: phoneNumber,
             notes: notes,
             tripId: tripId,
-            participants: participants);
+            participants: participants,
+            files: files);
 
   @override
   factory StepFood.fromJson(dynamic json) {
     var participantsJson = json['users_steps'] as List;
-    List<User> _participants =
+    List<User> participants =
         participantsJson.map((user) => User.fromJson(user)).toList();
+
+    var filesJson = json['files'] as List;
+    List<File> files = filesJson.map((file) => File.fromJson(file)).toList();
 
     return StepFood(
         id: json['id'],
@@ -45,7 +51,8 @@ class StepFood extends Step {
         phoneNumber: json['phone_number'],
         notes: json['notes'],
         tripId: json['trip_id'],
-        participants: _participants);
+        participants: participants,
+        files: files);
   }
 
   @override

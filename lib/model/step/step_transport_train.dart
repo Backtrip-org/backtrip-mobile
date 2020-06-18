@@ -1,3 +1,4 @@
+import 'package:backtrip/model/file.dart';
 import 'package:backtrip/model/place/place.dart';
 import 'package:backtrip/model/step/step_transport.dart';
 import 'package:backtrip/model/user.dart';
@@ -21,7 +22,8 @@ class StepTransportTrain extends StepTransport {
       participants,
       reservationNumber,
       transportNumber,
-      endAddress})
+      endAddress,
+      files})
       : super(
             id: id,
             name: name,
@@ -34,13 +36,17 @@ class StepTransportTrain extends StepTransport {
             participants: participants,
             reservationNumber: reservationNumber,
             transportNumber: transportNumber,
-            endAddress: endAddress);
+            endAddress: endAddress,
+            files: files);
 
   @override
   factory StepTransportTrain.fromJson(dynamic json) {
     var participantsJson = json['users_steps'] as List;
-    List<User> _participants =
+    List<User> participants =
         participantsJson.map((user) => User.fromJson(user)).toList();
+
+    var filesJson = json['files'] as List;
+    List<File> files = filesJson.map((file) => File.fromJson(file)).toList();
 
     return StepTransportTrain(
         id: json['id'],
@@ -54,7 +60,8 @@ class StepTransportTrain extends StepTransport {
         reservationNumber: json['reservation_number'],
         transportNumber: json['transport_number'],
         tripId: json['trip_id'],
-        participants: _participants);
+        participants: participants,
+        files: files);
   }
 
   @override
