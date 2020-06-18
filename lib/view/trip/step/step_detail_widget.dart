@@ -151,7 +151,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                           fontSize: 16,
                           letterSpacing: 1,
                         )),
-                    onTap: () => UrlLauncher.launch('tel:+${phoneNumber}'))
+                    onTap: () => UrlLauncher.launch('tel:+$phoneNumber'))
               ])),
           Divider()
         ]));
