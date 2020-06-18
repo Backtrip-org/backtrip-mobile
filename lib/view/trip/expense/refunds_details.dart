@@ -5,6 +5,7 @@ import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
+import 'package:backtrip/view/common/empty_list_widget.dart';
 import 'package:backtrip/view/trip/expense/create_expense.dart';
 import 'package:flutter/material.dart';
 
@@ -23,6 +24,8 @@ class _RefundsDetailsState extends State<RefundsDetails> {
   List<Card> refundsCardList;
   List<Operation> operations;
   final GlobalKey<AnimatedCircularChartState> _chartKey = new GlobalKey<AnimatedCircularChartState>();
+  double toGet = 10;
+  double toRefund = 10;
 
   @override
   void initState() {
@@ -51,6 +54,31 @@ class _RefundsDetailsState extends State<RefundsDetails> {
         });
       }
     }
+    setChart();
+  }
+
+  void setChart() {
+    setState(() {
+      if(operations.length > 0) {
+        resetChartValues();
+        for(Operation operation in operations) {
+          if(BacktripApi.currentUser.id == operation.payeeId) {
+            toGet += operation.amount;
+          } else {
+            toRefund += operation.amount;
+          }
+        }
+
+        List<CircularStackEntry> circularStackEntryList = new List<CircularStackEntry>();
+        circularStackEntryList.add(circularStackEntryChart());
+        _chartKey.currentState.updateData(circularStackEntryList);
+      }
+    });
+  }
+
+  void resetChartValues() {
+    toGet = 0;
+    toRefund = 0;
   }
 
   Future<Card> createNewOperationCard(String amount, Color color, String operationText, User user) async {
@@ -107,28 +135,16 @@ class _RefundsDetailsState extends State<RefundsDetails> {
   }
 
   Widget circularChart() {
+    String holeLabel = operations.length > 0 ? 'Opérations en cours' : 'Aucune opération';
+
     return new AnimatedCircularChart(
       key: _chartKey,
       size: const Size(300.0, 300.0),
       initialChartData: <CircularStackEntry>[
-        new CircularStackEntry(
-          <CircularSegmentEntry>[
-            new CircularSegmentEntry(
-              45.68,
-              Colors.red[400],
-              rankKey: 'completed',
-            ),
-            new CircularSegmentEntry(
-              143.54,
-              Colors.green[600],
-              rankKey: 'remaining',
-            ),
-          ],
-          rankKey: 'progress',
-        ),
+        circularStackEntryChart(),
       ],
       chartType: CircularChartType.Radial,
-      holeLabel: 'Opérations en cours',
+      holeLabel: holeLabel,
       labelStyle: new TextStyle(
         color: Colors.blueGrey[600],
         fontWeight: FontWeight.bold,
@@ -139,17 +155,36 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     );
   }
 
+  CircularStackEntry circularStackEntryChart() {
+    return CircularStackEntry(
+      <CircularSegmentEntry>[
+        new CircularSegmentEntry(
+          toRefund,
+          Colors.red[400],
+          rankKey: 'completed',
+        ),
+        new CircularSegmentEntry(
+          toGet,
+          Colors.green[600],
+          rankKey: 'remaining',
+        ),
+      ],
+      rankKey: 'progress',
+    );
+  }
+
   Widget refundsList() {
     return Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
-        child: ListView.builder(
+        child: refundsCardList.length > 0 ? ListView.builder(
           physics: NeverScrollableScrollPhysics(),
           itemCount: refundsCardList.length,
           shrinkWrap: true,
           itemBuilder: (BuildContext context, int index) {
             return refundsCardList[index];
           }
-        ));
+        ) : EmptyListWidget("Aucune opération en cours")
+    );
   }
 
   @override
