@@ -43,6 +43,14 @@ class Step {
     return files?.where((file) => file.isPhoto())?.toList();
   }
 
+  bool hasStartAddressRating() {
+    return this.startAddress != null && this.startAddress.rating != null;
+  }
+
+  bool hasEndAddressRating() {
+    return hasEndAddress() && (this as StepTransport).endAddress.rating != null;
+  }
+
   factory Step.fromJson(dynamic json) {
     var participantsJson = json['users_steps'] as List;
     List<User> participants =

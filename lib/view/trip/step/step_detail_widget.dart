@@ -9,6 +9,7 @@ import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:backtrip/view/trip/step/map_widget.dart';
 import 'package:backtrip/view/trip/step/photo_carousel_widget.dart';
+import 'package:backtrip/view/trip/step/place_rating_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_transport_widget.dart';
 import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -83,9 +84,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                             /*2*/
                             Container(
                               padding: const EdgeInsets.only(bottom: 8),
-                              child: Column(children: [
-                                stepName(),
-                              ]),
+                              child: Column(children: [stepName(), ratings()]),
                             ),
                           ],
                         ),
@@ -113,6 +112,22 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
       Text(_step.name,
           style: TextStyle(fontWeight: FontWeight.bold, fontSize: 25))
     ]);
+  }
+
+  Widget ratings() {
+    return Column(
+      children: [
+        if (_step.hasStartAddressRating())
+          Padding(
+              padding: EdgeInsets.only(top: 10),
+              child: PlaceRatingWidget(_step.startAddress)),
+        if (_step.hasEndAddressRating())
+          Padding(
+              padding: EdgeInsets.only(top: 10),
+              child:
+                  PlaceRatingWidget((_step as StepTransport).endAddress))
+      ],
+    );
   }
 
   bool currentUserIsParticipant() {
@@ -323,7 +338,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
               child: Text('CONFIRMER'),
               onPressed: () {
                 TripService.addPhotoToStep(
-                        _step.tripId, widget._step.id, pickedImage)
+                        _step.tripId, _step.id, pickedImage)
                     .then((file) {
                   setState(() {
                     _step.files.add(file);
