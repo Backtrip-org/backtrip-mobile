@@ -1,8 +1,8 @@
 import 'package:backtrip/model/Operation.dart';
+import 'package:backtrip/model/UserAvatar.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:backtrip/service/trip_service.dart';
-import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/common/empty_list_widget.dart';
@@ -23,33 +23,31 @@ class RefundsDetails extends StatefulWidget {
 
 class _RefundsDetailsState extends State<RefundsDetails> {
   final GlobalKey<AnimatedCircularChartState> _chartKey = new GlobalKey<AnimatedCircularChartState>();
+  List<UserAvatar> usersAvatars = List<UserAvatar>();
+  List<InkWell> refundsCardList = new List<InkWell>();
   Future<List<Operation>> futuresOperations;
-  List<InkWell> refundsCardList;
+  Future<List<User>> futureUserList;
   double toGet = 10;
   double toRefund = 10;
 
   @override
   void initState() {
     super.initState();
-    refundsCardList = new List<InkWell>();
+    getUsersAvatars();
     getRefunds();
+  }
+
+  Future<void> getUsersAvatars() async {
+    List<User> userList = widget._trip.participants;
+    int userListLength = userList.length;
+    for(int i = 0; i < userListLength; i++) {
+      CircleAvatar circleAvatar = await Components.getParticipantWithPhoto(userList[i]);
+      usersAvatars.add(UserAvatar(userList[i], circleAvatar));
+    }
   }
 
   void getRefunds() {
     futuresOperations = TripService.getTransactionsToBeMade(widget._trip, BacktripApi.currentUser.id);
-  }
-
-  void setChart(List<Operation> operations) {
-    if(operations.length > 0) {
-      resetChartValues();
-      for(Operation operation in operations) {
-        if(BacktripApi.currentUser.id == operation.payeeId) {
-          toGet += operation.amount;
-        } else {
-          toRefund += operation.amount;
-        }
-      }
-    }
   }
 
   void resetChartValues() {
@@ -58,18 +56,15 @@ class _RefundsDetailsState extends State<RefundsDetails> {
   }
 
   InkWell createNewOperationCard(String amount, Color color, String operationText, User user) {
-    //CircleAvatar avatar = await Components.getParticipantWithPhoto(user);
+    CircleAvatar avatar = getCircleAvatarByUser(user);
     Card card = Card(
       child: new Container(
         alignment: Alignment.center,
         padding: new EdgeInsets.fromLTRB(10, 30, 10, 30),
         child: new Row(
-          children: <Widget>[
+        children: <Widget>[
             Container(
-              child: CircleAvatar(
-                backgroundColor: Colors.brown.shade800,
-                child: Text('AH')
-              ),
+              child: avatar,
             ),
             SizedBox(width: 10),
             Container(
@@ -119,14 +114,25 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     );
   }
 
+  CircleAvatar getCircleAvatarByUser(User user) {
+    for(UserAvatar userAvatar in usersAvatars) {
+      if(userAvatar.user.id == user.id) {
+        return userAvatar.circleAvatar;
+      }
+    }
+    return null;
+  }
+
   Widget circularChart() {
     return FutureBuilder<List<Operation>>(
         future: futuresOperations,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data.length > 0) {
-              String holeLabel = snapshot.data.length > 0 ? 'Opérations en cours' : 'Aucune opération';
               setChart(snapshot.data);
+              if( _chartKey.currentState != null) {
+                reloadChart();
+              }
               return new AnimatedCircularChart(
                 key: _chartKey,
                 size: const Size(300.0, 300.0),
@@ -134,7 +140,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
                   circularStackEntryChart(),
                 ],
                 chartType: CircularChartType.Radial,
-                holeLabel: holeLabel,
+                holeLabel: 'Opérations en cours',
                 labelStyle: new TextStyle(
                   color: Colors.blueGrey[600],
                   fontWeight: FontWeight.bold,
@@ -150,6 +156,12 @@ class _RefundsDetailsState extends State<RefundsDetails> {
           }
           return Container();
         });
+  }
+
+  void reloadChart() {
+    List<CircularStackEntry> circularStackEntryList = new List<CircularStackEntry>();
+    circularStackEntryList.add(circularStackEntryChart());
+    _chartKey.currentState.updateData(circularStackEntryList);
   }
 
   CircularStackEntry circularStackEntryChart() {
@@ -170,13 +182,26 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     );
   }
 
+  void setChart(List<Operation> operations) {
+    if(operations.length > 0) {
+      resetChartValues();
+      for(Operation operation in operations) {
+        if(BacktripApi.currentUser.id == operation.payeeId) {
+          toGet += operation.amount;
+        } else {
+          toRefund += operation.amount;
+        }
+      }
+    }
+  }
+
   Widget refundsList() {
     return FutureBuilder<List<Operation>>(
         future: futuresOperations,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
             if (snapshot.data.length > 0) {
-              createCardList(snapshot.data);
+              createCardList(snapshot.data, widget._trip.participants);
               return ListView.builder(
                   physics: NeverScrollableScrollPhysics(),
                   itemCount: refundsCardList.length,
@@ -194,20 +219,26 @@ class _RefundsDetailsState extends State<RefundsDetails> {
         });
   }
 
-  Future<void> createCardList(List<Operation> operations) async {
+  Future<void> createCardList(List<Operation> operations, List<User> users) async {
     refundsCardList.clear();
     for(Operation operation in operations) {
-      User user;
       if(BacktripApi.currentUser.id == operation.payeeId) {
-        user = await UserService.getUserById(operation.emitterId);
-        InkWell operationCard = createNewOperationCard(operation.amount.toString(), Colors.lightGreen, 'à recevoir', user);
+        InkWell operationCard = createNewOperationCard(operation.amount.toString(), Colors.lightGreen, 'à recevoir', getUserById(users, operation.emitterId));
           refundsCardList.add(operationCard);
       } else {
-        user = await UserService.getUserById(operation.payeeId);
-        InkWell operationCard = createNewOperationCard(operation.amount.toString(), Colors.red, 'à rembourser', user);
+        InkWell operationCard = createNewOperationCard(operation.amount.toString(), Colors.red, 'à rembourser', getUserById(users, operation.payeeId));
         refundsCardList.add(operationCard);
       }
     }
+  }
+
+  User getUserById(userList, userId) {
+    for(User u in userList) {
+      if(u.id == userId) {
+        return u;
+      }
+    }
+    return null;
   }
 
   @override
