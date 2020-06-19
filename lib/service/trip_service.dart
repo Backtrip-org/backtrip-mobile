@@ -1,6 +1,8 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:backtrip/model/Expense.dart';
+import 'package:backtrip/model/Owe.dart';
 import 'package:backtrip/model/file.dart' as file_model;
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/step/step_factory.dart';
@@ -9,6 +11,8 @@ import 'package:backtrip/model/user.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/constants.dart';
 import 'package:backtrip/util/exception/AddDocumentToStepException.dart';
+import 'package:backtrip/util/exception/ExpenseException.dart';
+import 'package:backtrip/util/exception/OweException.dart';
 import 'package:backtrip/util/exception/StepException.dart';
 import 'package:backtrip/util/exception/TripAlreadyExistsException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
@@ -206,5 +210,49 @@ class TripService {
   static List<User> parseStepParticipants(String responseBody) {
     Iterable data = json.decode(responseBody);
     return data.map((model) => User.fromJson(model)).toList();
+  }
+
+  static Future<Expense> createExpense(double totalAmount, User mainPayer, Trip trip) async {
+    var uri = '${BacktripApi.path}/trip/${trip.id}/expense';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    var body = jsonEncode(<String, String>{
+      'cost': totalAmount.toString(),
+      'user_id': mainPayer.id.toString(),
+      'trip_id': trip.id.toString()
+    });
+    final response = await http
+        .post(uri, headers: header, body: body)
+        .timeout(Constants.timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return Expense.fromJson(json.decode(response.body));
+    } else {
+      throw ExpenseException();
+    }
+  }
+
+  static Future<void> createOwe(double amount, int userId, int expenseId, Trip trip) async {
+    var uri = '${BacktripApi.path}/trip/${trip.id}/owe';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    var body = jsonEncode(<String, String>{
+      'cost': amount.toString(),
+      'user_id': userId.toString(),
+      'expense_id': expenseId.toString()
+    });
+    final response = await http
+        .post(uri, headers: header, body: body)
+        .timeout(Constants.timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return Owe.fromJson(json.decode(response.body));
+    } else {
+      throw OweException();
+    }
   }
 }
