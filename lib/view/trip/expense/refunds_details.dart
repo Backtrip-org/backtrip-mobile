@@ -196,6 +196,30 @@ class _RefundsDetailsState extends State<RefundsDetails> {
   }
 
   Widget refundsList() {
+    return Padding(
+      padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
+      child: FutureBuilder<List<Operation>>(
+          future: futuresOperations,
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              if (snapshot.data.length > 0) {
+                createCardList(snapshot.data, widget._trip.participants);
+                return ListView.builder(
+                    physics: NeverScrollableScrollPhysics(),
+                    itemCount: refundsCardList.length,
+                    shrinkWrap: true,
+                    itemBuilder: (BuildContext context, int index) {
+                      return refundsCardList[index];
+                    });
+              } else {
+                return EmptyListWidget("Aucune opération en cours");
+              }
+            } else if (snapshot.hasError) {
+              return Text("${snapshot.error}");
+            }
+            return Center(child: CircularProgressIndicator());
+          }),
+    );
     return FutureBuilder<List<Operation>>(
         future: futuresOperations,
         builder: (context, snapshot) {
