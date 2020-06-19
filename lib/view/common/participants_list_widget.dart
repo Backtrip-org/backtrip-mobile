@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:backtrip/model/user.dart';
 import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/stored_token.dart';
 import 'package:flutter/material.dart';
 
@@ -22,42 +23,12 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
 
   _ParticipantsListWidgetState(this.radius);
 
-  Widget getParticipantWithPhoto(User participant) {
-    return FutureBuilder<String>(
-        future: StoredToken.getToken(),
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            return CircleAvatar(
-              backgroundImage: NetworkImage(
-                  '${BacktripApi.path}/file/download/${participant.picturePath}',
-                  headers: {HttpHeaders.authorizationHeader: snapshot.data}
-              ),
-              radius: radius,
-            );
-          }
-          return getParticipantWithoutPhoto(participant);
-        }
-    );
-  }
-
-  Widget getParticipantWithoutPhoto(User participant) {
-    String participantInitials = participant.firstName[0] + participant.lastName[0];
-    return CircleAvatar(
-      backgroundColor: Colors.grey,
-      radius: radius,
-      child: Text(participantInitials,
-          style: TextStyle(
-            color: Colors.white,
-          )),
-    );
-  }
-
   Widget getParticipantIconWidget(User participant) {
     var result;
     if (participant.hasProfilePicture()) {
-      result = getParticipantWithPhoto(participant);
+      result = Components.getParticipantWithPhoto(participant);
     } else {
-      result = getParticipantWithoutPhoto(participant);
+      result = Components.getParticipantWithoutPhoto(participant);
     }
 
     return result;
