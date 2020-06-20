@@ -1,13 +1,13 @@
-class Owe {
+class Reimbursement {
   int id;
   double cost;
   int userId;
   int expenseId;
 
-  Owe({this.id, this.cost, this.userId, this.expenseId});
+  Reimbursement({this.id, this.cost, this.userId, this.expenseId});
 
-  factory Owe.fromJson(Map<String, dynamic> json) {
-    return Owe(
+  factory Reimbursement.fromJson(Map<String, dynamic> json) {
+    return Reimbursement(
         id: json['id'],
         cost: json['cost'],
         userId: json['userId'],

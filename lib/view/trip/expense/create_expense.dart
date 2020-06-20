@@ -3,7 +3,7 @@ import 'package:backtrip/model/user.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/ExpenseException.dart';
-import 'package:backtrip/util/exception/OweException.dart';
+import 'package:backtrip/util/exception/ReimbursementException.dart';
 import 'package:backtrip/util/percentage.dart';
 import 'package:flutter/material.dart';
 import 'dart:core';
@@ -164,6 +164,7 @@ class _CreateExpenseState extends State<CreateExpense> {
     return Padding(
         padding: const EdgeInsets.fromLTRB(0, 0, 0, 0),
         child: ListView.separated(
+          physics: NeverScrollableScrollPhysics(),
           itemCount: payers.length,
           shrinkWrap: true,
           itemBuilder: (BuildContext context, int index) {
@@ -333,7 +334,7 @@ class _CreateExpenseState extends State<CreateExpense> {
       }
 
       TripService.createExpense(double.parse(_expenseAmountController.text.trim()), mainPayer, widget._trip).then((expense) => {
-        Future.wait([createOwes(payerCounter, expense.id)]).then((response) {
+        Future.wait([createReimbursements(payerCounter, expense.id)]).then((response) {
           Navigator.pop(context);
         })
 
@@ -348,11 +349,11 @@ class _CreateExpenseState extends State<CreateExpense> {
     }
   }
 
-  Future<void> createOwes(int payerCounter, expenseId) async {
+  Future<void> createReimbursements(int payerCounter, int expenseId) async {
     for (int i = 0; i < payerCounter; i++) {
-      await TripService.createOwe(double.parse(_participantsAmountController[i].text.trim()), selectedPayers[i].id, expenseId, widget._trip)
+      await TripService.createReimbursement(double.parse(_participantsAmountController[i].text.trim()), selectedPayers[i].id, expenseId, widget._trip, mainPayer.id, widget._trip.id)
       .catchError((e) {
-        if(e is OweException) {
+        if(e is ReimbursementException) {
           Components.snackBar(context, e.cause, Color(0xff8B0000));
         } else {
           Components.snackBar(
