@@ -20,10 +20,10 @@ class StepDetailTransportWidget extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     title(step.icon, "Informations du transport", context),
-                    if (step.reservationNumber != null)
+                    if (step.reservationNumber != null && step.reservationNumber != '')
                       field("Numéro de réservation", step.reservationNumber,
                           context),
-                    if (step.transportNumber != null)
+                    if (step.transportNumber != null && step.transportNumber != '')
                       field(
                           "Numéro du transport", step.transportNumber, context),
                   ],

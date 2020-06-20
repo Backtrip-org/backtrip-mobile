@@ -6,12 +6,13 @@ class Trip {
   String picturePath;
   int creatorId;
   int countdown;
+  bool closed;
   List<User> participants;
 
   static const nameMinLength = 2;
   static const nameMaxLength = 20;
 
-  Trip({this.id, this.name, this.picturePath, this.creatorId, this.countdown, this.participants});
+  Trip({this.id, this.name, this.picturePath, this.creatorId, this.countdown, this.closed, this.participants});
 
   factory Trip.fromJson(dynamic json) {
     var participantsJson = json['users_trips'] as List;
@@ -25,6 +26,7 @@ class Trip {
         picturePath: json['picture_path'],
         creatorId: json['creator_id'],
         countdown: json['countdown'] ?? 0,
+        closed: json['closed'],
         participants: _participants
     );
   }

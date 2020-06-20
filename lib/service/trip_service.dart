@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:backtrip/model/Expense.dart';
 import 'package:backtrip/model/Operation.dart';
 import 'package:backtrip/model/Reimbursement.dart';
+import 'package:backtrip/model/file.dart' as file_model;
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/step/step_factory.dart';
 import 'package:backtrip/model/trip.dart';
@@ -78,7 +79,7 @@ class TripService {
 
     final response = await http
         .post(uri, headers: header, body: body)
-        .timeout(Constants.timeout);
+        .timeout(Constants.longTimeout);
 
     if (response.statusCode == HttpStatus.created) {
       return Step.fromJson(json.decode(response.body));
@@ -89,7 +90,32 @@ class TripService {
     }
   }
 
-  static Future<void> addDocumentToStep(tripId, stepId, File file) async {
+  static Future<file_model.File> addPhotoToStep(tripId, stepId, File file) async {
+    var uri = '${BacktripApi.path}/trip/$tripId/step/$stepId/photo';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+
+    var request = http.MultipartRequest('POST', Uri.parse(uri));
+    request.headers.addAll(header);
+    request.files.add(http.MultipartFile.fromBytes(
+        'file', file.readAsBytesSync(),
+        filename: path.basename(file.path)));
+
+    final streamedResponse = await request.send();
+    final response = await streamedResponse.stream.bytesToString();
+
+    if (streamedResponse.statusCode == HttpStatus.ok) {
+      return file_model.File.fromJson(json.decode(response));
+    } else if (streamedResponse.statusCode == HttpStatus.badRequest) {
+      throw new AddDocumentToStepException();
+    } else {
+      throw new UnexpectedException();
+    }
+  }
+
+  static Future<file_model.File> addDocumentToStep(tripId, stepId, File file) async {
     var uri = '${BacktripApi.path}/trip/$tripId/step/$stepId/document';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -98,19 +124,16 @@ class TripService {
 
     var request = http.MultipartRequest('POST', Uri.parse(uri));
     request.headers.addAll(header);
-    request.files.add(
-      http.MultipartFile.fromBytes(
-          'file',
-          file.readAsBytesSync(),
-          filename: path.basename(file.path)
-      )
-    );
+    request.files.add(http.MultipartFile.fromBytes(
+        'file', file.readAsBytesSync(),
+        filename: path.basename(file.path)));
 
-    final response = await request.send();
+    final streamedResponse = await request.send();
+    final response = await streamedResponse.stream.bytesToString();
 
-    if(response.statusCode == HttpStatus.ok) {
-      return;
-    } else if (response.statusCode == HttpStatus.badRequest) {
+    if (streamedResponse.statusCode == HttpStatus.ok) {
+      return file_model.File.fromJson(json.decode(response));
+    } else if (streamedResponse.statusCode == HttpStatus.badRequest) {
       throw new AddDocumentToStepException();
     } else {
       throw new UnexpectedException();
@@ -123,11 +146,9 @@ class TripService {
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
     };
-    var body = jsonEncode(<String, String>{
-      'name': name,
-      'picture_path': ''
-    });
-    final response = await http.post(uri, headers: header, body: body)
+    var body = jsonEncode(<String, String>{'name': name, 'picture_path': ''});
+    final response = await http
+        .post(uri, headers: header, body: body)
         .timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.created) {
@@ -139,16 +160,32 @@ class TripService {
     }
   }
 
+  static Future<Step> getStep(int tripId, int stepId) async {
+    var uri = '${BacktripApi.path}/trip/$tripId/step/$stepId';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+
+    final response =
+        await http.get(uri, headers: header).timeout(Constants.timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return StepFactory().getStep(json.decode(response.body));
+    } else {
+      throw new UnexpectedException();
+    }
+  }
+
   static Future<void> inviteToTrip(int tripId, String email) async {
     var uri = '${BacktripApi.path}/trip/$tripId/invite';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
     };
-    var body = jsonEncode(<String, String>{
-      'email': email
-    });
-    final response = await http.post(uri, headers: header, body: body)
+    var body = jsonEncode(<String, String>{'email': email});
+    final response = await http
+        .post(uri, headers: header, body: body)
         .timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.badRequest) {
@@ -159,15 +196,15 @@ class TripService {
   }
 
   static Future<List<User>> joinStep(Step step, int userId) async {
-    var uri = '${BacktripApi.path}/trip/${step.tripId}/step/${step.id}/participant';
+    var uri =
+        '${BacktripApi.path}/trip/${step.tripId}/step/${step.id}/participant';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
     };
-    var body = jsonEncode(<String, int>{
-      'id': userId
-    });
-    final response = await http.post(uri, headers: header, body: body)
+    var body = jsonEncode(<String, int>{'id': userId});
+    final response = await http
+        .post(uri, headers: header, body: body)
         .timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.ok) {
@@ -180,6 +217,20 @@ class TripService {
   static List<User> parseStepParticipants(String responseBody) {
     Iterable data = json.decode(responseBody);
     return data.map((model) => User.fromJson(model)).toList();
+  }
+
+  static Future<void> closeTrip(int tripId) async {
+    var uri = '${BacktripApi.path}/trip/$tripId/close';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    final response = await http.patch(uri, headers: header)
+        .timeout(Constants.timeout);
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw new UnexpectedException();
+    }
   }
 
   static Future<Expense> createExpense(double totalAmount, User mainPayer, Trip trip) async {

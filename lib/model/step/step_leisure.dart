@@ -1,3 +1,5 @@
+import 'package:backtrip/model/file.dart';
+import 'package:backtrip/model/place/place.dart';
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:flutter/material.dart' as material;
@@ -17,7 +19,8 @@ class StepLeisure extends Step {
       phoneNumber,
       notes,
       tripId,
-      participants})
+      participants,
+      files})
       : super(
             id: id,
             name: name,
@@ -27,24 +30,29 @@ class StepLeisure extends Step {
             phoneNumber: phoneNumber,
             notes: notes,
             tripId: tripId,
-            participants: participants);
+            participants: participants,
+            files: files);
 
   @override
   factory StepLeisure.fromJson(dynamic json) {
     var participantsJson = json['users_steps'] as List;
-    List<User> _participants =
+    List<User> participants =
         participantsJson.map((user) => User.fromJson(user)).toList();
+
+    var filesJson = json['files'] as List;
+    List<File> files = filesJson.map((file) => File.fromJson(file)).toList();
 
     return StepLeisure(
         id: json['id'],
         name: json['name'],
         startDatetime: DateTime.tryParse(json['start_datetime'].toString()),
         endDateTime: DateTime.tryParse(json['end_datetime'].toString()),
-        startAddress: json['start_address'],
+        startAddress: Place.fromJson(json['start_address']),
         phoneNumber: json['phone_number'],
         notes: json['notes'],
         tripId: json['trip_id'],
-        participants: _participants);
+        participants: participants,
+        files: files);
   }
 
   @override
@@ -52,7 +60,7 @@ class StepLeisure extends Step {
         'name': name,
         'start_datetime': startDatetime?.toIso8601String(),
         'end_datetime': endDateTime?.toIso8601String(),
-        'start_address': startAddress,
+        'start_address': startAddress?.toJson(),
         'phone_number': phoneNumber,
         'notes': notes,
         'type': type,

@@ -76,8 +76,11 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
                     children: [
                       /*2*/
                       Container(
-                        child: Column(
-                            children: [stepName(), address(), participants()]),
+                        child: Column(children: [
+                          stepName(),
+                          if (widget._step.startAddress != null) address(),
+                          participants()
+                        ]),
                       ),
                     ],
                   ),
@@ -103,20 +106,17 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
   }
 
   Widget address() {
-    return Visibility(
-        visible: widget._step.startAddress != null &&
-            widget._step.startAddress != '',
-        child: Row(children: [
-          Icon(
-            Icons.place,
-            size: 17,
-            color: Theme.of(context).accentColor,
-          ),
-          Padding(
-              padding: const EdgeInsets.only(left: 10),
-              child: Text(widget._step.startAddress ?? '',
-                  style: Theme.of(context).textTheme.subhead))
-        ]));
+    return Row(children: [
+      Icon(
+        Icons.place,
+        size: 17,
+        color: Theme.of(context).accentColor,
+      ),
+      Padding(
+          padding: const EdgeInsets.only(left: 10),
+          child: Text(widget._step.startAddress.getLongAddress(),
+              style: Theme.of(context).textTheme.subhead))
+    ]);
   }
 
   Widget participants() {
