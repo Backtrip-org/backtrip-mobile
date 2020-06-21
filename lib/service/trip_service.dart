@@ -255,19 +255,29 @@ class TripService {
     }
   }
 
-  static Future<void> createReimbursement(double amount, int userId, int expenseId, Trip trip, int payeeId, int tripId) async {
+  static Future<void> createReimbursement(double amount, int userId, Trip trip, int payeeId, {int expenseId = 0}) async {
     var uri = '${BacktripApi.path}/trip/${trip.id}/reimbursement';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
   };
-    var body = jsonEncode(<String, String>{
-      'cost': amount.toString(),
-      'emitter_id': userId.toString(),
-      'expense_id': expenseId.toString(),
-      'payee_id': payeeId.toString(),
-      'trip_id': tripId.toString()
-    });
+    var body;
+    if(expenseId != 0) {
+      body = jsonEncode(<String, String>{
+        'cost': amount.toString(),
+        'emitter_id': userId.toString(),
+        'expense_id': expenseId.toString(),
+        'payee_id': payeeId.toString(),
+        'trip_id': trip.id.toString()
+      });
+    } else {
+      body = jsonEncode(<String, String>{
+        'cost': amount.toString(),
+        'emitter_id': userId.toString(),
+        'payee_id': payeeId.toString(),
+        'trip_id': trip.id.toString()
+      });
+    }
     final response = await http
         .post(uri, headers: header, body: body)
         .timeout(Constants.timeout);
