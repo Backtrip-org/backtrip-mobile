@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:backtrip/model/Expense.dart';
-import 'package:backtrip/model/Operation.dart';
-import 'package:backtrip/model/Reimbursement.dart';
+import 'package:backtrip/model/expense.dart';
+import 'package:backtrip/model/operation.dart';
+import 'package:backtrip/model/reimbursement.dart';
 import 'package:backtrip/model/file.dart' as file_model;
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/step/step_factory.dart';
@@ -255,19 +255,20 @@ class TripService {
     }
   }
 
-  static Future<void> createReimbursement(double amount, int userId, int expenseId, Trip trip, int payeeId, int tripId) async {
+  static Future<void> createReimbursement(double amount, int userId, Trip trip, int payeeId, {int expenseId = 0}) async {
     var uri = '${BacktripApi.path}/trip/${trip.id}/reimbursement';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
   };
-    var body = jsonEncode(<String, String>{
-      'cost': amount.toString(),
-      'emitter_id': userId.toString(),
-      'expense_id': expenseId.toString(),
-      'payee_id': payeeId.toString(),
-      'trip_id': tripId.toString()
-    });
+    var body;
+    if(expenseId != 0) {
+      var reimbursement = Reimbursement(cost: amount, emitterId: userId, expenseId: expenseId, payeeId: payeeId, tripId: trip.id);
+      body = jsonEncode(reimbursement.toJsonWithExpenseId());
+    } else {
+      var reimbursement = Reimbursement(cost: amount, emitterId: userId, payeeId: payeeId, tripId: trip.id);
+      body = jsonEncode(reimbursement.toJsonWithoutExpenseId());
+    }
     final response = await http
         .post(uri, headers: header, body: body)
         .timeout(Constants.timeout);

@@ -1,12 +1,12 @@
-import 'package:backtrip/model/Operation.dart';
-import 'package:backtrip/model/UserAvatar.dart';
+import 'package:backtrip/model/operation.dart';
+import 'package:backtrip/model/user_avatar.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/common/empty_list_widget.dart';
-import 'package:backtrip/view/trip/expense/CreateReimbursement.dart';
+import 'package:backtrip/view/trip/expense/createReimbursement.dart';
 import 'package:backtrip/view/trip/expense/create_expense.dart';
 import 'package:flutter/material.dart';
 
@@ -55,7 +55,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     toRefund = 0;
   }
 
-  InkWell createNewOperationCard(String amount, Color color, String operationText, User user) {
+  InkWell createNewOperationCard(Operation operation, Color color, String operationText, User user) {
     CircleAvatar avatar = getCircleAvatarByUser(user);
     Card card = Card(
       child: new Container(
@@ -85,7 +85,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
               children: <Widget>[
                 Container(
                     child: Text(
-                      amount + '€',
+                      operation.amount.toString() + '€',
                       style: new TextStyle(
                           fontSize: 20.0,
                           color: color
@@ -109,7 +109,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     );
 
     return new InkWell(
-      onTap: ()=> {},
+      onTap: ()=> redirectToReimbursement(context, operation, user),
       child: card,
     );
   }
@@ -226,10 +226,10 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     refundsCardList.clear();
     for(Operation operation in operations) {
       if(BacktripApi.currentUser.id == operation.payeeId) {
-        InkWell operationCard = createNewOperationCard(operation.amount.toString(), Colors.lightGreen, 'à recevoir', getUserById(users, operation.emitterId));
+        InkWell operationCard = createNewOperationCard(operation, Colors.lightGreen, 'à recevoir', getUserById(users, operation.emitterId));
           refundsCardList.add(operationCard);
       } else {
-        InkWell operationCard = createNewOperationCard(operation.amount.toString(), Colors.red, 'à rembourser', getUserById(users, operation.payeeId));
+        InkWell operationCard = createNewOperationCard(operation, Colors.red, 'à rembourser', getUserById(users, operation.payeeId));
         refundsCardList.add(operationCard);
       }
     }
@@ -278,14 +278,16 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     });
   }
 
-  void redirectToReimbursement(context) {
-    setState(() {
-      refundsCardList.clear();
-      Navigator.push(context,
-          MaterialPageRoute(builder: (context) => CreateReimbursement(widget._trip)))
-          .then((context) {
-        getRefunds();
+  void redirectToReimbursement(context, Operation operation, User user) {
+    if(operation.emitterId == BacktripApi.currentUser.id) {
+      setState(() {
+        refundsCardList.clear();
+        Navigator.push(context,
+            MaterialPageRoute(builder: (context) => CreateReimbursement(widget._trip, operation, user)))
+            .then((context) {
+          getRefunds();
+        });
       });
-    });
+    }
   }
 }

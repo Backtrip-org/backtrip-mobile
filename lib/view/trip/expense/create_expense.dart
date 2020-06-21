@@ -351,7 +351,7 @@ class _CreateExpenseState extends State<CreateExpense> {
 
   Future<void> createReimbursements(int payerCounter, int expenseId) async {
     for (int i = 0; i < payerCounter; i++) {
-      await TripService.createReimbursement(double.parse(_participantsAmountController[i].text.trim()), selectedPayers[i].id, expenseId, widget._trip, mainPayer.id, widget._trip.id)
+      await TripService.createReimbursement(double.parse(_participantsAmountController[i].text.trim()), selectedPayers[i].id, widget._trip, mainPayer.id, expenseId: expenseId)
       .catchError((e) {
         if(e is ReimbursementException) {
           Components.snackBar(context, e.cause, Color(0xff8B0000));
