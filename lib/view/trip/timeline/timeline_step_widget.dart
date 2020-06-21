@@ -112,10 +112,11 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
         size: 17,
         color: Theme.of(context).accentColor,
       ),
-      Padding(
-          padding: const EdgeInsets.only(left: 10),
-          child: Text(widget._step.startAddress.getLongAddress(),
-              style: Theme.of(context).textTheme.subhead))
+      Flexible(
+          child: Padding(
+              padding: const EdgeInsets.only(left: 10),
+              child: Text(widget._step.startAddress.getLongAddress(),
+                  style: Theme.of(context).textTheme.subhead)))
     ]);
   }
 
