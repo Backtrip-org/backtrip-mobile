@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:backtrip/model/Expense.dart';
-import 'package:backtrip/model/Operation.dart';
-import 'package:backtrip/model/Reimbursement.dart';
+import 'package:backtrip/model/expense.dart';
+import 'package:backtrip/model/operation.dart';
+import 'package:backtrip/model/reimbursement.dart';
 import 'package:backtrip/model/file.dart' as file_model;
 import 'package:backtrip/model/step/step.dart';
 import 'package:backtrip/model/step/step_factory.dart';
@@ -263,20 +263,11 @@ class TripService {
   };
     var body;
     if(expenseId != 0) {
-      body = jsonEncode(<String, String>{
-        'cost': amount.toString(),
-        'emitter_id': userId.toString(),
-        'expense_id': expenseId.toString(),
-        'payee_id': payeeId.toString(),
-        'trip_id': trip.id.toString()
-      });
+      var reimbursement = Reimbursement(cost: amount, emitterId: userId, expenseId: expenseId, payeeId: payeeId, tripId: trip.id);
+      body = jsonEncode(reimbursement.toJsonWithExpenseId());
     } else {
-      body = jsonEncode(<String, String>{
-        'cost': amount.toString(),
-        'emitter_id': userId.toString(),
-        'payee_id': payeeId.toString(),
-        'trip_id': trip.id.toString()
-      });
+      var reimbursement = Reimbursement(cost: amount, emitterId: userId, payeeId: payeeId, tripId: trip.id);
+      body = jsonEncode(reimbursement.toJsonWithoutExpenseId());
     }
     final response = await http
         .post(uri, headers: header, body: body)

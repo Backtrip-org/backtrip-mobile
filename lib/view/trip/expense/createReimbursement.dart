@@ -1,4 +1,4 @@
-import 'package:backtrip/model/Operation.dart';
+import 'package:backtrip/model/operation.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:backtrip/service/trip_service.dart';
