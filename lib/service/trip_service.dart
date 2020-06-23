@@ -63,6 +63,11 @@ class TripService {
     return data.map((model) => Operation.fromJson(model)).toList();
   }
 
+  static List<Expense> parseExpenses(String responseBody) {
+    Iterable data = json.decode(responseBody);
+    return data.map((model) => Expense.fromJson(model)).toList();
+  }
+
   static List<Step> parseSteps(String responseBody) {
     Iterable data = json.decode(responseBody);
     return data.map((model) => StepFactory().getStep(model)).toList();
@@ -292,6 +297,21 @@ class TripService {
       return compute(parseOperations, response.body);
     } else {
       throw OperationException();
+    }
+  }
+
+  static Future<List<Expense>> getUserExpenses(Trip trip, int userId) async {
+    var uri = '${BacktripApi.path}/trip/${trip.id}/user/$userId/expenses';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    final response = await http.get(uri, headers: header);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return compute(parseExpenses, response.body);
+    } else {
+      throw ExpenseException();
     }
   }
 }

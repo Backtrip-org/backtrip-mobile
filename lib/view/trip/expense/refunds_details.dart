@@ -1,3 +1,4 @@
+import 'package:backtrip/model/expense.dart';
 import 'package:backtrip/model/operation.dart';
 import 'package:backtrip/model/user_avatar.dart';
 import 'package:backtrip/model/trip.dart';
@@ -6,6 +7,7 @@ import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/common/empty_list_widget.dart';
+import 'package:backtrip/view/theme/backtrip_theme.dart';
 import 'package:backtrip/view/trip/expense/createReimbursement.dart';
 import 'package:backtrip/view/trip/expense/create_expense.dart';
 import 'package:flutter/material.dart';
@@ -27,6 +29,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
   List<InkWell> refundsCardList = new List<InkWell>();
   Future<List<Operation>> futuresOperations;
   Future<List<User>> futureUserList;
+  Future<List<Expense>> userExpenses;
   double toGet = 10;
   double toRefund = 10;
 
@@ -35,6 +38,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     super.initState();
     getUsersAvatars();
     getRefunds();
+    getUserExpenses(widget._trip, BacktripApi.currentUser.id);
   }
 
   Future<void> getUsersAvatars() async {
@@ -48,6 +52,10 @@ class _RefundsDetailsState extends State<RefundsDetails> {
 
   void getRefunds() {
     futuresOperations = TripService.getTransactionsToBeMade(widget._trip, BacktripApi.currentUser.id);
+  }
+
+  void getUserExpenses(Trip trip, int userId) {
+    userExpenses = TripService.getUserExpenses(trip, userId);
   }
 
   void resetChartValues() {
@@ -244,27 +252,72 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     return null;
   }
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
+  SingleChildScrollView operations() {
+    return SingleChildScrollView(
         child: Column(
           children: <Widget>[
-            circularChart(),
-            refundsList(),
-          ],
-        ),
-      ),
-      floatingActionButton: Builder(
-        builder: (ctx) {
-          return FloatingActionButton(
-              onPressed: () {
-                redirectToExpenseCreation(ctx);
-              },
-              child: Icon(Icons.add));
-        },
-      ),
-    );
+          circularChart(),
+          refundsList(),
+        ],
+    ));
+  }
+
+  Widget userExpensesList() {
+    return FutureBuilder<List<Expense>>(
+        future: userExpenses,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data.length > 0) {
+              return ListView.builder(
+                  physics: NeverScrollableScrollPhysics(),
+                  itemCount: snapshot.data.length,
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int index) {
+                    return Text("Montant: " + snapshot.data[index].cost.toString());
+                  });
+            } else {
+              return EmptyListWidget("Aucune opération en cours");
+            }
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          return Center(child: CircularProgressIndicator());
+        });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return DefaultTabController(
+        length: 2,
+        child: new Scaffold(
+          appBar: new PreferredSize(
+            preferredSize: Size.fromHeight(kToolbarHeight),
+            child: new Container(
+              color: new BacktripTheme().theme.primaryColor,
+              child: new SafeArea(
+                child: Column(
+                  children: <Widget>[
+                    new Expanded(child: new Container()),
+                    new TabBar(tabs: [
+                      Tab(text: "Opérations"),
+                      Tab(text: "Mes dépenses"),
+                    ]),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          body: TabBarView(children: [operations(), userExpensesList()]),
+          floatingActionButton: Builder(
+            builder: (ctx) {
+              return FloatingActionButton(
+                  onPressed: () {
+                    redirectToExpenseCreation(ctx);
+                  },
+                  child: Icon(Icons.add));
+            },
+          ),
+        ));
   }
 
   void redirectToExpenseCreation(context) {
