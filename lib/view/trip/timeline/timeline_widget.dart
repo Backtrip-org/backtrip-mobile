@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:ffi';
+import 'dart:io';
 
 import 'package:backtrip/model/step/step.dart' as step_model;
 import 'package:backtrip/model/trip.dart';
@@ -73,14 +74,18 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         ));
   }
 
-  FloatingActionButton getFloatingActionButton() {
+  Widget getFloatingActionButton() {
     if (widget._trip.closed) {
-      return FloatingActionButton(
-        onPressed: () {
-          _showDownloadTravelJournalConfirmationDialog(context);
-        },
-        child: Icon(Icons.import_contacts),
-      );
+      if (Platform.isAndroid) {
+        return FloatingActionButton(
+          onPressed: () {
+            _showDownloadTravelJournalConfirmationDialog(context);
+          },
+          child: Icon(Icons.import_contacts),
+        );
+      } else {
+        return Container();
+      }
     } else {
       return FloatingActionButton(
         onPressed: () {
@@ -156,7 +161,8 @@ class _TimelineWidgetState extends State<TimelineWidget> {
               child: Text('OUI'),
               onPressed: () {
                 TripService.getTravelJournal(widget._trip.id).then((bytes) {
-                  FileManager.downloadToLocalDirectory(bytes, 'journal_voyage_${widget._trip.id}');
+                  FileManager.downloadToLocalDirectory(
+                      bytes, 'journal_voyage_${widget._trip.id}');
                 }).catchError((error) {
                   Components.snackBar(parentContext, 'Une erreur est survenue',
                       Theme.of(context).errorColor);
