@@ -26,12 +26,42 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
   Widget getParticipantIconWidget(User participant) {
     var result;
     if (participant.hasProfilePicture()) {
-      result = Components.getParticipantWithPhoto(participant);
+      result = getParticipantWithPhoto(participant);
     } else {
-      result = Components.getParticipantWithoutPhoto(participant);
+      result = getParticipantWithoutPhoto(participant);
     }
 
     return result;
+  }
+
+  Widget getParticipantWithPhoto(User participant) {
+    return FutureBuilder<String>(
+        future: StoredToken.getToken(),
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return CircleAvatar(
+              backgroundImage: NetworkImage(
+                  '${BacktripApi.path}/file/download/${participant.picturePath}',
+                  headers: {HttpHeaders.authorizationHeader: snapshot.data}
+              ),
+              radius: radius,
+            );
+          }
+          return getParticipantWithoutPhoto(participant);
+        }
+    );
+  }
+
+  Widget getParticipantWithoutPhoto(User participant) {
+    String participantInitials = participant.firstName[0] + participant.lastName[0];
+    return CircleAvatar(
+      backgroundColor: Colors.grey,
+      radius: radius,
+      child: Text(participantInitials,
+          style: TextStyle(
+            color: Colors.white,
+          )),
+    );
   }
 
   Widget getXMoreParticipantsWidget() {
