@@ -90,7 +90,8 @@ class TripService {
     }
   }
 
-  static Future<file_model.File> addPhotoToStep(tripId, stepId, File file) async {
+  static Future<file_model.File> addPhotoToStep(
+      tripId, stepId, File file) async {
     var uri = '${BacktripApi.path}/trip/$tripId/step/$stepId/photo';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -115,7 +116,8 @@ class TripService {
     }
   }
 
-  static Future<file_model.File> addDocumentToStep(tripId, stepId, File file) async {
+  static Future<file_model.File> addDocumentToStep(
+      tripId, stepId, File file) async {
     var uri = '${BacktripApi.path}/trip/$tripId/step/$stepId/document';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -225,15 +227,16 @@ class TripService {
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
     };
-    final response = await http.patch(uri, headers: header)
-        .timeout(Constants.timeout);
+    final response =
+        await http.patch(uri, headers: header).timeout(Constants.timeout);
 
     if (response.statusCode != HttpStatus.ok) {
       throw new UnexpectedException();
     }
   }
 
-  static Future<Expense> createExpense(double totalAmount, User mainPayer, Trip trip) async {
+  static Future<Expense> createExpense(
+      double totalAmount, User mainPayer, Trip trip) async {
     var uri = '${BacktripApi.path}/trip/${trip.id}/expense';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -255,18 +258,26 @@ class TripService {
     }
   }
 
-  static Future<void> createReimbursement(double amount, int userId, Trip trip, int payeeId, {int expenseId = 0}) async {
+  static Future<void> createReimbursement(
+      double amount, int userId, Trip trip, int payeeId,
+      {int expenseId = 0}) async {
     var uri = '${BacktripApi.path}/trip/${trip.id}/reimbursement';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
-  };
+    };
     var body;
-    if(expenseId != 0) {
-      var reimbursement = Reimbursement(cost: amount, emitterId: userId, expenseId: expenseId, payeeId: payeeId, tripId: trip.id);
+    if (expenseId != 0) {
+      var reimbursement = Reimbursement(
+          cost: amount,
+          emitterId: userId,
+          expenseId: expenseId,
+          payeeId: payeeId,
+          tripId: trip.id);
       body = jsonEncode(reimbursement.toJsonWithExpenseId());
     } else {
-      var reimbursement = Reimbursement(cost: amount, emitterId: userId, payeeId: payeeId, tripId: trip.id);
+      var reimbursement = Reimbursement(
+          cost: amount, emitterId: userId, payeeId: payeeId, tripId: trip.id);
       body = jsonEncode(reimbursement.toJsonWithoutExpenseId());
     }
     final response = await http
@@ -280,8 +291,10 @@ class TripService {
     }
   }
 
-  static Future<List<Operation>> getTransactionsToBeMade(Trip trip, int userId) async {
-    var uri = '${BacktripApi.path}/trip/${trip.id}/transactionsToBeMade/$userId';
+  static Future<List<Operation>> getTransactionsToBeMade(
+      Trip trip, int userId) async {
+    var uri =
+        '${BacktripApi.path}/trip/${trip.id}/transactionsToBeMade/$userId';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
@@ -292,6 +305,22 @@ class TripService {
       return compute(parseOperations, response.body);
     } else {
       throw OperationException();
+    }
+  }
+
+  static Future<void> updateNotes(int tripId, int stepId, String notes) async {
+    var uri = '${BacktripApi.path}/trip/${tripId}/step/${stepId}/notes';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    var body = jsonEncode(<String, String>{'notes': notes});
+    final response = await http
+        .put(uri, headers: header, body: body)
+        .timeout(Constants.timeout);
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw new UnexpectedException();
     }
   }
 }

@@ -6,11 +6,18 @@ import 'package:flutter/widgets.dart';
 class StepDetailSubtitleWidget extends StatelessWidget {
   final IconData icon;
   final String text;
-  final IconData actionIcon;
-  final String actionLabel;
-  final Function action;
+  final IconData firstActionIcon;
+  final String firstActionLabel;
+  final Function firstAction;
+  final IconData secondActionIcon;
+  final Function secondAction;
 
-  const StepDetailSubtitleWidget(this.icon, this.text, {this.actionIcon, this.action, this.actionLabel});
+  const StepDetailSubtitleWidget(this.icon, this.text,
+      {this.firstActionIcon,
+      this.firstAction,
+      this.firstActionLabel,
+      this.secondActionIcon,
+      this.secondAction});
 
   @override
   Widget build(BuildContext context) {
@@ -21,16 +28,24 @@ class StepDetailSubtitleWidget extends StatelessWidget {
           SizedBox(width: 5),
           Text(text, style: Theme.of(context).textTheme.title),
           Spacer(),
-          if (actionIcon != null)
+          if (firstActionIcon != null)
             OutlineButton.icon(
                 icon: Icon(
-                  actionIcon,
+                  firstActionIcon,
                   size: 20,
                   color: Theme.of(context).accentColor,
                 ),
-                label: Text(actionLabel,
+                label: Text(firstActionLabel,
                     style: Theme.of(context).textTheme.subhead),
-                onPressed: action)
+                onPressed: firstAction),
+          if (secondActionIcon != null)
+            material.IconButton(
+                icon: Icon(
+                  secondActionIcon,
+                  size: 20,
+                  color: Theme.of(context).accentColor,
+                ),
+                onPressed: secondAction)
         ]));
   }
 }

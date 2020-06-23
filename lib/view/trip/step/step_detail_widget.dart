@@ -51,21 +51,23 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context, _step),
             )),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              if (_step.startAddress?.coordinate != null) MapWidget(_step),
-              presentationCard(),
-              informationCard(),
-              stepTypeRelatedContent(),
-              notesCard(),
-              photosCard(),
-              documentsButton()
-            ],
-          ),
-        ));
+        body: Builder(
+            builder: (scaffoldContext) => SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      if (_step.startAddress?.coordinate != null)
+                        MapWidget(_step),
+                      presentationCard(),
+                      informationCard(),
+                      stepTypeRelatedContent(),
+                      notesCard(scaffoldContext),
+                      photosCard(),
+                      documentsButton()
+                    ],
+                  ),
+                )));
   }
 
   Widget presentationCard() {
@@ -213,17 +215,8 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     ]);
   }
 
-  Widget notesCard() {
-    return Card(
-        child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                StepDetailSubtitleWidget(Icons.short_text, "Notes"),
-                Text(widget._step.notes ?? "Aucune note pour le moment !")
-              ],
-            )));
+  Widget notesCard(BuildContext scaffoldContext) {
+    return StepDetailNotesWidget(_step, scaffoldContext);
   }
 
   Widget photosCard() {
@@ -234,9 +227,9 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 StepDetailSubtitleWidget(Icons.image, "Photos",
-                    actionIcon: Icons.add_a_photo,
-                    action: _getPhoto,
-                    actionLabel: "Ajouter"),
+                    firstActionIcon: Icons.add_a_photo,
+                    firstAction: _getPhoto,
+                    firstActionLabel: "Ajouter"),
                 PhotoCarouselWidget(_step.getPhotos())
               ],
             )));
