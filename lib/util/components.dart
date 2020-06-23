@@ -14,7 +14,7 @@ class Components {
     ));
   }
 
-  static Future<Widget> getParticipantWithPhoto(User participant) async {
+static Future<Widget> getParticipantCircularAvatar(User participant) async {
     if(participant.picturePath != null) {
        return CircleAvatar(
         backgroundImage: NetworkImage(
@@ -24,10 +24,10 @@ class Components {
         radius: 20,
       );
     }
-    return getParticipantWithoutPhoto(participant);
+    return getParticipantCircularAvatarWithoutPhoto(participant);
   }
 
-  static Widget getParticipantWithoutPhoto(User participant) {
+  static Widget getParticipantCircularAvatarWithoutPhoto(User participant) {
     String participantInitials = participant.firstName[0] + participant.lastName[0];
     return CircleAvatar(
       backgroundColor: Colors.grey,
