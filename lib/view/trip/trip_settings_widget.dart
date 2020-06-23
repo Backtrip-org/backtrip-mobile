@@ -115,9 +115,10 @@ class _TripSettingsState extends State<TripSettings> {
 
   void _closeTrip(BuildContext scaffoldContext) {
     TripService.closeTrip(widget._trip.id).then((result) {
+      widget._trip.closed = true;
       Components.snackBar(
           scaffoldContext, 'Le voyage a été clôturé', Colors.green);
-      Navigator.pop(context);
+      Navigator.pop(context, widget._trip);
     }).catchError((error) => Components.snackBar(
         scaffoldContext, error.toString(), Theme.of(context).errorColor));
   }
