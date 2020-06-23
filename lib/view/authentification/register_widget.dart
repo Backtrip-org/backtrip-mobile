@@ -236,11 +236,6 @@ class _RegisterWidgetState extends State<RegisterWidget> {
 
   void _stepperContinue(BuildContext scaffoldContext) {
     setState(() {
-      if (areAllFormKeyValid()) {
-        createUser(scaffoldContext);
-        return;
-      }
-
       if (_formKeys[_currentStep].currentState.validate()) {
         _stepStates[_currentStep] = StepState.complete;
         _stepsCompleted[_currentStep] = true;
@@ -249,6 +244,12 @@ class _RegisterWidgetState extends State<RegisterWidget> {
         _stepsCompleted[_currentStep] = false;
         return;
       }
+
+      if (areAllFormKeyValid()) {
+        createUser(scaffoldContext);
+        return;
+      }
+
       if(_currentStep < steps.length - 1) {
         _currentStep += 1;
         _stepStates[_currentStep] = StepState.editing;
