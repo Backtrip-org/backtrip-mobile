@@ -1,4 +1,5 @@
 import 'package:backtrip/model/step/step_transport.dart';
+import 'package:backtrip/view/trip/step/step_detail_subtitle_widget.dart';
 import 'package:flutter/material.dart' as material;
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -19,7 +20,7 @@ class StepDetailTransportWidget extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    title(step.icon, "Informations du transport", context),
+                    StepDetailSubtitleWidget(step.icon, "Informations du transport"),
                     if (step.reservationNumber != null && step.reservationNumber != '')
                       field("Numéro de réservation", step.reservationNumber,
                           context),
@@ -28,17 +29,6 @@ class StepDetailTransportWidget extends StatelessWidget {
                           "Numéro du transport", step.transportNumber, context),
                   ],
                 ))));
-  }
-
-  Widget title(icon, text, context) {
-    return Padding(
-        padding: EdgeInsets.only(bottom: 10),
-        child: Row(children: [
-          Icon(icon),
-          SizedBox(width: 5),
-          Text(text,
-              style: Theme.of(context).textTheme.title)
-        ]));
   }
 
   Widget field(title, content, context) {
