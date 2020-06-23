@@ -25,6 +25,8 @@ class _CreateExpenseState extends State<CreateExpense> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _expenseAmountController =
       TextEditingController();
+  final TextEditingController _expenseNameController =
+      TextEditingController();
   List<TextEditingController> _participantsAmountController = [];
   List<TextEditingController> _participantsPercentController = [];
   List<Column> payers = new List<Column>();
@@ -37,6 +39,38 @@ class _CreateExpenseState extends State<CreateExpense> {
     super.initState();
     participants = widget._trip.participants;
     mainPayer = participants[0];
+  }
+
+  Widget _expenseNameField() {
+    return Container(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          TextFormField(
+              controller: _expenseNameController,
+              validator: (value) {
+                if (value.isEmpty) {
+                  return 'Veuillez renseigner un nom à votre dépense';
+                }
+                return null;
+              },
+              keyboardType: TextInputType.text,
+              decoration: InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide:
+                    BorderSide(color: Theme.of(context).primaryColor),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderSide:
+                    BorderSide(color: Theme.of(context).accentColor),
+                  ),
+                  fillColor: Color(0xfff3f3f4),
+                  suffixIcon: Icon(Icons.euro_symbol),
+                  labelText: "Nom de la dépense",
+                  filled: true)),
+        ],
+      ),
+    );
   }
 
   Widget dropDownListMainPayer() {
@@ -333,7 +367,7 @@ class _CreateExpenseState extends State<CreateExpense> {
         return;
       }
 
-      TripService.createExpense(double.parse(_expenseAmountController.text.trim()), mainPayer, widget._trip).then((expense) => {
+      TripService.createExpense(double.parse(_expenseAmountController.text.trim()), _expenseNameController.text.trim(), mainPayer, widget._trip).then((expense) => {
         Future.wait([createReimbursements(payerCounter, expense.id)]).then((response) {
           Navigator.pop(context);
         })
@@ -396,6 +430,8 @@ class _CreateExpenseState extends State<CreateExpense> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: <Widget>[
+                  SizedBox(height: 10),
+                  _expenseNameField(),
                   SizedBox(height: 10),
                   dropDownListMainPayer(),
                   SizedBox(height: 10),

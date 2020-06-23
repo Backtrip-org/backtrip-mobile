@@ -273,7 +273,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
                   itemCount: snapshot.data.length,
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int index) {
-                    return Text("Montant: " + snapshot.data[index].cost.toString());
+                    return Text("Nom: " + snapshot.data[index].name + ", Montant: " + snapshot.data[index].cost.toString());
                   });
             } else {
               return EmptyListWidget("Aucune opération en cours");
@@ -327,6 +327,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
           MaterialPageRoute(builder: (context) => CreateExpense(widget._trip)))
           .then((context) {
         getRefunds();
+        getUserExpenses(widget._trip, BacktripApi.currentUser.id);
       });
     });
   }

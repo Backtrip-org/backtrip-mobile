@@ -238,7 +238,7 @@ class TripService {
     }
   }
 
-  static Future<Expense> createExpense(double totalAmount, User mainPayer, Trip trip) async {
+  static Future<Expense> createExpense(double totalAmount, String name, User mainPayer, Trip trip) async {
     var uri = '${BacktripApi.path}/trip/${trip.id}/expense';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -246,6 +246,7 @@ class TripService {
     };
     var body = jsonEncode(<String, String>{
       'cost': totalAmount.toString(),
+      'name': name,
       'user_id': mainPayer.id.toString(),
       'trip_id': trip.id.toString()
     });
