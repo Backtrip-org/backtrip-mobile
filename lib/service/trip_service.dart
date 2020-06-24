@@ -323,4 +323,20 @@ class TripService {
       throw new UnexpectedException();
     }
   }
+
+  static Future<void> updateNotes(int tripId, int stepId, String notes) async {
+    var uri = '${BacktripApi.path}/trip/${tripId}/step/${stepId}/notes';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    var body = jsonEncode(<String, String>{'notes': notes});
+    final response = await http
+        .put(uri, headers: header, body: body)
+        .timeout(Constants.timeout);
+
+    if (response.statusCode != HttpStatus.ok) {
+      throw new UnexpectedException();
+    }
+  }
 }

@@ -10,6 +10,8 @@ import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:backtrip/view/trip/step/map_widget.dart';
 import 'package:backtrip/view/trip/step/photo_carousel_widget.dart';
 import 'package:backtrip/view/trip/step/place_rating_widget.dart';
+import 'package:backtrip/view/trip/step/step_detail_notes_widget.dart';
+import 'package:backtrip/view/trip/step/step_detail_subtitle_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_transport_widget.dart';
 import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -49,21 +51,23 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context, _step),
             )),
-        body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: <Widget>[
-              if (_step.startAddress?.coordinate != null) MapWidget(_step),
-              presentationCard(),
-              informationCard(),
-              stepTypeRelatedContent(),
-              notesCard(),
-              photosCard(),
-              documentsButton()
-            ],
-          ),
-        ));
+        body: Builder(
+            builder: (scaffoldContext) => SingleChildScrollView(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      if (_step.startAddress?.coordinate != null)
+                        MapWidget(_step),
+                      presentationCard(),
+                      informationCard(),
+                      stepTypeRelatedContent(),
+                      notesCard(scaffoldContext),
+                      photosCard(),
+                      documentsButton()
+                    ],
+                  ),
+                )));
   }
 
   Widget presentationCard() {
@@ -124,8 +128,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         if (_step.hasEndAddressRating())
           Padding(
               padding: EdgeInsets.only(top: 10),
-              child:
-                  PlaceRatingWidget((_step as StepTransport).endAddress))
+              child: PlaceRatingWidget((_step as StepTransport).endAddress))
       ],
     );
   }
@@ -142,7 +145,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
         child: Padding(
       padding: const EdgeInsets.all(20),
       child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-        title(Icons.info_outline, "Informations générales"),
+        StepDetailSubtitleWidget(Icons.info_outline, "Informations générales"),
         period(),
         phoneNumber(),
         participants(),
@@ -212,17 +215,8 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     ]);
   }
 
-  Widget notesCard() {
-    return Card(
-        child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                title(Icons.short_text, "Notes"),
-                Text(_step.notes ?? "Aucune note pour le moment !")
-              ],
-            )));
+  Widget notesCard(BuildContext scaffoldContext) {
+    return StepDetailNotesWidget(_step, scaffoldContext);
   }
 
   Widget photosCard() {
@@ -232,10 +226,10 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                title(Icons.image, "Photos",
-                    actionIcon: Icons.add_a_photo,
-                    action: _getPhoto,
-                    actionLabel: "Ajouter"),
+                StepDetailSubtitleWidget(Icons.image, "Photos",
+                    firstActionIcon: Icons.add_a_photo,
+                    firstAction: _getPhoto,
+                    firstActionLabel: "Ajouter"),
                 PhotoCarouselWidget(_step.getPhotos())
               ],
             )));
@@ -254,27 +248,6 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                 style: Theme.of(context).textTheme.button),
           ),
         ));
-  }
-
-  Widget title(icon, text, {actionIcon, action, actionLabel}) {
-    return Padding(
-        padding: EdgeInsets.only(bottom: 10),
-        child: Row(children: [
-          Icon(icon),
-          SizedBox(width: 5),
-          Text(text, style: Theme.of(context).textTheme.title),
-          Spacer(),
-          if (actionIcon != null)
-            OutlineButton.icon(
-                icon: Icon(
-                  actionIcon,
-                  size: 20,
-                  color: Theme.of(context).accentColor,
-                ),
-                label: Text(actionLabel,
-                    style: Theme.of(context).textTheme.subhead),
-                onPressed: action)
-        ]));
   }
 
   void _joinStep(context) {
@@ -337,8 +310,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
             FlatButton(
               child: Text('CONFIRMER'),
               onPressed: () {
-                TripService.addPhotoToStep(
-                        _step.tripId, _step.id, pickedImage)
+                TripService.addPhotoToStep(_step.tripId, _step.id, pickedImage)
                     .then((file) {
                   setState(() {
                     _step.files.add(file);
