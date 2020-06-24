@@ -41,7 +41,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     List<User> userList = widget._trip.participants;
     int userListLength = userList.length;
     for(int i = 0; i < userListLength; i++) {
-      CircleAvatar circleAvatar = await Components.getParticipantWithPhoto(userList[i]);
+      CircleAvatar circleAvatar = await Components.getParticipantCircularAvatar(userList[i]);
       usersAvatars.add(UserAvatar(userList[i], circleAvatar));
     }
   }

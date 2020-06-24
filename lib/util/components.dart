@@ -14,23 +14,20 @@ class Components {
     ));
   }
 
-  static Future<CircleAvatar> getParticipantWithPhoto(User participant) async {
+static Future<Widget> getParticipantCircularAvatar(User participant) async {
     if(participant.picturePath != null) {
-      NetworkImage image = NetworkImage(
-          '${BacktripApi.path}/file/download/${participant.picturePath}',
-          headers: {HttpHeaders.authorizationHeader: await StoredToken.getToken()}
-      );
-
-      return CircleAvatar(
-        backgroundImage: image,
+       return CircleAvatar(
+        backgroundImage: NetworkImage(
+            '${BacktripApi.path}/file/download/${participant.picturePath}',
+            headers: {HttpHeaders.authorizationHeader: await StoredToken.getToken()}
+        ),
         radius: 20,
       );
-    } else {
-      return getParticipantWithoutPhoto(participant);
     }
+    return getParticipantCircularAvatarWithoutPhoto(participant);
   }
 
-  static Widget getParticipantWithoutPhoto(User participant) {
+  static Widget getParticipantCircularAvatarWithoutPhoto(User participant) {
     String participantInitials = participant.firstName[0] + participant.lastName[0];
     return CircleAvatar(
       backgroundColor: Colors.grey,
