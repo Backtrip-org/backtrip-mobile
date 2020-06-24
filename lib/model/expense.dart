@@ -12,8 +12,8 @@ class Expense {
         id: json['id'],
         name: json['name'],
         cost: json['cost'],
-        userId: json['userId'],
-        tripId: json['tripId']
+        userId: json['user_id'],
+        tripId: json['trip_id']
     );
   }
 }

@@ -1,5 +1,6 @@
 import 'package:backtrip/model/expense.dart';
 import 'package:backtrip/model/operation.dart';
+import 'package:backtrip/model/reimbursement.dart';
 import 'package:backtrip/model/user_avatar.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/user.dart';
@@ -30,6 +31,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
   Future<List<Operation>> futuresOperations;
   Future<List<User>> futureUserList;
   Future<List<Expense>> userExpenses;
+  Future<List<Reimbursement>> expenseReimbursements;
   double toGet = 10;
   double toRefund = 10;
 
@@ -252,6 +254,149 @@ class _RefundsDetailsState extends State<RefundsDetails> {
     return null;
   }
 
+  InkWell createNewExpenseCard(Expense expense) {
+    Card card = Card(
+      child: new Container(
+        alignment: Alignment.center,
+        padding: new EdgeInsets.fromLTRB(10, 15, 10, 15),
+        child: new Row(
+          children: <Widget>[
+            Container(
+              child: Text(
+                expense.name,
+                //user.firstName,
+                style: new TextStyle(
+                  fontSize: 20.0,
+                ),
+              ),
+            ),
+            Expanded(
+              child: new Padding(
+                padding: const EdgeInsets.all(20.0),
+              ),
+            ),
+            Column(
+              children: <Widget>[
+                Container(
+                    child: Text(
+                      expense.cost.toString() + '€',
+                      style: new TextStyle(
+                          fontSize: 20.0,
+                          color: Colors.green
+                      ),
+                    )
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+
+    return new InkWell(
+      onTap: () => showExpenseDialog(expense),
+      child: card,
+    );
+  }
+
+  Card createNewExpenseReimbursementsCard(Reimbursement reimbursement) {
+    User user = getUserById(widget._trip.participants, reimbursement.emitterId);
+    CircleAvatar avatar = getCircleAvatarByUser(user);
+    return Card(
+      child: new Container(
+        alignment: Alignment.center,
+        padding: new EdgeInsets.fromLTRB(10, 30, 10, 30),
+        child: new Row(
+          children: <Widget>[
+            Container(
+              child: avatar,
+            ),
+            SizedBox(width: 10),
+            Container(
+              child: Text(
+                user.firstName,
+                //user.firstName,
+                style: new TextStyle(
+                  fontSize: 20.0,
+                ),
+              ),
+            ),
+            Expanded(
+              child: new Padding(
+                padding: const EdgeInsets.all(20.0),
+              ),
+            ),
+            Column(
+              children: <Widget>[
+                Container(
+                    child: Text(
+                      reimbursement.cost.toString() + '€',
+                      style: new TextStyle(
+                          fontSize: 20.0,
+                          color: Colors.green
+                      ),
+                    )
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Future showExpenseDialog(Expense expense) {
+    return showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text(expense.name),
+            content: Container(
+              height: MediaQuery.of(context).size.height,
+              width: MediaQuery.of(context).size.width,
+              child: futureBuilderExpenseReimbursements(expense),
+            ),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Ok :)'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+            ],
+          );
+        });
+  }
+
+  Widget futureBuilderExpenseReimbursements(Expense expense) {
+    expenseReimbursements = TripService.getExpenseReimbursements(widget._trip, expense);
+    return FutureBuilder<List<Reimbursement>>(
+        future: expenseReimbursements,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            double cost = 0;
+            for(int i = 0; i < snapshot.data.length; i++) {
+              cost += snapshot.data[i].cost;
+            }
+            Reimbursement reimbursement = Reimbursement(cost: double.parse((expense.cost - cost).toStringAsFixed(2)), emitterId: expense.userId);
+            snapshot.data.add(reimbursement);
+            if (snapshot.data.length > 0) {
+              return ListView.builder(
+                  itemCount: snapshot.data.length,
+                  shrinkWrap: true,
+                  itemBuilder: (BuildContext context, int index) {
+                    return createNewExpenseReimbursementsCard(snapshot.data[index]);
+                  });
+            } else {
+              return EmptyListWidget("Aucune collaborateur pour cette dépense");
+            }
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          return Center(child: CircularProgressIndicator());
+        });
+  }
+
   SingleChildScrollView operations() {
     return SingleChildScrollView(
         child: Column(
@@ -269,11 +414,10 @@ class _RefundsDetailsState extends State<RefundsDetails> {
           if (snapshot.hasData) {
             if (snapshot.data.length > 0) {
               return ListView.builder(
-                  physics: NeverScrollableScrollPhysics(),
                   itemCount: snapshot.data.length,
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int index) {
-                    return Text("Nom: " + snapshot.data[index].name + ", Montant: " + snapshot.data[index].cost.toString());
+                    return createNewExpenseCard(snapshot.data[index]);
                   });
             } else {
               return EmptyListWidget("Aucune opération en cours");
@@ -300,7 +444,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
                     new Expanded(child: new Container()),
                     new TabBar(tabs: [
                       Tab(text: "Opérations"),
-                      Tab(text: "Mes dépenses"),
+                      Tab(text: "Dépenses"),
                     ]),
                   ],
                 ),
