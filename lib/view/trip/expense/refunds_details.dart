@@ -261,7 +261,7 @@ class _RefundsDetailsState extends State<RefundsDetails> {
         padding: new EdgeInsets.fromLTRB(10, 15, 10, 15),
         child: new Row(
           children: <Widget>[
-            Container(
+            Flexible(
               child: Text(
                 expense.name,
                 //user.firstName,

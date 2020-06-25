@@ -54,6 +54,7 @@ class _CreateExpenseState extends State<CreateExpense> {
                 }
                 return null;
               },
+              inputFormatters: [new LengthLimitingTextInputFormatter(50)],
               keyboardType: TextInputType.text,
               decoration: InputDecoration(
                   focusedBorder: OutlineInputBorder(
