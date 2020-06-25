@@ -261,32 +261,23 @@ class _RefundsDetailsState extends State<RefundsDetails> {
         padding: new EdgeInsets.fromLTRB(10, 15, 10, 15),
         child: new Row(
           children: <Widget>[
-            Flexible(
+            Expanded(
               child: Text(
                 expense.name,
-                //user.firstName,
                 style: new TextStyle(
                   fontSize: 20.0,
                 ),
               ),
             ),
-            Expanded(
-              child: new Padding(
-                padding: const EdgeInsets.all(20.0),
-              ),
-            ),
-            Column(
-              children: <Widget>[
-                Container(
-                    child: Text(
-                      expense.cost.toString() + '€',
-                      style: new TextStyle(
-                          fontSize: 20.0,
-                          color: Colors.green
-                      ),
-                    )
-                ),
-              ],
+            SizedBox(width: 40),
+            Container(
+                child: Text(
+                  expense.cost.toString() + '€',
+                  style: new TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.green
+                  ),
+                )
             ),
           ],
         ),
