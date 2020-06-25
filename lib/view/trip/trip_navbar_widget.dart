@@ -15,27 +15,33 @@ class TripNavbar extends StatefulWidget {
 
   @override
   State<StatefulWidget> createState() {
-    return _TripNavbarState(_trip);
+    return _TripNavbarState();
   }
 }
 
 class _TripNavbarState extends State<TripNavbar> {
-  final Trip _trip;
+  Trip _trip;
   List<Widget> _children;
   int _currentIndex = 0;
 
-  _TripNavbarState(this._trip);
-
+  _TripNavbarState();
 
   @override
   void initState() {
     super.initState();
 
-    _children = [
-    TimelineWidget(_trip),
-    ChatWidget(_trip),
-    RefundsDetails(_trip),
-    ];
+    updateTrip(widget._trip);
+  }
+
+  void updateTrip(Trip trip) {
+    setState(() {
+      _trip = trip;
+      _children = [
+        TimelineWidget(trip),
+        ChatWidget(trip),
+        RefundsDetails(trip),
+      ];
+    });
   }
 
   @override
@@ -63,13 +69,9 @@ class _TripNavbarState extends State<TripNavbar> {
             title: new Text('Timeline'),
           ),
           BottomNavigationBarItem(
-              icon: Icon(Icons.chat_bubble),
-              title: Text('Chat')
-          ),
+              icon: Icon(Icons.chat_bubble), title: Text('Chat')),
           BottomNavigationBarItem(
-              icon: Icon(Icons.attach_money),
-              title: Text('Dépenses')
-          )
+              icon: Icon(Icons.attach_money), title: Text('Dépenses'))
         ],
       ),
     );
@@ -83,8 +85,13 @@ class _TripNavbarState extends State<TripNavbar> {
 
   void _redirectToTripSettings() {
     Navigator.push(
-        context,
-        MaterialPageRoute(builder: (BuildContext context) => TripSettings(_trip))
-    );
+            context,
+            MaterialPageRoute(
+                builder: (BuildContext context) => TripSettings(_trip)))
+        .then((trip) {
+      if (trip is Trip && trip != null) {
+        updateTrip(trip);
+      }
+    });
   }
 }
