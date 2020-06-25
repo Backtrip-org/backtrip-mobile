@@ -64,6 +64,16 @@ class TripService {
     return data.map((model) => Operation.fromJson(model)).toList();
   }
 
+  static List<Expense> parseExpenses(String responseBody) {
+    Iterable data = json.decode(responseBody);
+    return data.map((model) => Expense.fromJson(model)).toList();
+  }
+
+  static List<Reimbursement> parseReimbursements(String responseBody) {
+    Iterable data = json.decode(responseBody);
+    return data.map((model) => Reimbursement.fromJson(model)).toList();
+  }
+
   static List<Step> parseSteps(String responseBody) {
     Iterable data = json.decode(responseBody);
     return data.map((model) => StepFactory().getStep(model)).toList();
@@ -236,8 +246,7 @@ class TripService {
     }
   }
 
-  static Future<Expense> createExpense(
-      double totalAmount, User mainPayer, Trip trip) async {
+  static Future<Expense> createExpense(double totalAmount, String name, User mainPayer, Trip trip) async {
     var uri = '${BacktripApi.path}/trip/${trip.id}/expense';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -245,6 +254,7 @@ class TripService {
     };
     var body = jsonEncode(<String, String>{
       'cost': totalAmount.toString(),
+      'name': name,
       'user_id': mainPayer.id.toString(),
       'trip_id': trip.id.toString()
     });
@@ -309,6 +319,36 @@ class TripService {
     }
   }
 
+  static Future<List<Expense>> getUserExpenses(Trip trip, int userId) async {
+    var uri = '${BacktripApi.path}/trip/${trip.id}/user/$userId/expenses';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    final response = await http.get(uri, headers: header);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return compute(parseExpenses, response.body);
+    } else {
+      throw ExpenseException();
+    }
+  }
+
+  static Future<List<Reimbursement>> getExpenseReimbursements(Trip trip, Expense expense) async {
+    var uri = '${BacktripApi.path}/trip/${trip.id}/expense/${expense.id}/reimbursements';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    final response = await http.get(uri, headers: header);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return compute(parseReimbursements, response.body);
+    } else {
+      throw ExpenseException();
+      }
+  }
+  
   static Future<Uint8List> getTravelJournal(int tripId) async {
     var uri = '${BacktripApi.path}/trip/$tripId/travelJournal';
     var header = <String, String>{
