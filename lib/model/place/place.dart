@@ -50,7 +50,7 @@ class Place {
   }
 
   factory Place.fromJson(dynamic json) {
-    if (json == null)
+    if (json == null || json['id'] == null)
       return null;
 
     return Place(
