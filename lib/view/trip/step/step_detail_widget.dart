@@ -6,6 +6,7 @@ import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
+import 'package:backtrip/view/common/confirm_picked_image_dialog.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:backtrip/view/trip/step/map_widget.dart';
 import 'package:backtrip/view/trip/step/photo_carousel_widget.dart';
@@ -270,61 +271,22 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
   }
 
   Future _getPhoto() async {
-    final pickedFile = await picker.getImage(source: ImageSource.gallery);
-    _showUploadPhotoConfirmationDialog(File(pickedFile.path));
+    final pickedImage = await picker.getImage(source: ImageSource.gallery);
+    final file = File(pickedImage.path);
+    showUploadPhotoConfirmationDialog(
+        context, file, () => _uploadSelectedPhoto(file));
   }
 
-  Future<void> _showUploadPhotoConfirmationDialog(pickedImage) async {
-    return showDialog<void>(
-      context: context,
-      barrierDismissible: false, // user must tap button!
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Row(children: [
-            Icon(Icons.add_a_photo),
-            SizedBox(width: 10),
-            Text('Confirmation')
-          ]),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Container(
-                  height: 200,
-                  decoration: BoxDecoration(
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                      image: DecorationImage(
-                          fit: BoxFit.fitWidth, image: FileImage(pickedImage))),
-                ),
-                SizedBox(height: 20),
-                Center(child: Text('Voulez-vous envoyer cette image ?')),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            FlatButton(
-              child: Text('ANNULER'),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            FlatButton(
-              child: Text('CONFIRMER'),
-              onPressed: () {
-                TripService.addPhotoToStep(_step.tripId, _step.id, pickedImage)
-                    .then((file) {
-                  setState(() {
-                    _step.files.add(file);
-                  });
-                }).catchError((error) {
-                  Components.snackBar(context, 'Une erreur est survenue',
-                      Theme.of(context).errorColor);
-                });
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
+  void _uploadSelectedPhoto(File pickedImage) {
+    TripService.addPhotoToStep(_step.tripId, _step.id, pickedImage)
+        .then((file) {
+      setState(() {
+        _step.files.add(file);
+      });
+    }).catchError((error) {
+      Components.snackBar(
+          context, 'Une erreur est survenue', Theme.of(context).errorColor);
+    });
+    Navigator.of(context).pop();
   }
 }

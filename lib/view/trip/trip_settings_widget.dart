@@ -1,8 +1,12 @@
+import 'dart:io';
+
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
+import 'package:backtrip/view/common/confirm_picked_image_dialog.dart';
 import 'package:backtrip/view/trip/trip_invitation_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class TripSettings extends StatefulWidget {
   final Trip _trip;
@@ -18,8 +22,13 @@ class TripSettings extends StatefulWidget {
 class _TripSettingsState extends State<TripSettings> {
   _TripSettingsState();
 
-  List<Widget> get settingsItem =>
-      [inviteToTripTile(), if (!widget._trip.closed) closeTripTile()];
+  final _picker = ImagePicker();
+
+  List<Widget> get settingsItem => [
+        inviteToTripTile(),
+        updateCoverPhotoTile(),
+        if (!widget._trip.closed) closeTripTile()
+      ];
 
   Widget inviteToTripTile() {
     return Builder(builder: (ctx) {
@@ -28,6 +37,16 @@ class _TripSettingsState extends State<TripSettings> {
         title: Text('Inviter un ami'),
         subtitle: Text('Inviter un ami à participer au voyage'),
         onTap: () => _redirectToTripInvitation(ctx),
+      );
+    });
+  }
+
+  Widget updateCoverPhotoTile() {
+    return Builder(builder: (ctx) {
+      return ListTile(
+        leading: Icon(Icons.photo_size_select_actual),
+        title: Text('Mettre à jour la photo de couverture'),
+        onTap: () => _getCoverPicture(ctx),
       );
     });
   }
@@ -61,7 +80,7 @@ class _TripSettingsState extends State<TripSettings> {
         appBar: AppBar(
           title: Text('Administration'),
         ),
-        body: listSettings());
+        body: Builder(builder: (scaffoldContext) => listSettings()));
   }
 
   Future<void> confirmTripClosure(BuildContext scaffoldContext) async {
@@ -111,6 +130,25 @@ class _TripSettingsState extends State<TripSettings> {
             Colors.green);
       }
     });
+  }
+
+  Future _getCoverPicture(BuildContext scaffoldContext) async {
+    final pickedFile = await _picker.getImage(source: ImageSource.gallery);
+    final file = File(pickedFile.path);
+    showUploadPhotoConfirmationDialog(
+        context, file, () => _uploadCoverPicture(scaffoldContext, file));
+  }
+
+  void _uploadCoverPicture(BuildContext scaffoldContext, File pickedImage) {
+    TripService.addCoverPictureToTrip(widget._trip.id, pickedImage)
+        .then((file) {
+      Components.snackBar(scaffoldContext,
+          'La photo de couverture a bien été mise à jour', Colors.green);
+    }).catchError((error) {
+      Components.snackBar(scaffoldContext, 'Une erreur est survenue',
+          Theme.of(context).errorColor);
+    });
+    Navigator.of(context).pop();
   }
 
   void _closeTrip(BuildContext scaffoldContext) {
