@@ -50,10 +50,10 @@ class _ChatWidgetState extends State<ChatWidget> {
   initSocket() async {
     manager = SocketIOManager();
 
-    socket = await manager.createInstance(SocketOptions('http://10.0.2.2:5000',
+    socket = await manager.createInstance(SocketOptions(BacktripApi.path,
         nameSpace: '/',
         enableLogging: false,
-        transports: [Transports.POLLING]));
+        transports: [Transports.WEB_SOCKET]));
 
     socket.onConnect((data) => handleConnect(data));
     socket.onConnecting((data) => print("onConnecting : $data"));
