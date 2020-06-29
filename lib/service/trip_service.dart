@@ -12,7 +12,7 @@ import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/constants.dart';
-import 'package:backtrip/util/exception/AddDocumentToStepException.dart';
+import 'package:backtrip/util/exception/AddFileException.dart';
 import 'package:backtrip/util/exception/ExpenseException.dart';
 import 'package:backtrip/util/exception/OperationException.dart';
 import 'package:backtrip/util/exception/ReimbursementException.dart';
@@ -121,7 +121,7 @@ class TripService {
     if (streamedResponse.statusCode == HttpStatus.ok) {
       return file_model.File.fromJson(json.decode(response));
     } else if (streamedResponse.statusCode == HttpStatus.badRequest) {
-      throw new AddDocumentToStepException();
+      throw new AddFileException();
     } else {
       throw new UnexpectedException();
     }
@@ -147,7 +147,33 @@ class TripService {
     if (streamedResponse.statusCode == HttpStatus.ok) {
       return file_model.File.fromJson(json.decode(response));
     } else if (streamedResponse.statusCode == HttpStatus.badRequest) {
-      throw new AddDocumentToStepException();
+      throw new AddFileException();
+    } else {
+      throw new UnexpectedException();
+    }
+  }
+
+  static Future<file_model.File> addCoverPictureToTrip(
+      tripId, File file) async {
+    var uri = '${BacktripApi.path}/trip/$tripId/coverPicture';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+
+    var request = http.MultipartRequest('POST', Uri.parse(uri));
+    request.headers.addAll(header);
+    request.files.add(http.MultipartFile.fromBytes(
+        'file', file.readAsBytesSync(),
+        filename: path.basename(file.path)));
+
+    final streamedResponse = await request.send();
+    final response = await streamedResponse.stream.bytesToString();
+
+    if (streamedResponse.statusCode == HttpStatus.ok) {
+      return file_model.File.fromJson(json.decode(response));
+    } else if (streamedResponse.statusCode == HttpStatus.badRequest) {
+      throw new AddFileException();
     } else {
       throw new UnexpectedException();
     }
@@ -246,7 +272,8 @@ class TripService {
     }
   }
 
-  static Future<Expense> createExpense(double totalAmount, String name, User mainPayer, Trip trip) async {
+  static Future<Expense> createExpense(
+      double totalAmount, String name, User mainPayer, Trip trip) async {
     var uri = '${BacktripApi.path}/trip/${trip.id}/expense';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -334,8 +361,10 @@ class TripService {
     }
   }
 
-  static Future<List<Reimbursement>> getExpenseReimbursements(Trip trip, Expense expense) async {
-    var uri = '${BacktripApi.path}/trip/${trip.id}/expense/${expense.id}/reimbursements';
+  static Future<List<Reimbursement>> getExpenseReimbursements(
+      Trip trip, Expense expense) async {
+    var uri =
+        '${BacktripApi.path}/trip/${trip.id}/expense/${expense.id}/reimbursements';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
@@ -346,9 +375,9 @@ class TripService {
       return compute(parseReimbursements, response.body);
     } else {
       throw ExpenseException();
-      }
+    }
   }
-  
+
   static Future<Uint8List> getTravelJournal(int tripId) async {
     var uri = '${BacktripApi.path}/trip/$tripId/travelJournal';
     var header = <String, String>{
