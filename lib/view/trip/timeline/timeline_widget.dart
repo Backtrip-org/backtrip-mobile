@@ -7,6 +7,7 @@ import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/file_manager.dart';
+import 'package:backtrip/util/notification.dart';
 import 'package:backtrip/view/trip/step/create_step_widget.dart';
 import 'package:backtrip/view/trip/timeline/timeline_step_widget.dart';
 import 'package:backtrip/view/common/empty_list_widget.dart';
