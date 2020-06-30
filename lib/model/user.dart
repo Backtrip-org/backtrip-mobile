@@ -17,6 +17,14 @@ class User {
     );
   }
 
+  String getFullName() {
+    return "$firstName $lastName";
+  }
+
+  String getInitials() {
+    return (firstName[0] + lastName[0]).toUpperCase();
+  }
+
   bool hasProfilePicture() {
     return this.picturePath != null;
   }
