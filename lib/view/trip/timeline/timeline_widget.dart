@@ -39,8 +39,10 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   }
 
   void getTimelines() {
-    globalTimelineSteps = TripService.getGlobalTimeline(widget._trip.id);
-    personalTimelineSteps = TripService.getPersonalTimeline(widget._trip.id);
+    setState(() {
+      globalTimelineSteps = TripService.getGlobalTimeline(widget._trip.id);
+      personalTimelineSteps = TripService.getPersonalTimeline(widget._trip.id);
+    });
   }
 
   @override
@@ -100,7 +102,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     return FutureBuilder<List<step_model.Step>>(
         future: personalTimelineSteps,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
             if (snapshot.data.length > 0) {
               return Timeline(
                   children: getTimelineModelList(snapshot.data),
@@ -114,6 +116,53 @@ class _TimelineWidgetState extends State<TimelineWidget> {
           }
           return Center(child: CircularProgressIndicator());
         });
+  }
+
+  Widget globalTimeline() {
+    return FutureBuilder<List<step_model.Step>>(
+        future: globalTimelineSteps,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            if (snapshot.data.length > 0) {
+              return Timeline(
+                  children: getTimelineModelList(snapshot.data),
+                  position: TimelinePosition.Left);
+            } else {
+              return EmptyListWidget(
+                  "Aucune étape n'a été créée", "Créez-en une !");
+            }
+          } else if (snapshot.hasError) {
+            return Text("${snapshot.error}");
+          }
+          return Center(child: CircularProgressIndicator());
+        });
+  }
+
+  List<TimelineModel> getTimelineModelList(List<step_model.Step> stepList) {
+    return stepList
+        .map((step) {
+          return TimelineModel(
+              TimelineStepWidget(
+                  isFirstStepOfTheDay(stepList, step), step, getTimelines),
+              position: TimelineItemPosition.random,
+              iconBackground: Colors.transparent,
+              icon: Icon(step.icon,
+                  color: Theme.of(context).colorScheme.accentColorDark));
+        })
+        .cast<TimelineModel>()
+        .toList();
+  }
+
+  bool isFirstStepOfTheDay(
+      List<step_model.Step> stepList, step_model.Step step) {
+    var previousStep = stepList.indexOf(step) == 0
+        ? null
+        : stepList[stepList.indexOf(step) - 1];
+    return previousStep == null
+        ? true
+        : step.startDatetime.difference(previousStep.startDatetime).inDays !=
+                0 ||
+            step.startDatetime.day != previousStep.startDatetime.day;
   }
 
   void navigateToStepCreation(BuildContext context) {
@@ -179,52 +228,5 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         );
       },
     );
-  }
-
-  Widget globalTimeline() {
-    return FutureBuilder<List<step_model.Step>>(
-        future: globalTimelineSteps,
-        builder: (context, snapshot) {
-          if (snapshot.hasData) {
-            if (snapshot.data.length > 0) {
-              return Timeline(
-                  children: getTimelineModelList(snapshot.data),
-                  position: TimelinePosition.Left);
-            } else {
-              return EmptyListWidget(
-                  "Aucune étape n'a été créée", "Créez-en une !");
-            }
-          } else if (snapshot.hasError) {
-            return Text("${snapshot.error}");
-          }
-          return Center(child: CircularProgressIndicator());
-        });
-  }
-
-  List<TimelineModel> getTimelineModelList(List<step_model.Step> stepList) {
-    return stepList
-        .map((step) {
-          return TimelineModel(
-              TimelineStepWidget(
-                  isFirstStepOfTheDay(stepList, step), step, getTimelines),
-              position: TimelineItemPosition.random,
-              iconBackground: Colors.transparent,
-              icon: Icon(step.icon,
-                  color: Theme.of(context).colorScheme.accentColorDark));
-        })
-        .cast<TimelineModel>()
-        .toList();
-  }
-
-  bool isFirstStepOfTheDay(
-      List<step_model.Step> stepList, step_model.Step step) {
-    var previousStep = stepList.indexOf(step) == 0
-        ? null
-        : stepList[stepList.indexOf(step) - 1];
-    return previousStep == null
-        ? true
-        : step.startDatetime.difference(previousStep.startDatetime).inDays !=
-                0 ||
-            step.startDatetime.day != previousStep.startDatetime.day;
   }
 }

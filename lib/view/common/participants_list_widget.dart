@@ -10,8 +10,9 @@ import 'package:flutter/material.dart';
 class ParticipantsListWidget extends StatefulWidget {
   final List<User> participants;
   final double radius;
+  final VoidCallback refresh;
 
-  ParticipantsListWidget(this.participants, [this.radius = 20]);
+  ParticipantsListWidget(this.participants, this.refresh, [this.radius = 20]);
 
   @override
   _ParticipantsListWidgetState createState() =>
@@ -23,6 +24,11 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
   final double radius;
 
   _ParticipantsListWidgetState(this.radius);
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Widget getParticipantIconWidget(User participant) {
     var result;
@@ -119,7 +125,12 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
 
   void redirectToProfilePage(User participant) {
     Navigator.push(
-        context, MaterialPageRoute(builder: (context) => UserProfileWidget(participant)));
+            context,
+            MaterialPageRoute(
+                builder: (context) => UserProfileWidget(participant)))
+        .then((value) {
+      widget.refresh();
+    });
   }
 
   @override

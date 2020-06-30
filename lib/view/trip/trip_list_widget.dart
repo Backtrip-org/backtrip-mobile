@@ -106,7 +106,7 @@ class _TripListState extends State<TripList> {
                               visible: trip.countdown > 0,
                               child: countdown(trip),
                             ),
-                            ParticipantsListWidget(trip.participants)
+                            ParticipantsListWidget(trip.participants, getTrips)
                           ],
                         ),
                       ),

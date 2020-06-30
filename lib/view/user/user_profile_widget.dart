@@ -1,10 +1,12 @@
 import 'dart:core';
 import 'dart:io';
 import 'package:backtrip/model/user.dart';
-import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/components.dart';
+import 'package:backtrip/view/common/confirm_picked_image_dialog.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 
 class UserProfileWidget extends StatefulWidget {
   User _user;
@@ -18,9 +20,22 @@ class UserProfileWidget extends StatefulWidget {
 class _UserProfileWidgetState extends State<UserProfileWidget> {
   _UserProfileWidgetState();
 
+  final _picker = ImagePicker();
+  User _user;
+  Future<Widget> _futureCircleAvatar;
+
   @override
   void initState() {
     super.initState();
+    _user = widget._user;
+    getCircleAvatar();
+  }
+
+  void getCircleAvatar() {
+    this.setState(() {
+      _futureCircleAvatar =
+          Components.getParticipantCircularAvatar(_user, initialsFontSize: 35);
+    });
   }
 
   @override
@@ -28,6 +43,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Page de profil'),
+        leading: BackButton(onPressed: () => Navigator.pop(context, _user)),
       ),
       body: Column(
         children: [header(), SizedBox(height: 40), indicators()],
@@ -51,13 +67,24 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
   Widget avatar() {
     return Container(
       height: 120,
-      width: 120,
+      width: 160,
       child: FutureBuilder<Widget>(
-          future: Components.getParticipantCircularAvatar(widget._user,
-              initialsFontSize: 35),
+          future: _futureCircleAvatar,
           builder: (context, snapshot) {
             if (snapshot.hasData) {
-              return snapshot.data;
+              return Stack(children: [
+                Positioned(
+                    left: 20,
+                    child: Container(
+                        width: 120, height: 120, child: snapshot.data)),
+                Positioned(
+                    top: 84,
+                    left: 120,
+                    child: IconButton(
+                        icon: Icon(Icons.edit,
+                            color: Theme.of(context).accentColor),
+                        onPressed: () => updateProfilePicture(context)))
+              ]);
             } else if (snapshot.hasError) {
               return Text("${snapshot.error}");
             }
@@ -71,7 +98,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
       height: 30,
       alignment: Alignment.center,
       child: Text(
-        widget._user.getFullName(),
+        _user.getFullName(),
         textAlign: TextAlign.center,
         style: TextStyle(fontWeight: FontWeight.w400, fontSize: 25),
       ),
@@ -108,5 +135,25 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                     style: Theme.of(context).textTheme.subhead,
                   )
                 ]))));
+  }
+
+  void updateProfilePicture(BuildContext scaffoldContext) async {
+    final pickedFile = await _picker.getImage(source: ImageSource.gallery);
+    final file = File(pickedFile.path);
+    showUploadPhotoConfirmationDialog(scaffoldContext, file,
+        () => _uploadCoverPicture(scaffoldContext, file));
+  }
+
+  void _uploadCoverPicture(BuildContext scaffoldContext, File pickedImage) {
+    UserService.updateProfilePicture(_user.id, pickedImage).then((file) {
+      Components.snackBar(scaffoldContext,
+          'La photo de profil a bien été mise à jour', Colors.green);
+      _user.picturePath = file.id;
+      getCircleAvatar();
+    }).catchError((error) {
+      Components.snackBar(scaffoldContext, 'Une erreur est survenue',
+          Theme.of(context).errorColor);
+    });
+    Navigator.of(context).pop();
   }
 }
