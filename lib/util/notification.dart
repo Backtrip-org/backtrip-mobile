@@ -32,7 +32,7 @@ class NotificationManager {
 
   static Future<void> scheduleNotification(String title, String body, int id, DateTime scheduledNotificationDateTime) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
-        id.toString(), title, body, icon: 'app_icon', color: Color(0xFF6f9798),
+        "Etapes", "Etapes", "Notifications liées aux étapes", icon: 'app_icon', color: Color(0xFF6f9798),
         priority: Priority.High,
         importance: Importance.Max);
 
