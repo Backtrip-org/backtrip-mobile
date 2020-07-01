@@ -44,9 +44,4 @@ class NotificationManager {
         scheduledNotificationDateTime,
         platformChannelSpecifics);
   }
-
-  static DateTime _toDateFormat(String date) {
-    return new DateFormat("dd-MM-yyyy hh:mm").parse(date);
-  }
-
 }
