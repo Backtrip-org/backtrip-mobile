@@ -5,7 +5,10 @@ import 'package:adhara_socket_io/options.dart';
 import 'package:adhara_socket_io/socket.dart';
 import 'package:backtrip/model/chat_message.dart';
 import 'package:backtrip/model/trip.dart';
+import 'package:backtrip/model/user.dart';
+import 'package:backtrip/model/user_avatar.dart';
 import 'package:backtrip/service/chat_service.dart';
+import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:bubble/bubble.dart';
@@ -26,6 +29,7 @@ class ChatWidget extends StatefulWidget {
 class _ChatWidgetState extends State<ChatWidget> {
   Future<List<ChatMessage>> futureMessages;
   List<ChatMessage> messages;
+  List<UserAvatar> usersAvatars = List<UserAvatar>();
 
   TextEditingController inputTextController = TextEditingController();
   ScrollController messagesScrollController = ScrollController();
@@ -41,6 +45,16 @@ class _ChatWidgetState extends State<ChatWidget> {
     super.initState();
     futureMessages = getChatMessages();
     initSocket();
+    getUsersAvatars();
+  }
+
+  Future<void> getUsersAvatars() async {
+    List<User> userList = widget._trip.participants;
+    int userListLength = userList.length;
+    for(int i = 0; i < userListLength; i++) {
+      CircleAvatar circleAvatar = await Components.getParticipantCircularAvatar(userList[i]);
+      usersAvatars.add(UserAvatar(userList[i], circleAvatar));
+    }
   }
 
   Future<List<ChatMessage>> getChatMessages() {
@@ -140,15 +154,11 @@ class _ChatWidgetState extends State<ChatWidget> {
   }
 
   Widget messageCircleAvatar(ChatMessage chatMessage) {
+    User user = getUserById(widget._trip.participants, chatMessage.userId);
+    CircleAvatar avatar = getCircleAvatarByUser(user);
     return Padding(
         padding: EdgeInsets.all(5),
-        child: CircleAvatar(
-          backgroundColor: Colors.grey,
-          child: Text('AJ',
-              style: TextStyle(
-                color: Colors.white,
-              )),
-        ));
+        child: avatar);
   }
 
   Widget bubble(ChatMessage chatMessage) {
@@ -241,6 +251,24 @@ class _ChatWidgetState extends State<ChatWidget> {
         curve: Curves.ease,
       );
     });
+  }
+
+  User getUserById(userList, userId) {
+    for(User u in userList) {
+      if(u.id == userId) {
+        return u;
+      }
+    }
+    return null;
+  }
+
+  CircleAvatar getCircleAvatarByUser(User user) {
+    for(UserAvatar userAvatar in usersAvatars) {
+      if(userAvatar.user.id == user.id) {
+        return userAvatar.circleAvatar;
+      }
+    }
+    return null;
   }
 
   @override
