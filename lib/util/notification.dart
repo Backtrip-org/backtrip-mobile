@@ -30,14 +30,6 @@ class NotificationManager {
     );
   }
 
-  static Future<void> cancelNotification(int id) async {
-    await flutterLocalNotificationsPlugin.cancel(id);
-  }
-
-  static Future<void> cancelAllNotifications() async {
-    await flutterLocalNotificationsPlugin.cancelAll();
-  }
-
   static Future<void> scheduleNotification(String title, String body, int id, DateTime scheduledNotificationDateTime) async {
     var androidPlatformChannelSpecifics = AndroidNotificationDetails(
         id.toString(), title, body, icon: 'app_icon', color: Color(0xFF6f9798),
