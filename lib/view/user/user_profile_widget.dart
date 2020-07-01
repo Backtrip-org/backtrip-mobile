@@ -95,7 +95,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                         child: IconButton(
                             icon: Icon(Icons.edit,
                                 color: Theme.of(context).accentColor),
-                            onPressed: () => updateProfilePicture(context))))
+                            onPressed: () => _updateProfilePicture(context))))
               ]);
             } else if (snapshot.hasError) {
               return Components.snackBar(context, 'Une erreur est survenue',
@@ -164,14 +164,14 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                 ]))));
   }
 
-  void updateProfilePicture(BuildContext scaffoldContext) async {
+  void _updateProfilePicture(BuildContext scaffoldContext) async {
     final pickedFile = await _picker.getImage(source: ImageSource.gallery);
     final file = File(pickedFile.path);
     showUploadPhotoConfirmationDialog(scaffoldContext, file,
-        () => _uploadCoverPicture(scaffoldContext, file));
+        () => _uploadProfilePicture(scaffoldContext, file));
   }
 
-  void _uploadCoverPicture(BuildContext scaffoldContext, File pickedImage) {
+  void _uploadProfilePicture(BuildContext scaffoldContext, File pickedImage) {
     UserService.updateProfilePicture(_user.id, pickedImage).then((file) {
       Components.snackBar(scaffoldContext,
           'La photo de profil a bien été mise à jour', Colors.green);
