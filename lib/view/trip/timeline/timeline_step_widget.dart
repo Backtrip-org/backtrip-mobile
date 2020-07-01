@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:backtrip/model/step/step.dart' as step_model;
+import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -20,9 +21,12 @@ class TimelineStepWidget extends StatefulWidget {
 }
 
 class _TimelineStepWidgetState extends State<TimelineStepWidget> {
+  step_model.Step _step;
+
   @override
   void initState() {
     super.initState();
+    _step = widget._step;
     initializeDateFormatting();
   }
 
@@ -38,7 +42,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
                       child: Divider(color: Colors.grey))),
               Text(
                 new DateFormat('EEEE d MMMM y', 'fr_FR')
-                    .format(widget._step.startDatetime),
+                    .format(_step.startDatetime),
                 style: TextStyle(
                     color: Colors.black54, fontWeight: FontWeight.normal),
               ),
@@ -56,7 +60,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
             alignment: Alignment.topLeft,
             child: Text(
               new DateFormat('HH:mm', 'fr_FR')
-                  .format(widget._step.startDatetime),
+                  .format(_step.startDatetime),
               style: Theme.of(context).textTheme.subhead,
             )));
   }
@@ -78,7 +82,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
                       Container(
                         child: Column(children: [
                           stepName(),
-                          if (widget._step.startAddress != null) address(),
+                          if (_step.startAddress != null) address(),
                           participants()
                         ]),
                       ),
@@ -100,7 +104,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
         child: Align(
             alignment: Alignment.topLeft,
             child: Text(
-              widget._step.name,
+              _step.name,
               style: Theme.of(context).textTheme.title,
             )));
   }
@@ -115,17 +119,17 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
       Flexible(
           child: Padding(
               padding: const EdgeInsets.only(left: 10),
-              child: Text(widget._step.startAddress.getLongAddress(),
+              child: Text(_step.startAddress.getLongAddress(),
                   style: Theme.of(context).textTheme.subhead)))
     ]);
   }
 
   Widget participants() {
     return Visibility(
-        visible: widget._step.participants.length > 0,
+        visible: _step.participants.length > 0,
         child: Padding(
             padding: EdgeInsets.only(top: 10),
-            child: ParticipantsListWidget(widget._step.participants, 15)));
+            child: ParticipantsListWidget(_step.participants, widget.onStepRefresh, 15)));
   }
 
   @override
@@ -142,12 +146,12 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => StepDetailWidget(widget._step))).then((step) {
+            builder: (context) => StepDetailWidget(_step))).then((step) {
       setState(() {
-        /* Update participants in widget._step but we don't need it now */
+        /* Update participants in _step but we don't need it now */
         for (var participant in step.participants) {
-          if (!widget._step.participants.contains(participant)) {
-            widget._step.participants.add(participant);
+          if (!_step.participants.contains(participant)) {
+            _step.participants.add(participant);
           }
         }
         if (widget.onStepRefresh != null) {

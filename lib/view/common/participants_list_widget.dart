@@ -4,24 +4,31 @@ import 'package:backtrip/model/user.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/stored_token.dart';
+import 'package:backtrip/view/user/user_profile_widget.dart';
 import 'package:flutter/material.dart';
 
 class ParticipantsListWidget extends StatefulWidget {
   final List<User> participants;
   final double radius;
+  final VoidCallback refresh;
 
-  ParticipantsListWidget(this.participants, [this.radius = 20]);
+  ParticipantsListWidget(this.participants, this.refresh, [this.radius = 20]);
 
   @override
-  _ParticipantsListWidgetState createState() => _ParticipantsListWidgetState(radius);
+  _ParticipantsListWidgetState createState() =>
+      _ParticipantsListWidgetState(radius);
 }
-
 
 class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
   final int maxParticipantsToDisplay = 4;
   final double radius;
 
   _ParticipantsListWidgetState(this.radius);
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   Widget getParticipantIconWidget(User participant) {
     var result;
@@ -39,44 +46,44 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
         future: StoredToken.getToken(),
         builder: (context, snapshot) {
           if (snapshot.hasData) {
-            return CircleAvatar(
-              backgroundImage: NetworkImage(
-                  '${BacktripApi.path}/file/download/${participant.picturePath}',
-                  headers: {HttpHeaders.authorizationHeader: snapshot.data}
-              ),
-              radius: radius,
-            );
+            return InkWell(
+                onTap: () => redirectToProfilePage(participant),
+                child: CircleAvatar(
+                  backgroundImage: NetworkImage(
+                      '${BacktripApi.path}/file/download/${participant.picturePath}',
+                      headers: {
+                        HttpHeaders.authorizationHeader: snapshot.data
+                      }),
+                  radius: radius,
+                ));
           }
           return getParticipantWithoutPhoto(participant);
-        }
-    );
+        });
   }
 
   Widget getParticipantWithoutPhoto(User participant) {
-    String participantInitials = participant.firstName[0] + participant.lastName[0];
-    return CircleAvatar(
-      backgroundColor: Colors.grey,
-      radius: radius,
-      child: Text(participantInitials,
-          style: TextStyle(
-            color: Colors.white,
-          )),
-    );
+    return InkWell(
+        onTap: () => redirectToProfilePage(participant),
+        child: CircleAvatar(
+          backgroundColor: Colors.grey,
+          radius: radius,
+          child: Text(participant.getInitials(),
+              style: TextStyle(
+                color: Colors.white,
+              )),
+        ));
   }
 
   Widget getXMoreParticipantsWidget() {
     return Text(
       (widget.participants.length - maxParticipantsToDisplay).toString() + "+",
-      style: TextStyle(
-          color: Theme.of(context).accentColor,
-          fontSize: 20
-      ),
+      style: TextStyle(color: Theme.of(context).accentColor, fontSize: 20),
     );
   }
 
   List<User> getParticipants() {
     var _participants = widget.participants;
-    if(tripHasMoreThanMaxParticipantsToDisplay()) {
+    if (tripHasMoreThanMaxParticipantsToDisplay()) {
       _participants = _participants.sublist(0, maxParticipantsToDisplay);
     }
 
@@ -88,7 +95,7 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
   }
 
   void addExtraParticipants(List<Widget> _participants) {
-    if(tripHasMoreThanMaxParticipantsToDisplay()) {
+    if (tripHasMoreThanMaxParticipantsToDisplay()) {
       _participants.add(getXMoreParticipantsWidget());
     }
   }
@@ -97,7 +104,7 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
     Widget spaceSeparator = SizedBox(width: 5);
 
     int length = _participants.length;
-    for(int index = 0; index < length; index++) {
+    for (int index = 0; index < length; index++) {
       _participants.insert(index * 2 + 1, spaceSeparator);
     }
   }
@@ -116,12 +123,20 @@ class _ParticipantsListWidgetState extends State<ParticipantsListWidget> {
     return result;
   }
 
+  void redirectToProfilePage(User participant) {
+    Navigator.push(
+            context,
+            MaterialPageRoute(
+                builder: (context) => UserProfileWidget(participant)))
+        .then((value) {
+      widget.refresh();
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Row(
         mainAxisAlignment: MainAxisAlignment.start,
-        children: getAllParticipantsIcon()
-    );
+        children: getAllParticipantsIcon());
   }
-
 }

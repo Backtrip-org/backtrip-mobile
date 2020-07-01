@@ -43,6 +43,12 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     initializeDateFormatting();
   }
 
+  void updateStep() {
+    setState(() async {
+      _step = await TripService.getStep(_step.tripId, _step.id);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -193,7 +199,7 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
       SizedBox(
         height: 7,
       ),
-      ParticipantsListWidget(_step.participants),
+      ParticipantsListWidget(_step.participants, updateStep),
     ]);
   }
 
