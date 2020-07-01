@@ -170,7 +170,6 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   void setNotifications(List<step_model.Step> steps) {
     for(int i = 0; i < steps.length; i++) {
       setRemindNotification(steps[i]);
-      setItsTimeNotification(steps[i]);
     }
   }
 
@@ -182,16 +181,6 @@ class _TimelineWidgetState extends State<TimelineWidget> {
           "Votre étape démarre dans 1h !",
           step.id,
           duration);
-    }
-  }
-
-  void setItsTimeNotification(step_model.Step step){
-    if(step.startDatetime.isAfter(DateTime.now())) {
-      NotificationManager.scheduleNotification(
-          step.name,
-          "C'est l'heure!",
-          step.id,
-          step.startDatetime);
     }
   }
 
