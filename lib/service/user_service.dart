@@ -1,10 +1,12 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:backtrip/model/user_stats.dart';
 import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
+import 'package:backtrip/util/constants.dart';
 import 'package:backtrip/util/exception/AddFileException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/util/stored_token.dart';
@@ -66,8 +68,24 @@ class UserService {
     }
   }
 
-  static Future<file_model.File> updateProfilePicture(
-      userId, File file) async {
+  static Future<UserStats> getStats(int userId) async {
+    var uri = '${BacktripApi.path}/user/$userId/trips/stats';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+
+    final response =
+        await http.get(uri, headers: header).timeout(Constants.timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return UserStats.fromJson(json.decode(response.body));
+    } else {
+      throw new UnexpectedException();
+    }
+  }
+
+  static Future<file_model.File> updateProfilePicture(userId, File file) async {
     var uri = '${BacktripApi.path}/user/$userId/profilePicture';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',

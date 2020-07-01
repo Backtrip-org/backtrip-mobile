@@ -1,7 +1,9 @@
 import 'dart:core';
 import 'dart:io';
+import 'package:backtrip/model/user_stats.dart';
 import 'package:backtrip/model/user.dart';
 import 'package:backtrip/service/user_service.dart';
+import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/view/common/confirm_picked_image_dialog.dart';
 import 'package:flutter/cupertino.dart';
@@ -9,7 +11,7 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
 class UserProfileWidget extends StatefulWidget {
-  User _user;
+  final User _user;
 
   UserProfileWidget(this._user);
 
@@ -22,6 +24,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
 
   final _picker = ImagePicker();
   User _user;
+  Future<UserStats> _futureUserStats;
   Future<Widget> _futureCircleAvatar;
 
   @override
@@ -29,12 +32,19 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
     super.initState();
     _user = widget._user;
     getCircleAvatar();
+    getStats();
   }
 
   void getCircleAvatar() {
     this.setState(() {
       _futureCircleAvatar =
           Components.getParticipantCircularAvatar(_user, initialsFontSize: 35);
+    });
+  }
+
+  void getStats() {
+    this.setState(() {
+      _futureUserStats = UserService.getStats(_user.id);
     });
   }
 
@@ -77,16 +87,19 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
                     left: 20,
                     child: Container(
                         width: 120, height: 120, child: snapshot.data)),
-                Positioned(
-                    top: 84,
-                    left: 120,
-                    child: IconButton(
-                        icon: Icon(Icons.edit,
-                            color: Theme.of(context).accentColor),
-                        onPressed: () => updateProfilePicture(context)))
+                Visibility(
+                    visible: BacktripApi.currentUser.id == _user.id,
+                    child: Positioned(
+                        top: 84,
+                        left: 120,
+                        child: IconButton(
+                            icon: Icon(Icons.edit,
+                                color: Theme.of(context).accentColor),
+                            onPressed: () => updateProfilePicture(context))))
               ]);
             } else if (snapshot.hasError) {
-              return Text("${snapshot.error}");
+              return Components.snackBar(context, 'Une erreur est survenue',
+                  Theme.of(context).errorColor);
             }
             return Center(child: CircularProgressIndicator());
           }),
@@ -106,16 +119,30 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
   }
 
   Widget indicators() {
-    return Wrap(
-      spacing: 15,
-      runSpacing: 15,
-      children: [
-        indicatorCard(Icons.import_contacts, 12, "voyages"),
-        indicatorCard(Icons.flag, 38, "étapes"),
-        indicatorCard(Icons.place, 3, "pays visités"),
-        indicatorCard(Icons.account_balance, 12, "villes visitées")
-      ],
-    );
+    return Expanded(
+        child: FutureBuilder<UserStats>(
+            future: _futureUserStats,
+            builder: (context, snapshot) {
+              if (snapshot.hasData) {
+                return Wrap(
+                  spacing: 15,
+                  runSpacing: 15,
+                  children: [
+                    indicatorCard(Icons.import_contacts,
+                        snapshot.data.tripsNumber, "voyages"),
+                    indicatorCard(
+                        Icons.flag, snapshot.data.stepsNumber, "étapes"),
+                    indicatorCard(Icons.place, snapshot.data.countriesVisited,
+                        "pays visités"),
+                    indicatorCard(Icons.account_balance,
+                        snapshot.data.citiesVisited, "villes visitées")
+                  ],
+                );
+              } else if (snapshot.hasError) {
+                return Text("${snapshot.error}");
+              }
+              return Center(child: CircularProgressIndicator());
+            }));
   }
 
   Widget indicatorCard(IconData icon, int value, String description) {

@@ -122,7 +122,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     return FutureBuilder<List<step_model.Step>>(
         future: globalTimelineSteps,
         builder: (context, snapshot) {
-          if (snapshot.hasData) {
+          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
             if (snapshot.data.length > 0) {
               return Timeline(
                   children: getTimelineModelList(snapshot.data),
