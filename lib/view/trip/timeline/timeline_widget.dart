@@ -7,6 +7,7 @@ import 'package:backtrip/model/trip.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/file_manager.dart';
+import 'package:backtrip/util/notification.dart';
 import 'package:backtrip/view/trip/step/create_step_widget.dart';
 import 'package:backtrip/view/trip/timeline/timeline_step_widget.dart';
 import 'package:backtrip/view/common/empty_list_widget.dart';
@@ -101,6 +102,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         future: personalTimelineSteps,
         builder: (context, snapshot) {
           if (snapshot.hasData) {
+            setNotifications(snapshot.data);
             if (snapshot.data.length > 0) {
               return Timeline(
                   children: getTimelineModelList(snapshot.data),
@@ -114,6 +116,34 @@ class _TimelineWidgetState extends State<TimelineWidget> {
           }
           return Center(child: CircularProgressIndicator());
         });
+  }
+
+  void setNotifications(List<step_model.Step> steps) {
+    for(int i = 0; i < steps.length; i++) {
+      setRemindNotification(steps[i]);
+      setItsTimeNotification(steps[i]);
+    }
+  }
+
+  void setRemindNotification(step_model.Step step){
+    if(step.startDatetime.isAfter(DateTime.now().add(Duration(hours: 1)))) {
+      DateTime duration = step.startDatetime.subtract(Duration(hours: 1));
+      NotificationManager.scheduleNotification(
+          step.name,
+          "Votre étape démarre dans 1h !",
+          step.id,
+          duration);
+    }
+  }
+
+  void setItsTimeNotification(step_model.Step step){
+    if(step.startDatetime.isAfter(DateTime.now())) {
+      NotificationManager.scheduleNotification(
+          step.name,
+          "C'est l'heure!",
+          step.id,
+          step.startDatetime);
+    }
   }
 
   void navigateToStepCreation(BuildContext context) {
