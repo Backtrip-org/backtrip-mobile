@@ -1,9 +1,12 @@
 import 'dart:core';
+import 'dart:io' as io;
 import 'package:backtrip/model/file.dart';
 import 'package:backtrip/service/file_service.dart';
+import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/file_manager.dart';
 import 'package:backtrip/view/common/empty_list_widget.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:backtrip/model/step/step.dart' as step_model;
@@ -28,6 +31,12 @@ class _StepDocumentsWidgetState extends State<StepDocumentsWidget> {
     initializeDateFormatting();
   }
 
+  void addDocumentToList(File file) {
+    setState(() {
+      _step.files.add(file);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,7 +49,8 @@ class _StepDocumentsWidgetState extends State<StepDocumentsWidget> {
         floatingActionButton: Builder(
           builder: (ctx) {
             return FloatingActionButton(
-                onPressed: _pickDocument, child: Icon(Icons.add));
+                onPressed: () => _pickDocument(ctx),
+                child: Icon(Icons.add));
           },
         ),
         body: body());
@@ -135,5 +145,17 @@ class _StepDocumentsWidgetState extends State<StepDocumentsWidget> {
     Navigator.of(context).pop();
   }
 
-  void _pickDocument() {}
+  void _pickDocument(BuildContext scaffoldContext) async {
+    io.File pickedFile = await FilePicker.getFile();
+    TripService.addDocumentToStep(_step.tripId, _step.id, pickedFile)
+        .then((file) {
+      addDocumentToList(file);
+      Components.snackBar(
+          scaffoldContext, 'Le document a bien été ajouté !', Colors.green);
+    }).catchError((error) {
+      Components.snackBar(scaffoldContext, 'Une erreur est survenue',
+          Theme.of(context).errorColor);
+    });
+    ;
+  }
 }

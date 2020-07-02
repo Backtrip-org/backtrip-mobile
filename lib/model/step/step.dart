@@ -44,7 +44,9 @@ class Step {
   }
 
   List<File> getDocuments() {
-    return files?.where((file) => file.isDocument())?.toList();
+    var docs = files?.where((file) => file.isDocument())?.toList();
+    docs.sort((first, second) => second.createdDate.compareTo(first.createdDate));
+    return docs;
   }
 
   bool hasStartAddressRating() {
