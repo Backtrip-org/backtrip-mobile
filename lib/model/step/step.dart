@@ -43,6 +43,10 @@ class Step {
     return files?.where((file) => file.isPhoto())?.toList();
   }
 
+  List<File> getDocuments() {
+    return files?.where((file) => file.isDocument())?.toList();
+  }
+
   bool hasStartAddressRating() {
     return this.startAddress != null && this.startAddress.rating != null;
   }

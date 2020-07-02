@@ -230,7 +230,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
               onPressed: () {
                 TripService.getTravelJournal(widget._trip.id).then((bytes) {
                   FileManager.downloadToLocalDirectory(
-                      bytes, 'journal_voyage_${widget._trip.id}');
+                      bytes, 'journal_voyage_${widget._trip.id}','pdf');
                 }).catchError((error) {
                   Components.snackBar(parentContext, 'Une erreur est survenue',
                       Theme.of(context).errorColor);

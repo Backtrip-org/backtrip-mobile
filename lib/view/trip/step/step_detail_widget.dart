@@ -14,6 +14,7 @@ import 'package:backtrip/view/trip/step/place_rating_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_notes_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_subtitle_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_transport_widget.dart';
+import 'package:backtrip/view/trip/step/step_documents_widget.dart';
 import 'package:backtrip/view/trip/step/step_period_widget.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -43,9 +44,10 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     initializeDateFormatting();
   }
 
-  void updateStep() {
-    setState(() async {
-      _step = await TripService.getStep(_step.tripId, _step.id);
+  void updateStep({step_model.Step step}) async {
+    if (step == null) step = await TripService.getStep(_step.tripId, _step.id);
+    setState(() {
+      _step = step;
     });
   }
 
@@ -244,17 +246,23 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
 
   Container documentsButton() {
     return Container(
-        margin: const EdgeInsets.only(left: 15.0, right: 15.0),
+        margin: const EdgeInsets.only(left: 15.0, right: 15.0, bottom: 10),
         width: MediaQuery.of(context).size.width,
         child: Padding(
           padding: EdgeInsets.only(top: 10),
           child: RaisedButton(
             padding: EdgeInsets.symmetric(vertical: 15),
-            onPressed: () {},
+            onPressed: navigateToStepDocuments,
             child: Text("Vos documents",
                 style: Theme.of(context).textTheme.button),
           ),
         ));
+  }
+
+  void navigateToStepDocuments() {
+    Navigator.push(context,
+            MaterialPageRoute(builder: (context) => StepDocumentsWidget(_step)))
+        .then((step) => updateStep(step: step));
   }
 
   void _joinStep(context) {
