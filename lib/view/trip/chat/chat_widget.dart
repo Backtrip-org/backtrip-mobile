@@ -39,6 +39,8 @@ class _ChatWidgetState extends State<ChatWidget> {
   SocketIOManager manager;
   SocketIO socket;
   bool isConnected = false;
+  bool boolUserIsWriting = false;
+  Timer searchOnStoppedTyping;
 
   @override
   void initState() {
@@ -67,7 +69,7 @@ class _ChatWidgetState extends State<ChatWidget> {
     socket = await manager.createInstance(SocketOptions(BacktripApi.path,
         nameSpace: '/',
         enableLogging: false,
-        transports: [Transports.WEB_SOCKET]));
+        transports: [Transports.POLLING]));
 
     socket.onConnect((data) => handleConnect(data));
     socket.onConnecting((data) => print("onConnecting : $data"));
@@ -83,6 +85,8 @@ class _ChatWidgetState extends State<ChatWidget> {
     socket.onPong((data) => print("onPong : $data"));
 
     socket.on("message", (data) => handleNewMessage(data));
+    socket.on("isWriting", (data) => userIsWriting());
+    socket.on("stopWriting", (data) => userStopWriting());
 
     socket.connect();
   }
@@ -109,6 +113,18 @@ class _ChatWidgetState extends State<ChatWidget> {
       messages.add(ChatMessage.fromJson(data));
     });
     scrollDown();
+  }
+
+  void userIsWriting() {
+    setState(() {
+      boolUserIsWriting = true;
+    });
+  }
+
+  void userStopWriting() {
+    setState(() {
+      boolUserIsWriting = false;
+    });
   }
 
   Widget messageArea() {
@@ -188,6 +204,13 @@ class _ChatWidgetState extends State<ChatWidget> {
               keyboardType: TextInputType.multiline,
               maxLines: null,
               maxLength: 200,
+              onChanged: (text) {
+                socket.emit('isWriting', [
+                  BacktripApi.currentUser.id,
+                  widget._trip.id,
+                ]);
+                detectWhenUserStopTyping();
+              },
               decoration: InputDecoration(
                   border: new OutlineInputBorder(
                     borderSide: BorderSide(
@@ -202,6 +225,22 @@ class _ChatWidgetState extends State<ChatWidget> {
                   counterText: ''
               ),
             )));
+  }
+
+  void detectWhenUserStopTyping() {
+    const duration = Duration(milliseconds:800);
+    if (searchOnStoppedTyping != null) {
+      setState(() => searchOnStoppedTyping.cancel());
+    }
+    setState(() => searchOnStoppedTyping = new Timer(duration, () => emitStopWriting()));
+  }
+
+  void emitStopWriting() {
+    socket.emit('stopWriting', [
+      BacktripApi.currentUser.id,
+      widget._trip.id,
+    ]);
+    print('COUCOU Cest MOI');
   }
 
   Widget statusIcon() {
@@ -233,13 +272,25 @@ class _ChatWidgetState extends State<ChatWidget> {
         )
       ]),
       width: width,
-      child: Row(
-        children: [
-          chatInput(),
-          statusIcon(),
-          sendButton(),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Visibility(
+                child: Text("Est en train d'écrire"),
+                visible: boolUserIsWriting,
+              )
+            ],
+          ),
+          Row(
+            children: [
+              chatInput(),
+              statusIcon(),
+              sendButton(),
+            ],
+          ),
         ],
-      ),
+      )
     );
   }
 
