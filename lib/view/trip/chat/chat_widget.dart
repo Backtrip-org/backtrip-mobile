@@ -242,7 +242,6 @@ class _ChatWidgetState extends State<ChatWidget> {
       BacktripApi.currentUser.id,
       widget._trip.id,
     ]);
-    print('COUCOU Cest MOI');
   }
 
   Widget statusIcon() {
