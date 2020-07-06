@@ -41,6 +41,7 @@ class _ChatWidgetState extends State<ChatWidget> {
   bool isConnected = false;
   bool boolUserIsWriting = false;
   Timer searchOnStoppedTyping;
+  User userThatWrite;
 
   @override
   void initState() {
@@ -69,7 +70,7 @@ class _ChatWidgetState extends State<ChatWidget> {
     socket = await manager.createInstance(SocketOptions(BacktripApi.path,
         nameSpace: '/',
         enableLogging: false,
-        transports: [Transports.POLLING]));
+        transports: [Transports.WEB_SOCKET]));
 
     socket.onConnect((data) => handleConnect(data));
     socket.onConnecting((data) => print("onConnecting : $data"));
@@ -85,7 +86,7 @@ class _ChatWidgetState extends State<ChatWidget> {
     socket.onPong((data) => print("onPong : $data"));
 
     socket.on("message", (data) => handleNewMessage(data));
-    socket.on("isWriting", (data) => userIsWriting());
+    socket.on("isWriting", (data) => userIsWriting(data));
     socket.on("stopWriting", (data) => userStopWriting());
 
     socket.connect();
@@ -115,7 +116,8 @@ class _ChatWidgetState extends State<ChatWidget> {
     scrollDown();
   }
 
-  void userIsWriting() {
+  void userIsWriting(data) {
+    userThatWrite = getUserById(widget._trip.participants, data['user_id']);
     setState(() {
       boolUserIsWriting = true;
     });
@@ -277,8 +279,11 @@ class _ChatWidgetState extends State<ChatWidget> {
           Row(
             children: <Widget>[
               Visibility(
-                child: Text("Est en train d'écrire"),
-                visible: boolUserIsWriting,
+                child: Text("${userThatWrite != null ? userThatWrite.firstName : ''} est en train d'écrire...",
+                    style: new TextStyle(
+                        fontSize: 15.0,
+                    )),
+                visible: boolUserIsWriting && userThatWrite.id != BacktripApi.currentUser.id,
               )
             ],
           ),
