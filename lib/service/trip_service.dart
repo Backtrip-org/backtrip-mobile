@@ -14,6 +14,7 @@ import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/constants.dart';
 import 'package:backtrip/util/exception/AddFileException.dart';
 import 'package:backtrip/util/exception/ExpenseException.dart';
+import 'package:backtrip/util/exception/LeaveStepException.dart';
 import 'package:backtrip/util/exception/OperationException.dart';
 import 'package:backtrip/util/exception/ReimbursementException.dart';
 import 'package:backtrip/util/exception/StepException.dart';
@@ -406,6 +407,20 @@ class TripService {
 
     if (response.statusCode != HttpStatus.ok) {
       throw new UnexpectedException();
+    }
+  }
+
+  static Future<Step> leaveStep(int tripId, int stepId, int userId) async {
+    var uri = '${BacktripApi.path}/trip/$tripId/step/$stepId/user/$userId/leave';
+    var header = <String, String>{
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    final response = await http.delete(uri, headers: header).timeout(Constants.timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return Step.fromJson(json.decode(response.body));
+    } else {
+      throw new LeaveStepException();
     }
   }
 }

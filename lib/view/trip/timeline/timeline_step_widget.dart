@@ -149,13 +149,19 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
             builder: (context) => StepDetailWidget(_step))).then((step) {
       setState(() {
         /* Update participants in _step but we don't need it now */
-        for (var participant in step.participants) {
-          if (!_step.participants.contains(participant)) {
-            _step.participants.add(participant);
+        try{
+          for (var participant in step.participants) {
+            if (!_step.participants.contains(participant)) {
+              _step.participants.add(participant);
+            }
           }
-        }
-        if (widget.onStepRefresh != null) {
-          widget.onStepRefresh();
+          if (widget.onStepRefresh != null) {
+            widget.onStepRefresh();
+          }
+        } catch(e) {
+          if (widget.onStepRefresh != null) {
+            widget.onStepRefresh();
+          }
         }
       });
     });
