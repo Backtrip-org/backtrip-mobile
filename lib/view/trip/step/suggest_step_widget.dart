@@ -47,7 +47,6 @@ class _SuggestStepWidgetState extends State<SuggestStepWidget> {
           borderRadius: BorderRadius.circular(10.0),
           color: Color.fromRGBO(247, 213, 21, 0.25)
       ),
-//      color: Color.fromRGBO(247, 213, 21, 0.25),
       child: Padding(
         padding: EdgeInsets.all(8),
         child: Row(
