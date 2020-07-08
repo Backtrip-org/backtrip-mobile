@@ -9,6 +9,7 @@ import 'package:backtrip/util/components.dart';
 import 'package:backtrip/util/file_manager.dart';
 import 'package:backtrip/util/notification.dart';
 import 'package:backtrip/view/trip/step/create_step_widget.dart';
+import 'package:backtrip/view/trip/step/suggest_step_widget.dart';
 import 'package:backtrip/view/trip/timeline/timeline_step_widget.dart';
 import 'package:backtrip/view/common/empty_list_widget.dart';
 import 'package:flutter/cupertino.dart';
@@ -17,6 +18,7 @@ import 'package:timeline_list/timeline.dart';
 import 'package:timeline_list/timeline_model.dart';
 
 import 'package:backtrip/view/theme/backtrip_theme.dart';
+import 'package:unicorndial/unicorndial.dart';
 
 class TimelineWidget extends StatefulWidget {
   final Trip _trip;
@@ -77,6 +79,31 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         ));
   }
 
+  Widget _profileOption({IconData iconData, Function onPressed, String tooltip}) {
+    return UnicornButton(
+        currentButton: FloatingActionButton(
+          backgroundColor: Colors.grey[500],
+          heroTag: null,
+          mini: true,
+          child: Icon(iconData),
+          onPressed: onPressed,
+          tooltip: tooltip,
+        ));
+  }
+
+  List<UnicornButton> _getProfileMenu() {
+    List<UnicornButton> children = [];
+
+    children.add(_profileOption(iconData: Icons.lightbulb_outline,
+        onPressed:() { navigateToStepSuggestion(context); },
+        tooltip: "Suggestion d'activité"));
+    children.add(_profileOption(iconData: Icons.add,
+        onPressed: () { navigateToStepCreation(context); },
+        tooltip: "Nouvelle étape"));
+
+    return children;
+  }
+
   Widget getFloatingActionButton() {
     if (widget._trip.closed) {
       if (Platform.isAndroid) {
@@ -90,11 +117,10 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         return Container();
       }
     } else {
-      return FloatingActionButton(
-        onPressed: () {
-          navigateToStepCreation(context);
-        },
-        child: Icon(Icons.add),
+      return UnicornDialer(
+        orientation: UnicornOrientation.VERTICAL,
+        parentButton: Icon(Icons.add),
+        childButtons: _getProfileMenu(),
       );
     }
   }
@@ -195,6 +221,13 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         getTimelines();
       }
     });
+  }
+
+  void navigateToStepSuggestion(BuildContext context) {
+    Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => SuggestStepWidget())
+    );
   }
 
   Future<void> _showDownloadTravelJournalConfirmationDialog(
