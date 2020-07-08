@@ -86,7 +86,7 @@ class _LoginWidgetState extends State<LoginWidget> {
                   (Route<dynamic> route) => false);
             }).catchError((e) {
               if (e is EmailPasswordInvalidException ||
-                  e is UnexpectedException) {
+                  e is UnexpectedException || e is BannedUserException) {
                 Components.snackBar(
                     scaffoldContext, e.cause, Theme.of(context).errorColor);
               } else {

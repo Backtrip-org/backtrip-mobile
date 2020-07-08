@@ -31,6 +31,8 @@ class AuthService {
       BacktripApi.currentUser = new CurrentUser(login.id);
     } else if (response.statusCode == HttpStatus.badRequest) {
       throw new EmailPasswordInvalidException();
+    } else if (response.statusCode == HttpStatus.forbidden) {
+      throw new BannedUserException();
     } else {
       throw new UnexpectedException();
     }
