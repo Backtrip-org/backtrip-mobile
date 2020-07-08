@@ -226,7 +226,7 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   void navigateToStepSuggestion(BuildContext context) {
     Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => SuggestStepWidget())
+        MaterialPageRoute(builder: (context) => SuggestStepWidget(widget._trip))
     );
   }
 
