@@ -13,3 +13,11 @@ class InvalidTokenException implements Exception {
     this.cause = 'Token invalide.';
   }
 }
+
+class BannedUserException implements Exception {
+  String cause;
+
+  BannedUserException() {
+    this.cause = 'Vous avez été banni.';
+  }
+}
