@@ -2,9 +2,12 @@ import 'dart:core';
 import 'dart:io';
 
 import 'package:backtrip/model/step/step_transport.dart';
+import 'package:backtrip/model/user.dart';
 import 'package:backtrip/service/trip_service.dart';
+import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
+import 'package:backtrip/util/exception/LeaveStepException.dart';
 import 'package:backtrip/util/exception/UnexpectedException.dart';
 import 'package:backtrip/view/common/confirm_picked_image_dialog.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
@@ -56,6 +59,16 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
     return Scaffold(
         appBar: AppBar(
             title: Text(_step.name),
+            actions: <Widget>[
+              Visibility(
+                child: IconButton(
+                  icon: Icon(Icons.exit_to_app),
+                  tooltip: 'Quitter l\'étape',
+                  onPressed: () => leaveStep(context),
+                ),
+                visible: currentUserIsParticipant(),
+              )
+            ],
             leading: IconButton(
               icon: Icon(Icons.arrow_back),
               onPressed: () => Navigator.pop(context, _step),
@@ -77,6 +90,20 @@ class _StepDetailWidgetState extends State<StepDetailWidget> {
                     ],
                   ),
                 )));
+  }
+
+  void leaveStep(BuildContext context) {
+    TripService.leaveStep(_step.tripId, _step.id, BacktripApi.currentUser.id)
+    .then((step) async {
+      Navigator.of(context).pop();
+    }).catchError((e) {
+      if (e is LeaveStepException) {
+        Components.snackBar(context, e.cause, Theme.of(context).errorColor);
+      } else {
+        Components.snackBar(
+            context, 'Une erreur est survenue', Theme.of(context).errorColor);
+      }
+    });
   }
 
   Widget presentationCard() {

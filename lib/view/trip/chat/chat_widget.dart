@@ -5,7 +5,10 @@ import 'package:adhara_socket_io/options.dart';
 import 'package:adhara_socket_io/socket.dart';
 import 'package:backtrip/model/chat_message.dart';
 import 'package:backtrip/model/trip.dart';
+import 'package:backtrip/model/user.dart';
+import 'package:backtrip/model/user_avatar.dart';
 import 'package:backtrip/service/chat_service.dart';
+import 'package:backtrip/service/user_service.dart';
 import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
 import 'package:bubble/bubble.dart';
@@ -26,6 +29,7 @@ class ChatWidget extends StatefulWidget {
 class _ChatWidgetState extends State<ChatWidget> {
   Future<List<ChatMessage>> futureMessages;
   List<ChatMessage> messages;
+  List<UserAvatar> usersAvatars = List<UserAvatar>();
 
   TextEditingController inputTextController = TextEditingController();
   ScrollController messagesScrollController = ScrollController();
@@ -35,12 +39,25 @@ class _ChatWidgetState extends State<ChatWidget> {
   SocketIOManager manager;
   SocketIO socket;
   bool isConnected = false;
+  bool boolUserIsWriting = false;
+  Timer searchOnStoppedTyping;
+  User userThatWrite;
 
   @override
   void initState() {
     super.initState();
     futureMessages = getChatMessages();
     initSocket();
+    getUsersAvatars();
+  }
+
+  Future<void> getUsersAvatars() async {
+    List<User> userList = widget._trip.participants;
+    int userListLength = userList.length;
+    for(int i = 0; i < userListLength; i++) {
+      CircleAvatar circleAvatar = await Components.getParticipantCircularAvatar(userList[i]);
+      usersAvatars.add(UserAvatar(userList[i], circleAvatar));
+    }
   }
 
   Future<List<ChatMessage>> getChatMessages() {
@@ -69,6 +86,8 @@ class _ChatWidgetState extends State<ChatWidget> {
     socket.onPong((data) => print("onPong : $data"));
 
     socket.on("message", (data) => handleNewMessage(data));
+    socket.on("isWriting", (data) => userIsWriting(data));
+    socket.on("stopWriting", (data) => userStopWriting());
 
     socket.connect();
   }
@@ -95,6 +114,19 @@ class _ChatWidgetState extends State<ChatWidget> {
       messages.add(ChatMessage.fromJson(data));
     });
     scrollDown();
+  }
+
+  void userIsWriting(data) {
+    userThatWrite = getUserById(widget._trip.participants, data['user_id']);
+    setState(() {
+      boolUserIsWriting = true;
+    });
+  }
+
+  void userStopWriting() {
+    setState(() {
+      boolUserIsWriting = false;
+    });
   }
 
   Widget messageArea() {
@@ -140,15 +172,11 @@ class _ChatWidgetState extends State<ChatWidget> {
   }
 
   Widget messageCircleAvatar(ChatMessage chatMessage) {
+    User user = getUserById(widget._trip.participants, chatMessage.userId);
+    CircleAvatar avatar = getCircleAvatarByUser(user);
     return Padding(
         padding: EdgeInsets.all(5),
-        child: CircleAvatar(
-          backgroundColor: Colors.grey,
-          child: Text('AJ',
-              style: TextStyle(
-                color: Colors.white,
-              )),
-        ));
+        child: avatar);
   }
 
   Widget bubble(ChatMessage chatMessage) {
@@ -178,6 +206,13 @@ class _ChatWidgetState extends State<ChatWidget> {
               keyboardType: TextInputType.multiline,
               maxLines: null,
               maxLength: 200,
+              onChanged: (text) {
+                socket.emit('isWriting', [
+                  BacktripApi.currentUser.id,
+                  widget._trip.id,
+                ]);
+                detectWhenUserStopTyping();
+              },
               decoration: InputDecoration(
                   border: new OutlineInputBorder(
                     borderSide: BorderSide(
@@ -192,6 +227,21 @@ class _ChatWidgetState extends State<ChatWidget> {
                   counterText: ''
               ),
             )));
+  }
+
+  void detectWhenUserStopTyping() {
+    const duration = Duration(milliseconds:800);
+    if (searchOnStoppedTyping != null) {
+      setState(() => searchOnStoppedTyping.cancel());
+    }
+    setState(() => searchOnStoppedTyping = new Timer(duration, () => emitStopWriting()));
+  }
+
+  void emitStopWriting() {
+    socket.emit('stopWriting', [
+      BacktripApi.currentUser.id,
+      widget._trip.id,
+    ]);
   }
 
   Widget statusIcon() {
@@ -223,13 +273,28 @@ class _ChatWidgetState extends State<ChatWidget> {
         )
       ]),
       width: width,
-      child: Row(
-        children: [
-          chatInput(),
-          statusIcon(),
-          sendButton(),
+      child: Column(
+        children: <Widget>[
+          Row(
+            children: <Widget>[
+              Visibility(
+                child: Text("${userThatWrite != null ? userThatWrite.firstName : ''} est en train d'écrire...",
+                    style: new TextStyle(
+                        fontSize: 15.0,
+                    )),
+                visible: boolUserIsWriting && userThatWrite.id != BacktripApi.currentUser.id,
+              )
+            ],
+          ),
+          Row(
+            children: [
+              chatInput(),
+              statusIcon(),
+              sendButton(),
+            ],
+          ),
         ],
-      ),
+      )
     );
   }
 
@@ -241,6 +306,24 @@ class _ChatWidgetState extends State<ChatWidget> {
         curve: Curves.ease,
       );
     });
+  }
+
+  User getUserById(userList, userId) {
+    for(User u in userList) {
+      if(u.id == userId) {
+        return u;
+      }
+    }
+    return null;
+  }
+
+  CircleAvatar getCircleAvatarByUser(User user) {
+    for(UserAvatar userAvatar in usersAvatars) {
+      if(userAvatar.user.id == user.id) {
+        return userAvatar.circleAvatar;
+      }
+    }
+    return null;
   }
 
   @override
