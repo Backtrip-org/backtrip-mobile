@@ -147,7 +147,7 @@ class _UserProfileWidgetState extends State<UserProfileWidget> {
 
   Widget indicatorCard(IconData icon, int value, String description) {
     return SizedBox(
-        width: 150,
+        width: 165,
         child: Card(
             child: Padding(
                 padding: const EdgeInsets.all(20),
