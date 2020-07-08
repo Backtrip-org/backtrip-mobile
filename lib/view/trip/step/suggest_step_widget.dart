@@ -28,25 +28,71 @@ class _SuggestStepWidgetState extends State<SuggestStepWidget> {
     });
   }
 
+  Widget suggestionBody() {
+    return Column(
+      children: <Widget>[
+        explicativeText(),
+        SizedBox(height: 10),
+        suggestions()
+      ],
+    );
+  }
+
+  Widget explicativeText() {
+    return Container(
+      decoration: BoxDecoration(
+          border: Border.all(
+              color: Color.fromRGBO(247, 213, 21, 0.8)
+          ),
+          borderRadius: BorderRadius.circular(10.0),
+          color: Color.fromRGBO(247, 213, 21, 0.25)
+      ),
+//      color: Color.fromRGBO(247, 213, 21, 0.25),
+      child: Padding(
+        padding: EdgeInsets.all(8),
+        child: Row(
+          children: <Widget>[
+            Icon(
+                Icons.info
+            ),
+            SizedBox(
+              width: 8,
+            ),
+            Expanded(
+                child: Text("Vous trouverez ci-dessous une suggestion d'activités élaborée spécialement pour vous. Elle a été construite à partir de vos activités les plus fréquentes et croisées avec les profils vous ressemblant.",
+                  textAlign: TextAlign.justify,
+                  overflow: TextOverflow.ellipsis,
+                  style: TextStyle(fontSize: 16.0),
+                  maxLines: 10,)
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget suggestions() {
     return FutureBuilder<List<String>>(
         future: futureSuggestions,
         builder: (context, snapshot) {
           if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
-            return ListView.builder(
-                padding: const EdgeInsets.all(16),
-                itemCount: snapshot.data.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return Card(
-                      child: InkWell(
-                          onTap: () { navigateToStepCreation(context, snapshot.data[index]); },
-                          child: Padding(
-                            padding: const EdgeInsets.all(12),
-                            child: Center(child: Text(snapshot.data[index], style: TextStyle(fontSize: 20),)),
-                          )
-                      )
-                  );
-                }
+            List<Card> cards = new List<Card>();
+            for(String suggestion in snapshot.data) {
+              cards.add(
+                  Card(
+                    child: InkWell(
+                      onTap: () { navigateToStepCreation(context, suggestion); },
+                      child: Padding(
+                        padding: const EdgeInsets.all(12),
+                        child: Center(child: Text(suggestion, style: TextStyle(fontSize: 20)),),
+                      ),
+                    ),
+                  )
+              );
+            }
+
+            return Column(
+              children: cards,
             );
           } else if (snapshot.hasError) {
             return Text("${snapshot.error}");
@@ -68,10 +114,13 @@ class _SuggestStepWidgetState extends State<SuggestStepWidget> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Text("Suggestion d'activité"),
-      ),
-      body: suggestions(),
+        appBar: AppBar(
+          title: Text("Suggestion d'activité"),
+        ),
+        body: Padding(
+          padding: const EdgeInsets.all(16),
+          child: suggestionBody(),
+        )
     );
   }
 
