@@ -3,8 +3,8 @@ import 'dart:io' as io;
 import 'package:backtrip/model/file.dart';
 import 'package:backtrip/service/file_service.dart';
 import 'package:backtrip/service/trip_service.dart';
+import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
-import 'package:backtrip/util/file_manager.dart';
 import 'package:backtrip/view/common/empty_list_widget.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/cupertino.dart';
@@ -131,12 +131,11 @@ class _StepDocumentsWidgetState extends State<StepDocumentsWidget> {
   }
 
   void _downloadFile(File file, BuildContext parentContext) {
-    FileService.get(file.id).then((bytes) {
-      FileManager.downloadToLocalDirectory(bytes, file.name, file.extension);
-    }).then((value) {
+    FileService.download('${BacktripApi.path}/file/download/${file.id}', file.name, file.extension)
+        .then((value) {
       Components.snackBar(
           parentContext,
-          'Le fichier ${file.getFileName()} est disponible dans vos téléchargements !',
+          'Le téléchargement du fichier ${file.getFileName()} a démarré !',
           Colors.green);
     }).catchError((error) {
       Components.snackBar(parentContext, 'Une erreur est survenue',
@@ -156,6 +155,5 @@ class _StepDocumentsWidgetState extends State<StepDocumentsWidget> {
       Components.snackBar(scaffoldContext, 'Une erreur est survenue',
           Theme.of(context).errorColor);
     });
-    ;
   }
 }

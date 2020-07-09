@@ -380,21 +380,6 @@ class TripService {
     }
   }
 
-  static Future<Uint8List> getTravelJournal(int tripId) async {
-    var uri = '${BacktripApi.path}/trip/$tripId/travelJournal';
-    var header = <String, String>{
-      HttpHeaders.authorizationHeader: await StoredToken.getToken()
-    };
-    final response =
-        await http.get(uri, headers: header).timeout(Constants.timeout);
-
-    if (response.statusCode == HttpStatus.ok) {
-      return response.bodyBytes;
-    } else {
-      throw new UnexpectedException();
-    }
-  }
-
   static Future<void> updateNotes(int tripId, int stepId, String notes) async {
     var uri = '${BacktripApi.path}/trip/${tripId}/step/${stepId}/notes';
     var header = <String, String>{

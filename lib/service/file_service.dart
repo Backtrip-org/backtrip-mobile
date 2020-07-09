@@ -1,24 +1,29 @@
 import 'dart:io';
-import 'dart:typed_data';
-import 'package:backtrip/util/constants.dart';
-import 'package:backtrip/util/exception/UnexpectedException.dart';
-import 'package:http/http.dart' as http;
-import 'package:backtrip/util/backtrip_api.dart';
+import 'package:flutter_downloader/flutter_downloader.dart';
 import 'package:backtrip/util/stored_token.dart';
+import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
 
 class FileService {
-  static Future<Uint8List> get(String fileId) async {
-    var uri = '${BacktripApi.path}/file/download/$fileId';
-    var header = <String, String>{
+
+  static download(String url, String filename, String extension) async {
+    Directory directory = await getExternalStorageDirectory();
+    File file = new File('${directory.path}/$filename.$extension');
+
+    for (int num = 0; file.existsSync(); num++) {
+      file = new File('${directory.path}/$filename($num).$extension');
+    }
+
+    var headers = {
       HttpHeaders.authorizationHeader: await StoredToken.getToken()
     };
-    final response =
-        await http.get(uri, headers: header).timeout(Constants.timeout);
 
-    if (response.statusCode == HttpStatus.ok) {
-      return response.bodyBytes;
-    } else {
-      throw new UnexpectedException();
-    }
+    await FlutterDownloader.enqueue(
+        url: url,
+        fileName: basename(file.path),
+        savedDir: directory.path,
+        showNotification: true,
+        openFileFromNotification: true,
+        headers: headers);
   }
 }

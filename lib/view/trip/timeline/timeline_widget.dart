@@ -4,9 +4,10 @@ import 'dart:io';
 
 import 'package:backtrip/model/step/step.dart' as step_model;
 import 'package:backtrip/model/trip.dart';
+import 'package:backtrip/service/file_service.dart';
 import 'package:backtrip/service/trip_service.dart';
+import 'package:backtrip/util/backtrip_api.dart';
 import 'package:backtrip/util/components.dart';
-import 'package:backtrip/util/file_manager.dart';
 import 'package:backtrip/util/notification.dart';
 import 'package:backtrip/view/trip/step/create_step_widget.dart';
 import 'package:backtrip/view/trip/step/suggest_step_widget.dart';
@@ -79,26 +80,33 @@ class _TimelineWidgetState extends State<TimelineWidget> {
         ));
   }
 
-  Widget _profileOption({IconData iconData, Function onPressed, String tooltip}) {
+  Widget _profileOption(
+      {IconData iconData, Function onPressed, String tooltip}) {
     return UnicornButton(
         currentButton: FloatingActionButton(
-          backgroundColor: Colors.grey[500],
-          heroTag: null,
-          mini: true,
-          child: Icon(iconData),
-          onPressed: onPressed,
-          tooltip: tooltip,
-        ));
+      backgroundColor: Colors.grey[500],
+      heroTag: null,
+      mini: true,
+      child: Icon(iconData),
+      onPressed: onPressed,
+      tooltip: tooltip,
+    ));
   }
 
   List<UnicornButton> _getProfileMenu() {
     List<UnicornButton> children = [];
 
-    children.add(_profileOption(iconData: Icons.lightbulb_outline,
-        onPressed:() { navigateToStepSuggestion(context); },
+    children.add(_profileOption(
+        iconData: Icons.lightbulb_outline,
+        onPressed: () {
+          navigateToStepSuggestion(context);
+        },
         tooltip: "Suggestion d'activité"));
-    children.add(_profileOption(iconData: Icons.add,
-        onPressed: () { navigateToStepCreation(context); },
+    children.add(_profileOption(
+        iconData: Icons.add,
+        onPressed: () {
+          navigateToStepCreation(context);
+        },
         tooltip: "Nouvelle étape"));
 
     return children;
@@ -129,7 +137,8 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     return FutureBuilder<List<step_model.Step>>(
         future: personalTimelineSteps,
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData &&
+              snapshot.connectionState == ConnectionState.done) {
             setNotifications(snapshot.data);
             if (snapshot.data.length > 0) {
               return Timeline(
@@ -150,7 +159,8 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     return FutureBuilder<List<step_model.Step>>(
         future: globalTimelineSteps,
         builder: (context, snapshot) {
-          if (snapshot.hasData && snapshot.connectionState == ConnectionState.done) {
+          if (snapshot.hasData &&
+              snapshot.connectionState == ConnectionState.done) {
             if (snapshot.data.length > 0) {
               return Timeline(
                   children: getTimelineModelList(snapshot.data),
@@ -169,14 +179,14 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   List<TimelineModel> getTimelineModelList(List<step_model.Step> stepList) {
     return stepList
         .map((step) {
-      return TimelineModel(
-          TimelineStepWidget(
-              isFirstStepOfTheDay(stepList, step), step, getTimelines),
-          position: TimelineItemPosition.random,
-          iconBackground: Colors.transparent,
-          icon: Icon(step.icon,
-              color: Theme.of(context).colorScheme.accentColorDark));
-    })
+          return TimelineModel(
+              TimelineStepWidget(
+                  isFirstStepOfTheDay(stepList, step), step, getTimelines),
+              position: TimelineItemPosition.random,
+              iconBackground: Colors.transparent,
+              icon: Icon(step.icon,
+                  color: Theme.of(context).colorScheme.accentColorDark));
+        })
         .cast<TimelineModel>()
         .toList();
   }
@@ -189,24 +199,21 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     return previousStep == null
         ? true
         : step.startDatetime.difference(previousStep.startDatetime).inDays !=
-        0 ||
-        step.startDatetime.day != previousStep.startDatetime.day;
+                0 ||
+            step.startDatetime.day != previousStep.startDatetime.day;
   }
 
   void setNotifications(List<step_model.Step> steps) {
-    for(int i = 0; i < steps.length; i++) {
+    for (int i = 0; i < steps.length; i++) {
       setRemindNotification(steps[i]);
     }
   }
 
-  void setRemindNotification(step_model.Step step){
-    if(step.startDatetime.isAfter(DateTime.now().add(Duration(hours: 1)))) {
+  void setRemindNotification(step_model.Step step) {
+    if (step.startDatetime.isAfter(DateTime.now().add(Duration(hours: 1)))) {
       DateTime duration = step.startDatetime.subtract(Duration(hours: 1));
       NotificationManager.scheduleNotification(
-          step.name,
-          "Votre étape démarre dans 1h !",
-          step.id,
-          duration);
+          step.name, "Votre étape démarre dans 1h !", step.id, duration);
     }
   }
 
@@ -226,8 +233,8 @@ class _TimelineWidgetState extends State<TimelineWidget> {
   void navigateToStepSuggestion(BuildContext context) {
     Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => SuggestStepWidget(widget._trip))
-    );
+        MaterialPageRoute(
+            builder: (context) => SuggestStepWidget(widget._trip)));
   }
 
   Future<void> _showDownloadTravelJournalConfirmationDialog(
@@ -261,17 +268,18 @@ class _TimelineWidgetState extends State<TimelineWidget> {
             FlatButton(
               child: Text('OUI'),
               onPressed: () {
-                TripService.getTravelJournal(widget._trip.id).then((bytes) {
-                  FileManager.downloadToLocalDirectory(
-                      bytes, 'journal_voyage_${widget._trip.id}','pdf');
+                FileService.download(
+                        '${BacktripApi.path}/trip/${widget._trip.id}/travelJournal',
+                        'journal_voyage_${widget._trip.id}',
+                        'pdf')
+                    .then((value) {
+                  Components.snackBar(
+                      parentContext,
+                      'Le téléchargement du carnet de voyage a démarré !',
+                      Colors.green);
                 }).catchError((error) {
                   Components.snackBar(parentContext, 'Une erreur est survenue',
                       Theme.of(context).errorColor);
-                }).then((value) {
-                  Components.snackBar(
-                      parentContext,
-                      'Le carnet de voyage est disponible dans vos téléchargements !',
-                      Colors.green);
                 });
                 Navigator.of(context).pop();
               },
