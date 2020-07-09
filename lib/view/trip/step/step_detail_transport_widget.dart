@@ -38,10 +38,10 @@ class StepDetailTransportWidget extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             material.Expanded(
-                flex: 4,
+                flex: 5,
                 child: Text(title, style: Theme.of(context).textTheme.caption)),
             material.Expanded(
-                flex: 6,
+                flex: 5,
                 child: Text(
                   content,
                 ))
