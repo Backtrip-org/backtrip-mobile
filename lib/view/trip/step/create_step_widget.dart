@@ -109,6 +109,12 @@ class _CreateStepState extends State<CreateStepWidget> {
             isActive: true)
       ];
 
+  @override
+  void initState() {
+    nameController.text= widget.suggestedName;
+    super.initState();
+  }
+
   Widget _stepper(BuildContext scaffoldContext) {
     return Stepper(
         currentStep: _currentStep,
@@ -252,7 +258,7 @@ class _CreateStepState extends State<CreateStepWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           TextFormField(
-              controller: nameController..text = widget.suggestedName,
+              controller: nameController,
               inputFormatters: [
                 new LengthLimitingTextInputFormatter(
                     StepModel.Step.nameMaxLength)
