@@ -124,7 +124,8 @@ class _TripInvitationState extends State<TripInvitation> {
   void _inviteUser(BuildContext ctx) {
     if (_formKey.currentState.validate()) {
       TripService.inviteToTrip(_trip.id, _emailController.text.trim())
-          .then((value) {
+          .then((participants) {
+            _trip.participants = participants;
             Navigator.pop(context, true);
       }).catchError((e) {
         if (e is UserNotFoundException || e is UnexpectedException) {

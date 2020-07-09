@@ -217,7 +217,7 @@ class TripService {
     }
   }
 
-  static Future<void> inviteToTrip(int tripId, String email) async {
+  static Future<List<User>> inviteToTrip(int tripId, String email) async {
     var uri = '${BacktripApi.path}/trip/$tripId/invite';
     var header = <String, String>{
       'Content-Type': 'application/json; charset=UTF-8',
@@ -227,10 +227,11 @@ class TripService {
     final response = await http
         .post(uri, headers: header, body: body)
         .timeout(Constants.timeout);
-
-    if (response.statusCode == HttpStatus.badRequest) {
+    if (response.statusCode == HttpStatus.ok) {
+      return compute(parseUsers, response.body);
+    } else if (response.statusCode == HttpStatus.badRequest) {
       throw new UserNotFoundException();
-    } else if (response.statusCode != HttpStatus.noContent) {
+    } else {
       throw new UnexpectedException();
     }
   }
@@ -248,13 +249,13 @@ class TripService {
         .timeout(Constants.timeout);
 
     if (response.statusCode == HttpStatus.ok) {
-      return compute(parseStepParticipants, response.body);
+      return compute(parseUsers, response.body);
     } else {
       throw new UnexpectedException();
     }
   }
 
-  static List<User> parseStepParticipants(String responseBody) {
+  static List<User> parseUsers(String responseBody) {
     Iterable data = json.decode(responseBody);
     return data.map((model) => User.fromJson(model)).toList();
   }
