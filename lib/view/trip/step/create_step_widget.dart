@@ -30,8 +30,9 @@ import 'package:path/path.dart' as path;
 
 class CreateStepWidget extends StatefulWidget {
   final Trip _trip;
+  final String suggestedName;
 
-  CreateStepWidget(this._trip);
+  CreateStepWidget(this._trip, {this.suggestedName = ""});
 
   @override
   _CreateStepState createState() => _CreateStepState(_trip);
@@ -251,7 +252,7 @@ class _CreateStepState extends State<CreateStepWidget> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           TextFormField(
-              controller: nameController,
+              controller: nameController..text = widget.suggestedName,
               inputFormatters: [
                 new LengthLimitingTextInputFormatter(
                     StepModel.Step.nameMaxLength)
@@ -367,6 +368,14 @@ class _CreateStepState extends State<CreateStepWidget> {
     );
   }
 
+  String getInitialStepTypeKey() {
+    if(widget.suggestedName == "") {
+      return _stepsTypes.keys.toList()[0];
+    }
+
+    return "Loisir";
+  }
+
   Widget _stepType() {
     return Container(child: FormField<String>(
       builder: (FormFieldState<String> state) {
@@ -376,7 +385,7 @@ class _CreateStepState extends State<CreateStepWidget> {
           isEmpty: _selectedStepTypeKey == '',
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: _selectedStepTypeKey,
+              value: getInitialStepTypeKey(),
               isDense: true,
               onChanged: (String selectedType) {
                 setState(() {

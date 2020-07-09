@@ -410,6 +410,29 @@ class TripService {
     }
   }
 
+  static Future<List<String>> suggestStep() async {
+    var uri =
+        '${BacktripApi.path}/trip/step/suggest';
+    var header = <String, String>{
+      'Content-Type': 'application/json; charset=UTF-8',
+      HttpHeaders.authorizationHeader: await StoredToken.getToken()
+    };
+    final response = await http
+        .get(uri, headers: header)
+        .timeout(Constants.timeout);
+
+    if (response.statusCode == HttpStatus.ok) {
+      return compute(parseSuggestions, response.body);
+    } else {
+      throw new UnexpectedException();
+    }
+  }
+
+  static List<String> parseSuggestions(String responseBody) {
+    Iterable data = json.decode(responseBody);
+    return data.map((entry) => entry['name'].toString()).toList();
+  }
+
   static Future<Step> leaveStep(int tripId, int stepId, int userId) async {
     var uri = '${BacktripApi.path}/trip/$tripId/step/$stepId/user/$userId/leave';
     var header = <String, String>{
