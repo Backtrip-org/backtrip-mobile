@@ -44,7 +44,7 @@ class StepPeriodWidget extends StatelessWidget {
               ),
               Padding(
                   padding: const EdgeInsets.only(left: 8),
-                  child: Text(DateFormat.yMMMd('fr_FR').format(date),
+                  child: Text(DateFormat('dd MMM y', 'fr_FR').format(date),
                       style: material.Theme.of(context).textTheme.subhead)),
             ],
           )),
