@@ -274,7 +274,7 @@ class _CreateStepState extends State<CreateStepWidget> {
   }
 
   Widget _startStepDateField() {
-    final format = new DateFormat("yyyy-MM-dd HH:mm:ss");
+    final format = new DateFormat("dd MMM yyyy HH:mm:ss", "fr_FR");
     return Container(
       margin: EdgeInsets.symmetric(vertical: 10),
       child: Column(
@@ -299,7 +299,7 @@ class _CreateStepState extends State<CreateStepWidget> {
   }
 
   Widget _endStepDateField() {
-    final format = new DateFormat("yyyy-MM-dd HH:mm:ss");
+    final format = new DateFormat("dd MMM yyyy HH:mm:ss", "fr_FR");
     return Container(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -606,6 +606,7 @@ class _CreateStepState extends State<CreateStepWidget> {
   Future<DateTime> showDateTimePicker(context, currentValue) async {
     final date = await showDatePicker(
         context: context,
+        locale: Locale('fr', 'FR'),
         firstDate: DateTime(DateTime.now().month),
         initialDate: currentValue ?? DateTime.now(),
         lastDate: DateTime(DateTime.now().year + 30));

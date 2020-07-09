@@ -1,6 +1,7 @@
 import 'dart:core';
 
 import 'package:backtrip/model/step/step.dart' as step_model;
+import 'package:backtrip/model/step/step_transport.dart';
 import 'package:backtrip/service/trip_service.dart';
 import 'package:backtrip/view/common/participants_list_widget.dart';
 import 'package:backtrip/view/trip/step/step_detail_widget.dart';
@@ -82,7 +83,9 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
                       Container(
                         child: Column(children: [
                           stepName(),
-                          if (_step.startAddress != null) address(),
+                          if (_step.startAddress != null) address(_step.startAddress.getLongAddress()),
+                          SizedBox(height: 10),
+                          if (_step.hasEndAddress()) address((_step as StepTransport).endAddress.getLongAddress()),
                           participants()
                         ]),
                       ),
@@ -109,7 +112,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
             )));
   }
 
-  Widget address() {
+  Widget address(String address) {
     return Row(children: [
       Icon(
         Icons.place,
@@ -119,7 +122,7 @@ class _TimelineStepWidgetState extends State<TimelineStepWidget> {
       Flexible(
           child: Padding(
               padding: const EdgeInsets.only(left: 10),
-              child: Text(_step.startAddress.getLongAddress(),
+              child: Text(address,
                   style: Theme.of(context).textTheme.subhead)))
     ]);
   }
