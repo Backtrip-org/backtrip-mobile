@@ -53,11 +53,15 @@ class _RefundsDetailsState extends State<RefundsDetails> {
   }
 
   void getRefunds() {
-    futuresOperations = TripService.getTransactionsToBeMade(widget._trip, BacktripApi.currentUser.id);
+    setState(() {
+      futuresOperations = TripService.getTransactionsToBeMade(widget._trip, BacktripApi.currentUser.id);
+    });
   }
 
   void getUserExpenses(Trip trip, int userId) {
-    userExpenses = TripService.getUserExpenses(trip, userId);
+    setState(() {
+      userExpenses = TripService.getUserExpenses(trip, userId);
+    });
   }
 
   void resetChartValues() {
