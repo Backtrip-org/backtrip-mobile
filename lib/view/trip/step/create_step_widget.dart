@@ -73,7 +73,7 @@ class _CreateStepState extends State<CreateStepWidget> {
     "Taxi": StepTransportTaxi.type,
     "Car / Bus": StepTransportBus.type,
   };
-  String _selectedStepTypeKey = _stepsTypes.keys.toList()[0];
+  String _selectedStepTypeKey;
   String _selectedTransportKey = _transportStepsTypes.keys.toList()[0];
   String _selectedStepTypeValue = _stepsTypes.values.toList()[0];
   String _selectedTransportValue = _transportStepsTypes.values.toList()[0];
@@ -111,7 +111,8 @@ class _CreateStepState extends State<CreateStepWidget> {
 
   @override
   void initState() {
-    nameController.text= widget.suggestedName;
+    nameController.text = widget.suggestedName;
+    _selectedStepTypeKey = getInitialStepTypeKey();
     super.initState();
   }
 
@@ -391,7 +392,7 @@ class _CreateStepState extends State<CreateStepWidget> {
           isEmpty: _selectedStepTypeKey == '',
           child: DropdownButtonHideUnderline(
             child: DropdownButton<String>(
-              value: getInitialStepTypeKey(),
+              value: _selectedStepTypeKey,
               isDense: true,
               onChanged: (String selectedType) {
                 setState(() {

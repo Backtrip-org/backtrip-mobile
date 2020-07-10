@@ -29,12 +29,15 @@ class _SuggestStepWidgetState extends State<SuggestStepWidget> {
   }
 
   Widget suggestionBody() {
-    return Column(
-      children: <Widget>[
-        explicativeText(),
-        SizedBox(height: 10),
-        suggestions()
-      ],
+    return SingleChildScrollView(
+      scrollDirection: Axis.vertical,
+      child: Column(
+        children: <Widget>[
+          explicativeText(),
+          SizedBox(height: 10),
+          suggestions()
+        ],
+      ),
     );
   }
 
