@@ -104,13 +104,16 @@ class _SuggestStepWidgetState extends State<SuggestStepWidget> {
   }
 
   void navigateToStepCreation(BuildContext context, String suggestedStepName) {
-    Navigator.pop(context);
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => CreateStepWidget(widget._trip, suggestedName: suggestedStepName)
         )
-    );
+    ).then((step) {
+      if(step != null) {
+        Navigator.pop(context, step);
+      }
+    });
   }
 
   @override
