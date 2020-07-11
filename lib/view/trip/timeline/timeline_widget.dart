@@ -217,16 +217,20 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     }
   }
 
+  void handleReturnFromStepCreation(BuildContext context, dynamic step) {
+    if (step != null) {
+      Components.snackBar(
+          context, "L'étape ${step.name} a bien été créée !", Colors.green);
+      getTimelines();
+    }
+  }
+
   void navigateToStepCreation(BuildContext context) {
     Navigator.push(
         context,
         MaterialPageRoute(
             builder: (context) => CreateStepWidget(widget._trip))).then((step) {
-      if (step != null) {
-        Components.snackBar(
-            context, "L'étape ${step.name} a bien été créée !", Colors.green);
-        getTimelines();
-      }
+      handleReturnFromStepCreation(context, step);
     });
   }
 
@@ -234,7 +238,9 @@ class _TimelineWidgetState extends State<TimelineWidget> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => SuggestStepWidget(widget._trip)));
+            builder: (context) => SuggestStepWidget(widget._trip))).then((step) {
+      handleReturnFromStepCreation(context, step);
+    });
   }
 
   Future<void> _showDownloadTravelJournalConfirmationDialog(
