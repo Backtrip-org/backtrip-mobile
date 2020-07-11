@@ -1,16 +1,11 @@
-# backtrip
+<img src="https://github.com/Backtrip-org/backtrip-mobile/blob/master/assets/images/backtrip-logo.png" width="500">
 
-A new Flutter application.
 
-## Getting Started
+# Bienvenue sur l'application mobile Backtrip !
 
-This project is a starting point for a Flutter application.
 
-A few resources to get you started if this is your first Flutter project:
+Backtrip est une application permettant de gérer tous vos voyages avec vos amis.
 
-- [Lab: Write your first Flutter app](https://flutter.dev/docs/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://flutter.dev/docs/cookbook)
+Profitez de Backtrip pour bien vous organiser durant vos voyages. Mettez-y vos plannings de groupes et personnel ainsi que tous vos documents liés à vos activités pour ne rien oublier. Gérez l'intégralité des dépenses du groupe sans vous soucier de la comptabilité. 
 
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+Consultez notre [wiki](https://github.com/Backtrip-org/backtrip-mobile/wiki) pour plus d'informations !
